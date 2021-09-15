@@ -1,0 +1,30 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+EXTRA_JS_MODULES.addons += [
+    'AddonLogging.jsm',
+    'AddonRepository.jsm',
+    'AddonRepository_SQLiteMigrator.jsm',
+    'Content.js',
+    'GMPProvider.jsm',
+    'LightweightThemeImageOptimizer.jsm',
+    'PluginProvider.jsm',
+    'ProductAddonChecker.jsm',
+    'SpellCheckDictionaryBootstrap.js',
+]
+
+EXTRA_PP_JS_MODULES.addons += [
+    'AddonUpdateChecker.jsm',
+    'XPIProvider.jsm',
+    'XPIProviderUtils.js',
+]
+
+# This is used in multiple places, so is defined here to avoid it getting
+# out of sync.
+DEFINES['MOZ_EXTENSIONS_DB_SCHEMA'] = 16
+
+# Additional debugging info is exposed in debug builds
+if CONFIG['MOZ_EM_DEBUG']:
+    DEFINES['MOZ_EM_DEBUG'] = 1
