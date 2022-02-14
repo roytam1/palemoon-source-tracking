@@ -1,6 +1,6 @@
 # Code contribution guidelines
 
-To make sure code changes remain easy to organize, find and troubleshoot, please use the following guidelines when contributing code to the Pale Moon project (and UXP). These guidelines may, for some of you, sound tedious or more work than you'd prefer to put in, but keep in mind that a single paragraph of explanation with a code commit can save hours of work later on, and code comments can save your hide when trying to debug or improve code.
+To make sure code changes remain easy to organize, find and troubleshoot, please use the following guidelines when contributing code to the Pale Moon project (and GRE). These guidelines may, for some of you, sound tedious or more work than you'd prefer to put in, but keep in mind that a single paragraph of explanation with a code commit can save hours of work later on, and code comments can save your hide when trying to debug or improve code.
 
 ## General guideline for issues
 
@@ -39,7 +39,7 @@ For META issues it is important that discussion about specific implementation pa
 
 ## General guideline for submitting pull requests
 
-Most of our code changes will likely be submitted by collaborators from our community. This will be ported from other projects (e.g. Mozilla-based code) or new implementations, or a mix. The standard way of getting your code into Pale Moon or UXP is by way of creating a pull request against the master branch (trunk).
+Most of our code changes will likely be submitted by collaborators from our community. This will be ported from other projects (e.g. Mozilla-based code) or new implementations, or a mix. The standard way of getting your code into Pale Moon or GRE is by way of creating a pull request against the master branch (trunk).
 
 A good pull request will:
 - **Have an issue associated with it!** Even though GitHub offers very similar tools for PRs as it does for issues, any reasoning behind code commits in a PR have to be explained in an accompanying issue.

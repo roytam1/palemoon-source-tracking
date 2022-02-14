@@ -1,4 +1,4 @@
-﻿# UXP Coding Style Guide
+﻿# GRE Coding Style Guide
 While our source tree is currently in a number of different Coding Styles and the general rule applies to adhere to style of surrounding code when you are making changes, it is our goal to unify the style of our source tree and making it adhere to a single style.
 This document describes the preferred style for new source code files and the preferred style to convert existing files to.
 
