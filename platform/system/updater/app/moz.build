@@ -52,6 +52,8 @@ elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
   CXXFLAGS += CONFIG['TK_CFLAGS']
   OS_LIBS += CONFIG['TK_LIBS']
 
+  SOURCES += 'progressui_gtk.cpp'
+
   if CONFIG['MOZ_VERIFY_MAR_SIGNATURE']:
     USE_LIBS += [
       'nss',
@@ -59,6 +61,8 @@ elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     ]
 
     OS_LIBS += CONFIG['NSPR_LIBS']
+
+    FINAL_TARGET_FILES.icons += ['updater.png']
 else:
   SOURCES += ['progressui_null.cpp']
 
@@ -92,9 +96,6 @@ else:
 DISABLE_STL_WRAPPING = True
 
 CXXFLAGS += CONFIG['MOZ_BZ2_CFLAGS']
-
-if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
-  FINAL_TARGET_FILES.icons += ['updater.png']
 
 # =============================================================================
 
