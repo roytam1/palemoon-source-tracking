@@ -131,7 +131,7 @@ public:
     }
 
     // state-modification functions
-    nsresult getNextInstruction(txInstruction* aInstruction);
+    txInstruction* getNextInstruction();
     nsresult runTemplate(txInstruction* aInstruction);
     nsresult runTemplate(txInstruction* aInstruction,
                          txInstruction* aReturnTo);
@@ -140,7 +140,6 @@ public:
     nsresult bindVariable(const txExpandedName& aName,
                           txAExprResult* aValue);
     void removeVariable(const txExpandedName& aName);
-    void stopProcessing() { mStopProcessing = true; }
 
     txAXMLEventHandler* mOutputHandler;
     txAXMLEventHandler* mResultHandler;
@@ -175,7 +174,6 @@ private:
     txKeyHash mKeyHash;
     RefPtr<txResultRecycler> mRecycler;
     bool mDisableLoads;
-    bool mStopProcessing = false;
 
     static const int32_t kMaxRecursionDepth;
 };

@@ -653,69 +653,6 @@ txMozillaXSLTProcessor::TransformToDocument(nsIDOMNode *aSource,
     return TransformToDoc(aResult, true);
 }
 
-class XSLTProcessRequest final : public nsIRequest {
- public:
-  explicit XSLTProcessRequest(txExecutionState* aState) : mState(aState) {}
-
-  NS_DECL_ISUPPORTS
-  NS_DECL_NSIREQUEST
-
-  void Done() { mState = nullptr; }
-
- private:
-  ~XSLTProcessRequest() {}
-  txExecutionState* mState;
-};
-NS_IMPL_ISUPPORTS(XSLTProcessRequest, nsIRequest)
-
-NS_IMETHODIMP
-XSLTProcessRequest::GetName(nsACString& aResult) {
-  aResult.AssignLiteral("about:xslt-load-blocker");
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::IsPending(bool* _retval) {
-  *_retval = true;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::GetStatus(nsresult* status) {
-  *status = NS_OK;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::Cancel(nsresult status) {
-  mState->stopProcessing();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::Suspend(void) { return NS_OK; }
-
-NS_IMETHODIMP
-XSLTProcessRequest::Resume(void) { return NS_OK; }
-
-NS_IMETHODIMP
-XSLTProcessRequest::GetLoadGroup(nsILoadGroup** aLoadGroup) {
-  *aLoadGroup = nullptr;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::SetLoadGroup(nsILoadGroup* aLoadGroup) { return NS_OK; }
-
-NS_IMETHODIMP
-XSLTProcessRequest::GetLoadFlags(nsLoadFlags* aLoadFlags) {
-  *aLoadFlags = nsIRequest::LOAD_NORMAL;
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-XSLTProcessRequest::SetLoadFlags(nsLoadFlags aLoadFlags) { return NS_OK; }
-
 nsresult
 txMozillaXSLTProcessor::TransformToDoc(nsIDOMDocument **aResult,
                                        bool aCreateDataDocument)
@@ -728,25 +665,6 @@ txMozillaXSLTProcessor::TransformToDoc(nsIDOMDocument **aResult,
     nsCOMPtr<nsIDOMDocument> sourceDOMDocument = do_QueryInterface(mSource->OwnerDoc());
 
     txExecutionState es(mStylesheet, IsLoadDisabled());
-
-    nsIDocument* sourceDoc = mSource->OwnerDoc();
-    nsCOMPtr<nsILoadGroup> loadGroup = sourceDoc->GetDocumentLoadGroup();
-    if (!loadGroup) {
-      nsCOMPtr<nsPIDOMWindowInner> win = do_QueryInterface(mOwner);
-      if (win && win->IsCurrentInnerWindow()) {
-        nsIDocument* doc = win->GetDoc();
-        if (doc) {
-          loadGroup = doc->GetDocumentLoadGroup();
-        }
-      }
-
-      if (!loadGroup) {
-        return NS_ERROR_FAILURE;
-      }
-    }
-
-    RefPtr<XSLTProcessRequest> xsltProcessRequest = new XSLTProcessRequest(&es);
-    loadGroup->AddRequest(xsltProcessRequest, nullptr);
 
     // XXX Need to add error observers
 
@@ -761,9 +679,6 @@ txMozillaXSLTProcessor::TransformToDoc(nsIDOMDocument **aResult,
     if (NS_SUCCEEDED(rv)) {
         rv = txXSLTProcessor::execute(es);
     }
-
-    xsltProcessRequest->Done();
-    loadGroup->RemoveRequest(xsltProcessRequest, nullptr, NS_OK);
 
     nsresult endRv = es.end(rv);
     if (NS_SUCCEEDED(rv)) {
