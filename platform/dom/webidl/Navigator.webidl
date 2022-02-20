@@ -304,13 +304,6 @@ partial interface Navigator {
   readonly attribute LegacyMozTCPSocket mozTCPSocket;
 };
 
-#ifdef NIGHTLY_BUILD
-partial interface Navigator {
-  [Func="Navigator::IsE10sEnabled"]
-  readonly attribute boolean mozE10sEnabled;
-};
-#endif
-
 [NoInterfaceObject, Exposed=(Window,Worker)]
 interface NavigatorConcurrentHardware {
   readonly attribute unsigned long long hardwareConcurrency;
