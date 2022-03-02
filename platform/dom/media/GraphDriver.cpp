@@ -28,11 +28,6 @@ StaticRefPtr<nsIThreadPool> AsyncCubebTask::sThreadPool;
 
 struct AutoProfilerUnregisterThread
 {
-  // The empty ctor is used to silence a pre-4.8.0 GCC unused variable warning.
-  AutoProfilerUnregisterThread()
-  {
-  }
-
   ~AutoProfilerUnregisterThread()
   {
     profiler_unregister_thread();
