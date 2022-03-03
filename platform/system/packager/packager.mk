@@ -6,9 +6,6 @@
 
 libs:: stage-package
 
-install::
-	$(error "make install" is no longer supported on any target operating system. Use "make package" instead)
-
 ifeq ($(OS_ARCH),WINNT)
 ifndef MAKENSISU
 installer::
@@ -18,8 +15,6 @@ else
 installer::
 	$(error "make installer" only supports Windows at this time)
 endif
-
-# ---------------------------------------------------------------------------------------------------------------------
 
 # Handle the package manifest(s) if it is used
 ifdef MOZ_PKG_MANIFEST_P
@@ -59,6 +54,31 @@ stage-package: $(MOZ_PKG_MANIFEST) json-metadata
 		$(if $(filter omni,$(MOZ_PACKAGER_FORMAT)),$(if $(NON_OMNIJAR_FILES),--non-resource $(NON_OMNIJAR_FILES)))
 	$(PYTHON) $(MOZINST_PATH)/find-dupes.py $(DIST)/$(PKG_STAGE_DIR)
 	@(cd $(DIST)/$(PKG_STAGE_DIR) && $(CREATE_PRECOMPLETE_CMD))
+
+# ---------------------------------------------------------------------------------------------------------------------
+
+# Install the application to the local system
+install::
+ifeq ($(OS_ARCH),WINNT)
+ifeq (,$(wildcard $(DIST)/$(PKG_INSTALLER_FILENAME)))
+	$(error You need to run "make installer" first)
+endif
+	@echo 'Starting the application installer...'
+	start $(DIST)/$(PKG_INSTALLER_FILENAME)
+	@echo 'Please complete installation wizard.'
+else
+	# XXXTobin: We should not be using MOZ_APP_NAME and MOZ_APP_VERSION with this but the package forms.
+	# However, that could cause issues and requires further testing. For now just do it more or less the same
+	# as mozinstaller.
+	$(MAKE) stage-package
+	@echo 'Installing application files to $(DESTDIR)$(installdir)...'
+	$(NSINSTALL) -D $(DESTDIR)$(installdir)
+	@$(TOOLCHAIN_PREFIX)cp -rv $(DIST)/$(PKG_STAGE_DIR)/* $(DESTDIR)$(installdir)
+	$(NSINSTALL) -D $(DESTDIR)$(bindir)
+	@$(RM) -f $(DESTDIR)$(bindir)/$(MOZ_APP_NAME)
+	$(TOOLCHAIN_PREFIX)ln -sv $(installdir)/$(MOZ_APP_NAME) $(DESTDIR)$(bindir)
+	@echo 'To run the installed application, execute: ./$(DESTDIR)$(bindir)/$(MOZ_APP_NAME) .'
+endif
 
 # ---------------------------------------------------------------------------------------------------------------------
 
