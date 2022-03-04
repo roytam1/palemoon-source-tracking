@@ -11,6 +11,7 @@
 #include "nsIAddonInterposition.h"
 #include "xpcprivate.h"
 #include "mozilla/dom/BindingUtils.h"
+#include "mozilla/jsipc/CrossProcessObjectWrappers.h"
 #include "nsGlobalWindow.h"
 
 #include "GeckoProfiler.h"
@@ -19,6 +20,7 @@
 
 using namespace js;
 using namespace JS;
+using namespace mozilla;
 
 namespace xpc {
 

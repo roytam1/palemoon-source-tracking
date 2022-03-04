@@ -48,6 +48,7 @@
 #include "mozilla/DeferredFinalize.h"
 
 using namespace mozilla;
+using namespace mozilla::dom;
 using namespace JS;
 using namespace xpc;
 

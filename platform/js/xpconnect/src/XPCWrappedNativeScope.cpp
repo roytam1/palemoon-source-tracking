@@ -14,6 +14,7 @@
 #include "mozilla/Preferences.h"
 #include "nsIAddonInterposition.h"
 #include "nsIXULRuntime.h"
+#include "AccessCheck.h"
 
 #include "mozilla/dom/BindingUtils.h"
 

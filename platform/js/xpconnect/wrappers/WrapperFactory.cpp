@@ -442,40 +442,28 @@ WrapperFactory::Rewrap(JSContext* cx, HandleObject existing, HandleObject obj)
     // First, handle the special cases.
     //
 
-    // If UniversalXPConnect is enabled, this is just some dumb mochitest. Use
-    // a vanilla CCW.
     if (xpc::IsUniversalXPConnectEnabled(target)) {
+        // If UniversalXPConnect is enabled, this is just some dumb mochitest. Use
+        // a vanilla CCW.
         CrashIfNotInAutomation();
         wrapper = &CrossCompartmentWrapper::singleton;
-    }
-
-    // Let the SpecialPowers scope make its stuff easily accessible to content.
-    else if (CompartmentPrivate::Get(origin)->forcePermissiveCOWs) {
+    } else if (CompartmentPrivate::Get(origin)->forcePermissiveCOWs) {
+        // Let the SpecialPowers scope make its stuff easily accessible to content.
         CrashIfNotInAutomation();
         wrapper = &CrossCompartmentWrapper::singleton;
-    }
-
-    // Special handling for chrome objects being exposed to content.
-    else if (originIsChrome && !targetIsChrome) {
-        // If this is a chrome function being exposed to content, we need to allow
-        // call (but nothing else). We allow CPOWs that purport to be function's
-        // here, but only in the content process.
-        if ((IdentifyStandardInstance(obj) == JSProto_Function ||
-            (jsipc::IsCPOW(obj) && JS::IsCallable(obj) &&
-             XRE_IsContentProcess())))
-        {
+    } else if (originIsChrome && !targetIsChrome) {
+        // Special handling for chrome objects being exposed to content.
+        if (IdentifyStandardInstance(obj) == JSProto_Function) {
+            // If this is a chrome function being exposed to content, we need to allow
+            // call (but nothing else).
             wrapper = &FilteringWrapper<CrossCompartmentSecurityWrapper, OpaqueWithCall>::singleton;
-        }
-
-        // For Vanilla JSObjects exposed from chrome to content, we use a wrapper
-        // that supports __exposedProps__. We'd like to get rid of these eventually,
-        // but in their current form they don't cause much trouble.
-        else if (IdentifyStandardInstance(obj) == JSProto_Object) {
+        } else if (IdentifyStandardInstance(obj) == JSProto_Object) {
+            // For Vanilla JSObjects exposed from chrome to content, we use a wrapper
+            // that supports __exposedProps__. We'd like to get rid of these eventually,
+            // but in their current form they don't cause much trouble.
             wrapper = &ChromeObjectWrapper::singleton;
-        }
-
-        // Otherwise we get an opaque wrapper.
-        else {
+        } else {
+            // Otherwise we get an opaque wrapper.
             wrapper = &FilteringWrapper<CrossCompartmentSecurityWrapper, Opaque>::singleton;
         }
     }

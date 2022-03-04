@@ -13,6 +13,7 @@
 #include "nsIAddonInterposition.h"
 #include "AddonWrapper.h"
 #include "js/Class.h"
+#include "nsContentUtils.h"
 
 using namespace mozilla;
 using namespace JS;

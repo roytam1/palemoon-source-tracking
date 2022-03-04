@@ -12,6 +12,7 @@
 
 using namespace JS;
 using namespace js;
+using namespace mozilla;
 
 namespace xpc {
 

@@ -37,6 +37,7 @@ NS_IMPL_RELEASE(BackstagePass)
                             nsIXPCScriptable::DONT_ENUM_QUERY_INTERFACE    |  \
                             nsIXPCScriptable::IS_GLOBAL_OBJECT             |  \
                             nsIXPCScriptable::DONT_REFLECT_INTERFACE_NAMES
+#include "xpc_make_class.h"
 #include "xpc_map_end.h" /* This will #undef the above */
 
 

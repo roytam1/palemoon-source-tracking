@@ -11,11 +11,12 @@ EXPORTS += [
     'xpcpublic.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'ExportHelpers.cpp',
     'nsXPConnect.cpp',
     'Sandbox.cpp',
     'XPCCallContext.cpp',
+    'XPCComponents.cpp',
     'XPCConvert.cpp',
     'XPCDebug.cpp',
     'XPCException.cpp',
@@ -39,11 +40,6 @@ UNIFIED_SOURCES += [
     'XPCWrappedNativeProto.cpp',
     'XPCWrappedNativeScope.cpp',
     'XPCWrapper.cpp',
-]
-
-# XPCComponents.cpp cannot be built in unified mode because it uses plarena.h.
-SOURCES += [
-    'XPCComponents.cpp',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')

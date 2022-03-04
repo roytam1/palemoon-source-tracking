@@ -22,6 +22,7 @@
 #include "xpcpublic.h"
 
 using namespace JS;
+using namespace mozilla;
 using mozilla::dom::EncodingUtils;
 
 /**
