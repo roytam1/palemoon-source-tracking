@@ -7,7 +7,7 @@ GeckoProgram('gdb-tests', linkage=None)
 
 include('../js-cxxflags.mozbuild')
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'gdb-tests.cpp',
     'tests/test-asmjs.cpp',
     'tests/test-ExecutableAllocator.cpp',
