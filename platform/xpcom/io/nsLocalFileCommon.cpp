@@ -11,6 +11,7 @@
 #include "nsCOMPtr.h"
 #include "nsReadableUtils.h"
 #include "nsPrintfCString.h"
+#include "nsTArray.h"
 #include "nsCRT.h"
 #include "nsNativeCharsetUtils.h"
 #include "nsUTF8Utils.h"

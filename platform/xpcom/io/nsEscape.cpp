@@ -11,6 +11,8 @@
 #include "nsCRT.h"
 #include "plstr.h"
 
+using namespace mozilla;
+
 static const char hexCharsUpper[] = "0123456789ABCDEF";
 static const char hexCharsUpperLower[] = "0123456789ABCDEFabcdef";
 

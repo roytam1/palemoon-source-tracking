@@ -23,6 +23,7 @@
 #include "mozilla/ipc/InputStreamUtils.h"
 #include "nsIIPCSerializableInputStream.h"
 
+using namespace mozilla;
 using namespace mozilla::ipc;
 using mozilla::Maybe;
 using mozilla::Some;

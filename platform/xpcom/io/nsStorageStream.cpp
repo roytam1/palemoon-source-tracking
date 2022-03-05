@@ -26,6 +26,7 @@
 #include "mozilla/MathAlgorithms.h"
 #include "mozilla/ipc/InputStreamUtils.h"
 
+using namespace mozilla;
 using mozilla::ipc::InputStreamParams;
 using mozilla::ipc::StringInputStreamParams;
 using mozilla::Maybe;

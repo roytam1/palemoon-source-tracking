@@ -24,6 +24,7 @@
 #include "nsISupportsPrimitives.h"
 
 #include "mozilla/Preferences.h"
+#include "mozilla/Services.h"
 
 #ifdef XP_WIN
 #include <windows.h>

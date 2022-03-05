@@ -10,6 +10,8 @@
 #include "mozilla/Move.h"
 #include "js/Debug.h"
 
+using namespace mozilla::dom;
+
 namespace mozilla {
 
 /* static */ nsresult

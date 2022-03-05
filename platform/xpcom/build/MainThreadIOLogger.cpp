@@ -12,6 +12,7 @@
 #include "mozilla/TimeStamp.h"
 #include "nsAutoPtr.h"
 #include "nsNativeCharsetUtils.h"
+#include "nsString.h"
 
 /**
  * This code uses NSPR stuff and STL containers because it must be detached
@@ -22,6 +23,8 @@
 #include <prprf.h>
 #include <prthread.h>
 #include <vector>
+
+using namespace mozilla;
 
 namespace {
 

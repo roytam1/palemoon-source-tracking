@@ -36,15 +36,17 @@ else:
 
 include('../glue/objs.mozbuild')
 
-UNIFIED_SOURCES += xpcom_gluens_src_cppsrcs
-UNIFIED_SOURCES += xpcom_glue_src_cppsrcs
+SOURCES += xpcom_gluens_src_cppsrcs
+SOURCES += xpcom_glue_src_cppsrcs
 
-UNIFIED_SOURCES += [
+SOURCES += [
+    'FileLocation.cpp',
     'FrozenFunctions.cpp',
     'IOInterposer.cpp',
     'LateWriteChecks.cpp',
     'MainThreadIOLogger.cpp',
     'nsXPCOMStrings.cpp',
+    'Omnijar.cpp',
     'Services.cpp',
     'XPCOMInit.cpp',
 ]
@@ -53,13 +55,6 @@ if CONFIG['OS_ARCH'] != 'WINNT':
     SOURCES += [
         'NSPRInterposer.cpp',
     ]
-
-# FileLocation.cpp and Omnijar.cpp cannot be built in unified mode because they
-# use plarena.h.
-SOURCES += [
-    'FileLocation.cpp',
-    'Omnijar.cpp',
-]
 
 include('/ipc/chromium/chromium-config.mozbuild')
 

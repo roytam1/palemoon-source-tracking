@@ -25,16 +25,10 @@ EXPORTS.mozilla += [
     'ModuleUtils.h',
 ]
 
-# nsCategoryManager.cpp and nsComponentManager.cpp cannot be built in
-# unified mode because they use thea PL_ARENA_CONST_ALIGN_MASK macro
-# with plarena.h.
 SOURCES += [
+    'ManifestParser.cpp',
     'nsCategoryManager.cpp',
     'nsComponentManager.cpp',
-]
-
-UNIFIED_SOURCES += [
-    'ManifestParser.cpp',
     'nsNativeModuleLoader.cpp',
 ]
 

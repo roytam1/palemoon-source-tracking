@@ -38,6 +38,7 @@
 #endif
 
 using namespace mozilla;
+using namespace mozilla::dom;
 
 #if defined(MOZ_MEMORY)
 #  define HAVE_JEMALLOC_STATS 1

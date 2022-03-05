@@ -27,6 +27,8 @@
 #include <unistd.h>
 #endif
 
+#include "base/process_util.h"
+
 // NB: Initial amount determined by auditing the codebase for the total amount
 //     of unique module names and padding up to the next power of 2.
 const uint32_t kInitialModuleCount = 256;
@@ -133,9 +135,9 @@ ExpandPIDMarker(const char* aFilename, char (&buffer)[2048])
   static const char kPIDToken[] = "%PID";
   const char* pidTokenPtr = strstr(aFilename, kPIDToken);
   if (pidTokenPtr &&
-    SprintfLiteral(buffer, "%.*s%s%d%s",
+    SprintfLiteral(buffer, "%.*s%s%s",
                    static_cast<int>(pidTokenPtr - aFilename), aFilename,
-                   XRE_IsParentProcess() ? "-main." : "-child.",
+                   "-main.",
                    base::GetCurrentProcId(),
                    pidTokenPtr + strlen(kPIDToken)) > 0)
   {

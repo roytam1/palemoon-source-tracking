@@ -48,6 +48,8 @@
 
 #include "prthread.h"
 
+using namespace mozilla;
+
 // We use a spin lock instead of a regular mutex because this lock is usually
 // only held for a very short time, and gets grabbed at a very high frequency
 // (~100000 times per second). On Mac, the overhead of using a regular lock

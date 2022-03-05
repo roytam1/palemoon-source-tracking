@@ -66,7 +66,7 @@ EXPORTS.mozilla += [
     'Tokenizer.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'IncrementalTokenizer.cpp',
     'nsArray.cpp',
     'nsAtomService.cpp',
@@ -76,20 +76,15 @@ UNIFIED_SOURCES += [
     'nsINIParserImpl.cpp',
     'nsObserverList.cpp',
     'nsObserverService.cpp',
+    'nsPersistentProperties.cpp',
     'nsProperties.cpp',
+    'nsStaticNameTable.cpp',
     'nsStringEnumerator.cpp',
     'nsSupportsArray.cpp',
     'nsSupportsArrayEnumerator.cpp',
     'nsSupportsPrimitives.cpp',
     'nsVariant.cpp',
     'Tokenizer.cpp',
-]
-
-# These two files cannot be built in unified mode because they use the
-# PL_ARENA_CONST_ALIGN_MASK macro with plarena.h.
-SOURCES += [
-    'nsPersistentProperties.cpp',
-    'nsStaticNameTable.cpp',
 ]
 
 EXTRA_COMPONENTS += [

@@ -14,6 +14,8 @@
 #include "mozilla/Mutex.h"
 
 #include "nsInterfaceHashtable.h"
+#include "nsIObserver.h"
+#include "nsIObserverService.h"
 #include "nsHashKeys.h"
 
 #include "nsIConsoleService.h"

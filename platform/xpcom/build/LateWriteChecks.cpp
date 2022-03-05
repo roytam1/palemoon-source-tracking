@@ -4,6 +4,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include <algorithm>
+#include <vector>
 
 #include "mozilla/IOInterposer.h"
 #include "mozilla/PoisonIOInterposer.h"
