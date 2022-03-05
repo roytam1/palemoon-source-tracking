@@ -37,7 +37,7 @@ EXPORTS += [
     'string-template-undef.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'nsDependentString.cpp',
     'nsDependentSubstring.cpp',
     'nsPromiseFlatString.cpp',

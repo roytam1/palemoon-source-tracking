@@ -29,6 +29,7 @@
 #include "mozilla/ipc/BackgroundChild.h"
 #include "mozilla/Services.h"
 #include "nsXPCOMPrivate.h"
+#include "nsComponentManagerUtils.h"
 #include "mozilla/ChaosMode.h"
 #include "mozilla/TimeStamp.h"
 #include "mozilla/Unused.h"

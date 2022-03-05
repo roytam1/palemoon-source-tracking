@@ -8,8 +8,12 @@
 #include "mozilla/Atomics.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/Mutex.h"
+#include "mozilla/Services.h"
 #include "mozilla/Unused.h"
 #include "nsEventQueue.h"
+#include "nsIObserver.h"
+#include "nsIObserverService.h"
+#include "nsThreadUtils.h"
 
 namespace mozilla {
 

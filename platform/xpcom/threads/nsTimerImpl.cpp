@@ -13,6 +13,7 @@
 #include "mozilla/Atomics.h"
 #include "mozilla/IntegerPrintfMacros.h"
 #include "mozilla/Logging.h"
+
 #ifdef MOZ_TASK_TRACER
 #include "GeckoTaskTracerImpl.h"
 using namespace mozilla::tasktracer;
@@ -27,6 +28,7 @@ using namespace mozilla::tasktracer;
 #include <unistd.h>
 #endif
 
+using namespace mozilla;
 using mozilla::Atomic;
 using mozilla::LogLevel;
 using mozilla::TimeDuration;

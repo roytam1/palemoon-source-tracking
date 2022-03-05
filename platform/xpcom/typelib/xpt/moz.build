@@ -7,7 +7,7 @@ Library('xpt')
 
 DIRS += ['tools']
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'xpt_arena.cpp',
     'xpt_struct.cpp',
     'xpt_xdr.cpp',

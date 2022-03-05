@@ -3,7 +3,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'Helpers.cpp',
     'TestAtoms.cpp',
     'TestAutoPtr.cpp',
@@ -49,18 +49,18 @@ UNIFIED_SOURCES += [
 
 if CONFIG['MOZ_DEBUG'] and CONFIG['OS_ARCH'] not in ('WINNT'):
     # FIXME bug 523392: TestDeadlockDetector doesn't like Windows
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'TestDeadlockDetector.cpp',
         'TestDeadlockDetectorScalability.cpp',
     ]
 
 if CONFIG['OS_TARGET'] == 'WINNT':
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'TestFilePreferencesWin.cpp',
     ]
 
 if CONFIG['WRAP_STL_INCLUDES'] and not CONFIG['CLANG_CL']:
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'TestSTLWrappers.cpp',
     ]
 

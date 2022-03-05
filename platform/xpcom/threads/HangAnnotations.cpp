@@ -7,8 +7,10 @@
 
 #include <vector>
 
+#include "BackgroundHangMonitor.h"
 #include "MainThreadUtils.h"
 #include "mozilla/DebugOnly.h"
+#include "mozilla/StaticPtr.h"
 #include "nsXULAppAPI.h"
 
 namespace mozilla {

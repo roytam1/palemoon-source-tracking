@@ -5,6 +5,7 @@
 
 #include "mozilla/CheckedInt.h"
 #include "mozilla/double-conversion.h"
+#include "mozilla/MathAlgorithms.h"
 #include "mozilla/MemoryReporting.h"
 
 using double_conversion::DoubleToStringConverter;
