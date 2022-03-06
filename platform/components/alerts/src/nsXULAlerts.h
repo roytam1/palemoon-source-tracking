@@ -9,6 +9,8 @@
 #include "nsCycleCollectionParticipant.h"
 #include "nsDataHashtable.h"
 #include "nsHashKeys.h"
+#include "nsTArray.h"
+#include "nsIAlertsService.h"
 #include "nsInterfaceHashtable.h"
 
 #include "mozIDOMWindow.h"

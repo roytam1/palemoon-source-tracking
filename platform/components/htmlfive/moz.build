@@ -3,10 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# Because this is largely done by codegen the policies regarding the
-# traditional structure and reverting UNIFIED_SOURCES are hereby rescinded
-# for this component.
-
 XPIDL_SOURCES += [
     'nsIParserUtils.idl',
     'nsIScriptableUnescapeHTML.idl',
@@ -59,7 +55,7 @@ EXPORTS += [
     'nsParserUtils.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'nsHtml5Atom.cpp',
     'nsHtml5Atoms.cpp',
     'nsHtml5AtomTable.cpp',

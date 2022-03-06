@@ -13,7 +13,7 @@ XPIDL_SOURCES += [
   'public/nsIPermissionManager.idl',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
   'src/nsContentBlocker.cpp',
   'src/nsCookiePermission.cpp',
   'src/nsCookiePromptService.cpp',

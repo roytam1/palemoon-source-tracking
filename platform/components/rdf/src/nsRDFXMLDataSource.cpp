@@ -100,6 +100,8 @@
 
 #include "rdfIDataSource.h"
 
+using namespace mozilla;
+
 //----------------------------------------------------------------------
 //
 // RDFXMLDataSourceImpl

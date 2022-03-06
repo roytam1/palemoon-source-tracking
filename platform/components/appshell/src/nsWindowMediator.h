@@ -13,6 +13,7 @@
 #include "nsXPIDLString.h"
 #include "nsWeakReference.h"
 #include "nsCOMArray.h"
+#include "nsPIDOMWindow.h"
 
 class nsAppShellWindowEnumerator;
 class nsASXULWindowEarlyToLateEnumerator;

@@ -12,7 +12,7 @@ EXPORTS.mozilla += [
     'src/AlertNotificationIPCSerializer.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'src/AlertNotification.cpp',
     'src/nsAlertsService.cpp',
     'src/nsAlertsUtils.cpp',

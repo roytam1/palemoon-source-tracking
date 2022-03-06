@@ -10,6 +10,8 @@
 #include "mozilla/Likely.h"
 #include "mozilla/UniquePtr.h"
 
+using namespace mozilla;
+
 nsHtml5TreeBuilder::nsHtml5TreeBuilder(nsHtml5OplessBuilder* aBuilder)
   : scriptingEnabled(false)
   , fragment(false)

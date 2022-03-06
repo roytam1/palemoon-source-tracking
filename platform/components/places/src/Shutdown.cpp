@@ -3,6 +3,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 #include "Shutdown.h"
+
+#include "nsComponentManagerUtils.h"
+#include "nsIObserverService.h"
+#include "nsIWritablePropertyBag2.h"
+#include "nsVariant.h"
+#include "mozilla/Services.h"
 #include "mozilla/Unused.h"
 
 namespace mozilla {

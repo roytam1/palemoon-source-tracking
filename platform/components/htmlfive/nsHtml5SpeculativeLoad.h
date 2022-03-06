@@ -7,6 +7,8 @@
 
 #include "nsString.h"
 #include "nsContentUtils.h"
+#include "nsHtml5String.h"
+#include "nsHtml5DocumentMode.h"
 
 class nsHtml5TreeOpExecutor;
 

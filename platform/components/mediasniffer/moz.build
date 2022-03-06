@@ -5,7 +5,7 @@
 
 EXPORTS += ['nsMediaSniffer.h']
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'mp3sniff.c',
     'nsMediaSniffer.cpp',
     'nsMediaSnifferModule.cpp',

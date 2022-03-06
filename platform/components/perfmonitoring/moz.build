@@ -11,7 +11,7 @@ EXPORTS += ['nsPerformanceStats.h']
 
 LOCAL_INCLUDES += ['/dom/base']
 
-UNIFIED_SOURCES += ['nsPerformanceStats.cpp']
+SOURCES += ['nsPerformanceStats.cpp']
 
 EXTRA_JS_MODULES += [
     'AddonWatcher.jsm',

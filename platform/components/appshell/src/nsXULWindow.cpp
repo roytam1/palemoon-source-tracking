@@ -63,6 +63,7 @@
 #include "mozilla/dom/TabParent.h"
 
 using namespace mozilla;
+using namespace mozilla::dom;
 using dom::AutoNoJSAPI;
 
 #define SIZEMODE_NORMAL     NS_LITERAL_STRING("normal")

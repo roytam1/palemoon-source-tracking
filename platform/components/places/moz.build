@@ -27,7 +27,7 @@ if CONFIG['MOZ_PLACES']:
         'src/History.h',
     ]
 
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'src/Database.cpp',
         'src/FaviconHelpers.cpp',
         'src/Helpers.cpp',

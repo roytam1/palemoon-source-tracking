@@ -7,6 +7,7 @@
 
 #include "nsAnnoProtocolHandler.h"
 #include "nsAnnotationService.h"
+#include "nsIPrincipal.h"
 #include "nsNavHistory.h"
 #include "nsNavBookmarks.h"
 #include "nsFaviconService.h"

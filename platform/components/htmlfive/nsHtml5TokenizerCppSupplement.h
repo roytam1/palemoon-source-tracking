@@ -4,6 +4,8 @@
 
 #include "mozilla/Likely.h"
 
+using namespace mozilla;
+
 // INT32_MAX is (2^31)-1. Therefore, the highest power-of-two that fits
 // is 2^30. Note that this is counting char16_t units. The underlying
 // bytes will be twice that, but they fit even in 32-bit size_t even
