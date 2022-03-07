@@ -240,6 +240,7 @@ SOURCES += [
     'DOMError.cpp',
     'DOMException.cpp',
     'DOMImplementation.cpp',
+    'DOMIntersectionObserver.cpp',
     'DOMMatrix.cpp',
     'DOMParser.cpp',
     'DOMPoint.cpp',
@@ -279,6 +280,7 @@ SOURCES += [
     'nsContentPermissionHelper.cpp',
     'nsContentPolicy.cpp',
     'nsContentSink.cpp',
+    'nsContentUtils.cpp',
     'nsCopySupport.cpp',
     'nsDataDocumentContentPolicy.cpp',
     'nsDocument.cpp',
@@ -291,17 +293,21 @@ SOURCES += [
     'nsDOMSerializer.cpp',
     'nsDOMTokenList.cpp',
     'nsDOMWindowList.cpp',
+    'nsDOMWindowUtils.cpp',
     'nsFocusManager.cpp',
     'nsFrameLoader.cpp',
+    'nsFrameMessageManager.cpp',
     'nsGenConImageContent.cpp',
     'nsGenericDOMDataNode.cpp',
     'nsGkAtoms.cpp',
+    'nsGlobalWindow.cpp',
     'nsGlobalWindowCommands.cpp',
     'nsHistory.cpp',
     'nsHostObjectProtocolHandler.cpp',
     'nsHostObjectURI.cpp',
     'nsHTMLContentSerializer.cpp',
     'nsIGlobalObject.cpp',
+    'nsImageLoadingContent.cpp',
     'nsINode.cpp',
     'nsInProcessTabChildGlobal.cpp',
     'nsJSEnvironment.cpp',
@@ -315,8 +321,10 @@ SOURCES += [
     'nsNoDataProtocolContentPolicy.cpp',
     'nsNodeInfoManager.cpp',
     'nsNodeUtils.cpp',
+    'nsObjectLoadingContent.cpp',
     'nsOpenURIInFrameParams.cpp',
     'nsPlainTextSerializer.cpp',
+    'nsPluginArray.cpp',
     'nsPropertyTable.cpp',
     'nsQueryContentEventResult.cpp',
     'nsRange.cpp',
@@ -366,26 +374,6 @@ SOURCES += [
     'WebSocket.cpp',
     'WindowNamedPropertiesHandler.cpp',
     'WindowOrientationObserver.cpp',
-]
-
-# these files couldn't be in UNIFIED_SOURCES for now for reasons given below:
-SOURCES += [
-    # Several conflicts with other bindings.
-    'DOMIntersectionObserver.cpp',
-    # Because of OS X headers.
-    'nsContentUtils.cpp',
-    # this file doesn't like windows.h
-    'nsDOMWindowUtils.cpp',
-    # Conflicts with windows.h's definition of SendMessage.
-    'nsFrameMessageManager.cpp',
-    # This file has a #error "Never include windows.h in this file!"
-    'nsGlobalWindow.cpp',
-    # Conflicts with windows.h's definition of LoadImage.
-    'nsImageLoadingContent.cpp',
-    # Because of OS X headers.
-    'nsObjectLoadingContent.cpp',
-    # nsPluginArray.cpp includes npapi.h indirectly, and that includes a lot of system headers
-    'nsPluginArray.cpp',
 ]
 
 # Are we targeting x86-32 or x86-64?  If so, we want to include SSE2 code for
