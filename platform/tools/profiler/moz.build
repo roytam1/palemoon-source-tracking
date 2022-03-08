@@ -19,7 +19,7 @@ if CONFIG['MOZ_TASK_TRACER']:
         'tasktracer/GeckoTaskTracerImpl.h',
         'tasktracer/TracedTaskCommon.h',
     ]
-    UNIFIED_SOURCES += [
+    SOURCES += [
         'tasktracer/GeckoTaskTracer.cpp',
         'tasktracer/TracedTaskCommon.cpp',
     ]

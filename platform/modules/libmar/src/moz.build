@@ -17,7 +17,7 @@ HostLibrary('hostmar')
 
 Library('mar')
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'mar_create.c',
     'mar_extract.c',
     'mar_read.c',

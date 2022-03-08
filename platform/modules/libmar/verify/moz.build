@@ -5,7 +5,7 @@
 
 Library('verifymar')
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'cryptox.c',
     'mar_verify.c',
 ]
