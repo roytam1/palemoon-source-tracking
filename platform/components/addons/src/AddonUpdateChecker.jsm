@@ -428,9 +428,7 @@ function parseRDFManifest(aId, aUpdateKey, aRequest, aManifestData) {
         targetApplications: [appEntry]
       };
 
-      // The JSON update protocol requires an SHA-2 hash. RDF still
-      // supports SHA-1, for compatibility reasons.
-      sanitizeUpdateURL(result, aRequest, /^sha/, "sha1 or stronger");
+      sanitizeUpdateURL(result, aRequest, /^sha(256|384|512):/, "sha256 or stronger required");
 
       results.push(result);
     }
@@ -567,9 +565,7 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
       targetApplications: [appEntry],
     };
 
-    // The JSON update protocol requires an SHA-2 hash. RDF still
-    // supports SHA-1, for compatibility reasons.
-    sanitizeUpdateURL(result, aRequest, /^sha(256|512):/, "sha256 or sha512");
+    sanitizeUpdateURL(result, aRequest, /^sha(256|384|512):/, "sha256 or stronger required");
 
     results.push(result);
   }
