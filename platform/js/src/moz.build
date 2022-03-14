@@ -131,22 +131,18 @@ if not CONFIG['JS_DISABLE_SHELL']:
 if CONFIG['MOZ_VTUNE']:
     DIRS += ['vtune']
 
-SOURCES += [
+js_sources = [
     'jsalloc.cpp',
     'jsapi.cpp',
-    'jsarray.cpp',
-    'jsatom.cpp',
     'jsbool.cpp',
     'jscntxt.cpp',
     'jscompartment.cpp',
     'jsdate.cpp',
-    'jsdtoa.cpp',
     'jsexn.cpp',
     'jsfriendapi.cpp',
     'jsfun.cpp',
     'jsgc.cpp',
     'jsiter.cpp',
-    'jsmath.cpp',
     'jsnativestack.cpp',
     'jsnum.cpp',
     'jsobj.cpp',
@@ -156,8 +152,16 @@ SOURCES += [
     'jspropertytree.cpp',
     'jsscript.cpp',
     'jsstr.cpp',
-    'jsutil.cpp',
     'jsweakmap.cpp',
+]
+
+# Can't be built unified
+SOURCES += [
+    'jsarray.cpp',
+    'jsatom.cpp',
+    'jsdtoa.cpp',
+    'jsmath.cpp',
+    'jsutil.cpp',
 ]
 
 # Suppress warnings in third-party code.
@@ -165,7 +169,7 @@ SOURCES += [
 if CONFIG['CLANG_CXX'] or CONFIG['GNU_CXX']:
     SOURCES['jsdtoa.cpp'].flags += ['-Wno-implicit-fallthrough']
 
-SOURCES += [
+js_sources += [
     'vm/ArgumentsObject.cpp',
     'vm/ArrayBufferObject.cpp',
     'vm/AsyncFunction.cpp',
@@ -185,7 +189,6 @@ SOURCES += [
     'vm/GlobalObject.cpp',
     'vm/HelperThreads.cpp',
     'vm/Id.cpp',
-    'vm/Initialization.cpp',
     'vm/Interpreter.cpp',
     'vm/JSONParser.cpp',
     'vm/MemoryMetrics.cpp',
@@ -227,17 +230,33 @@ SOURCES += [
     'vm/Xdr.cpp',
 ]
 
+# Can't be built unified
+SOURCES += [
+    'vm/Initialization.cpp',
+]
+
 if CONFIG['JS_POSIX_NSPR']:
-    SOURCES += [
+    js_sources += [
         'vm/PosixNSPR.cpp',
     ]
 
 if CONFIG['ENABLE_TRACE_LOGGING']:
+    # Can't be built unified
     SOURCES += [
         'vm/TraceLogging.cpp',
         'vm/TraceLoggingGraph.cpp',
         'vm/TraceLoggingTypes.cpp',
     ]
+
+# Generating the static lib with /GL is not currently possible without UNIFIED_SOURCES
+# because it is too damned massive (over 2gbs, 2.5ish to be exact).
+# We need to break JS apart into smaller libs somehow OR steal the process libevil uses
+# to get around the issue, perhaps.
+# IN THE MEANTIME.. Just build the majority with unified sources if /GL else don't.
+if CONFIG['OS_TARGET'] == 'WINNT' and 'GL' in CONFIG['MOZ_OPTIMIZE_FLAGS']:
+    UNIFIED_SOURCES += js_sources
+else:
+    SOURCES += js_sources
 
 # JavaScript must be built shared, even for static builds, as it is used by
 # other modules which are always built shared. Failure to do so results in
@@ -296,3 +315,5 @@ OS_LIBS += CONFIG['REALTIME_LIBS']
 NO_EXPAND_LIBS = True
 
 DIST_INSTALL = True
+
+

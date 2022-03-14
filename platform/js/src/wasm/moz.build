@@ -11,7 +11,7 @@ FINAL_LIBRARY = "js"
 # Includes should be relative to parent path
 LOCAL_INCLUDES += ["!..", ".."]
 
-SOURCES += [
+wasm_sources = [
     'AsmJS.cpp',
     'WasmBaselineCompile.cpp',
     'WasmBinaryFormat.cpp',
@@ -34,6 +34,12 @@ SOURCES += [
     'WasmTextUtils.cpp',
     'WasmTypes.cpp'
 ]
+
+# See js/src/moz.build for why we are doing the following..
+if CONFIG['OS_TARGET'] == 'WINNT' and 'GL' in CONFIG['MOZ_OPTIMIZE_FLAGS']:
+    UNIFIED_SOURCES = wasm_sources
+else:
+    SOURCES = wasm_sources
 
 if CONFIG['MOZ_DEBUG']:
     SOURCES += ['WasmBinaryIterator.cpp']
