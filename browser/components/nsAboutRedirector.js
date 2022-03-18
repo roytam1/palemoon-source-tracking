@@ -65,16 +65,6 @@ AboutRedirector.prototype = {
       url: "chrome://browser/content/aboutSessionRestore.xhtml",
       flags: ALLOW_SCRIPT
     },
-#ifdef MOZ_SERVICES_SYNC
-    "sync-progress": {
-      url: "chrome://browser/content/sync/progress.xhtml",
-      flags: ALLOW_SCRIPT
-    },
-    "sync-tabs": {
-      url: "chrome://browser/content/sync/aboutSyncTabs.xul",
-      flags: ALLOW_SCRIPT
-    },
-#endif
   },
 
   /**

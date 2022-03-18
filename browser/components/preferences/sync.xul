@@ -6,7 +6,7 @@
 
 <!DOCTYPE overlay [
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
-<!ENTITY % syncBrandDTD SYSTEM "chrome://browser/locale/syncBrand.dtd">
+<!ENTITY % syncBrandDTD SYSTEM "chrome://branding/locale/syncBrand.dtd">
 <!ENTITY % syncDTD SYSTEM "chrome://browser/locale/preferences/sync.dtd">
 %brandDTD;
 %syncBrandDTD;
@@ -34,7 +34,7 @@
     <script type="application/javascript"
             src="chrome://browser/content/preferences/sync.js"/>
     <script type="application/javascript"
-            src="chrome://browser/content/sync/utils.js"/>
+            src="chrome://weave/content/utils.js"/>
 
 
       <deck id="weavePrefsDeck">

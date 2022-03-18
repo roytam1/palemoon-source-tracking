@@ -106,7 +106,7 @@ function needHomepageOverride(prefb) {
     return OVERRIDE_NONE;
   }
 
-  var mstone = Services.appinfo.platformVersion;
+  var mstone = Services.appinfo.greVersion;
 
   var savedBuildID = prefb.getCharPref("browser.startup.homepage_override.buildID", "");
 

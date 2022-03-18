@@ -258,7 +258,7 @@ var gSyncUI = {
     if (win) {
       win.focus();
     } else {
-      window.openDialog("chrome://browser/content/sync/setup.xul",
+      window.openDialog("chrome://weave/content/setup.xul",
                         "weaveSetup", "centerscreen,chrome,resizable=no",
                         wizardType);
     }
@@ -273,7 +273,7 @@ var gSyncUI = {
     if (win) {
       win.focus();
     } else {
-      window.openDialog("chrome://browser/content/sync/addDevice.xul",
+      window.openDialog("chrome://weave/content/addDevice.xul",
                         "syncAddDevice", "centerscreen,chrome,resizable=no");
     }
   },
@@ -284,7 +284,7 @@ var gSyncUI = {
       win.focus();
     } else {
       Services.ww.activeWindow.openDialog(
-        "chrome://browser/content/sync/quota.xul", "",
+        "chrome://weave/content/quota.xul", "",
         "centerscreen,chrome,dialog,modal");
     }
   },
@@ -484,10 +484,8 @@ var gSyncUI = {
 };
 
 XPCOMUtils.defineLazyGetter(gSyncUI, "_stringBundle", function() {
-  //XXXzpao these strings should probably be moved from /services to /browser... (bug 583381)
-  //        but for now just make it work
   return Cc["@mozilla.org/intl/stringbundle;1"].
          getService(Ci.nsIStringBundleService).
-         createBundle("chrome://weave/locale/services/sync.properties");
+         createBundle("chrome://weave/locale/sync.properties");
 });
 

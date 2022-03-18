@@ -2,8 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-dist_dest   = $(DIST)/$(MOZ_MACBUNDLE_NAME)
-
 # hardcode en-US for the moment
 AB_CD = en-US
 
@@ -42,6 +40,14 @@ endif
 PROGRAMS_DEST = $(DIST)/bin
 
 include $(topsrcdir)/config/rules.mk
+
+libs::
+ifeq ($(OS_ARCH),WINNT)
+	$(EXIT_ON_ERROR) \
+	$(PERL) -pe 's/(?<!\r)\n/\r\n/g;' < $(DIST)/branding/license.txt > $(DIST)/bin/license.txt
+else
+	$(INSTALL) $(IFLAGS1) $(DIST)/branding/license.txt $(DIST)/bin/
+endif
 
 ifneq (,$(filter-out WINNT,$(OS_ARCH)))
 

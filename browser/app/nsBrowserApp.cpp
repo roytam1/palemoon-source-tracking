@@ -32,15 +32,12 @@
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
 
 #include "mozilla/Sprintf.h"
-#include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
 
 #define MOZ_BROWSER_CAN_BE_CONTENTPROC
 #include "../../ipc/contentproc/plugin-container.cpp"
 
 using namespace mozilla;
-
-#define kDesktopFolder "browser"
 
 static void Output(const char *fmt, ... )
 {
@@ -105,7 +102,6 @@ static bool IsArg(const char* arg, const char* s)
 XRE_GetFileFromPathType XRE_GetFileFromPath;
 XRE_CreateAppDataType XRE_CreateAppData;
 XRE_FreeAppDataType XRE_FreeAppData;
-XRE_TelemetryAccumulateType XRE_TelemetryAccumulate;
 XRE_StartupTimelineRecordType XRE_StartupTimelineRecord;
 XRE_mainType XRE_main;
 XRE_StopLateWriteChecksType XRE_StopLateWriteChecks;
@@ -123,7 +119,6 @@ static const nsDynamicFunctionLoad kXULFuncs[] = {
     { "XRE_GetFileFromPath", (NSFuncPtr*) &XRE_GetFileFromPath },
     { "XRE_CreateAppData", (NSFuncPtr*) &XRE_CreateAppData },
     { "XRE_FreeAppData", (NSFuncPtr*) &XRE_FreeAppData },
-    { "XRE_TelemetryAccumulate", (NSFuncPtr*) &XRE_TelemetryAccumulate },
     { "XRE_StartupTimelineRecord", (NSFuncPtr*) &XRE_StartupTimelineRecord },
     { "XRE_main", (NSFuncPtr*) &XRE_main },
     { "XRE_StopLateWriteChecks", (NSFuncPtr*) &XRE_StopLateWriteChecks },
@@ -226,11 +221,7 @@ static int do_main(int argc, char* argv[], char* envp[], nsIFile *xreDirectory)
 
   nsCOMPtr<nsIFile> greDir;
   exeFile->GetParent(getter_AddRefs(greDir));
-  nsCOMPtr<nsIFile> appSubdir;
-  greDir->Clone(getter_AddRefs(appSubdir));
-  appSubdir->Append(NS_LITERAL_STRING(kDesktopFolder));
-
-  SetStrongPtr(appData.directory, static_cast<nsIFile*>(appSubdir.get()));
+  SetStrongPtr(appData.directory, static_cast<nsIFile*>(greDir.get()));
   // xreDirectory already has a refcount from NS_NewLocalFile
   appData.xreDirectory = xreDirectory;
 
@@ -357,8 +348,6 @@ int main(int argc, char* argv[], char* envp[])
   if (NS_FAILED(rv)) {
     return 255;
   }
-
-  XRE_StartupTimelineRecord(mozilla::StartupTimeline::START, start);
 
 #ifdef MOZ_BROWSER_CAN_BE_CONTENTPROC
   XRE_EnableSameExecutableForContentProc();

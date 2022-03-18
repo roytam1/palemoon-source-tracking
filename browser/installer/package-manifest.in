@@ -17,46 +17,29 @@
 ; ; file comment
 ;
 
-; Due to Apple Mac OS X packaging requirements, files that are in the same
-; directory on other platforms must be located in different directories on
-; Mac OS X. The following defines allow specifying the Mac OS X bundle
-; location which also work on other platforms.
-;
-; @BINPATH@
-; Equals Contents/MacOS/ on Mac OS X and is the path to the main binary on other
-; platforms.
-;
-; @RESPATH@
-; Equals Contents/Resources/ on Mac OS X and is equivalent to @BINPATH@ on other
-; platforms.
-
 #filter substitution
 
 [@AB_CD@]
-@RESPATH@/browser/chrome/@AB_CD@@JAREXT@
-@RESPATH@/browser/chrome/@AB_CD@.manifest
-@RESPATH@/chrome/@AB_CD@@JAREXT@
-@RESPATH@/chrome/@AB_CD@.manifest
-@RESPATH@/browser/defaults/profile/bookmarks.html
-@RESPATH@/browser/defaults/profile/chrome/*
-@RESPATH@/browser/defaults/profile/localstore.rdf
-@RESPATH@/browser/defaults/profile/mimeTypes.rdf
-@RESPATH@/dictionaries/*
-#if defined(XP_WIN) || defined(XP_LINUX)
-@RESPATH@/fonts/*
-#endif
-@RESPATH@/hyphenation/*
-@RESPATH@/browser/@PREF_DIR@/palemoon-l10n.js
-@RESPATH@/browser/searchplugins/*
+@BINPATH@/chrome/@AB_CD@@JAREXT@
+@BINPATH@/chrome/@AB_CD@.manifest
+@BINPATH@/defaults/profile/bookmarks.html
+@BINPATH@/defaults/profile/chrome/*
+@BINPATH@/defaults/profile/localstore.rdf
+@BINPATH@/defaults/profile/mimeTypes.rdf
+@BINPATH@/dictionaries/*
+@BINPATH@/fonts/*
+@BINPATH@/hyphenation/*
+@BINPATH@/@PREF_DIR@/palemoon-l10n.js
+@BINPATH@/searchplugins/*
 #ifdef XP_WIN32
 @BINPATH@/uninstall/helper.exe
 #endif
 #ifdef MOZ_UPDATER
-@RESPATH@/updater.ini
+@BINPATH@/updater.ini
 #endif
 
 [xpcom]
-@RESPATH@/dependentlibs.list
+@BINPATH@/dependentlibs.list
 #ifdef MOZ_SHARED_MOZGLUE
 @BINPATH@/@DLL_PREFIX@mozglue@DLL_SUFFIX@
 #endif
@@ -64,7 +47,7 @@
 @BINPATH@/@DLL_PREFIX@mozjs@DLL_SUFFIX@
 #endif
 #ifdef GKMEDIAS_SHARED_LIBRARY
-@BINPATH@/@DLL_PREFIX@gkmedias@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@gremedia@DLL_SUFFIX@
 #endif
 #ifndef MOZ_SYSTEM_NSPR
 #ifndef MOZ_FOLD_LIBS
@@ -87,7 +70,7 @@
 #endif
 #endif
 #ifdef MOZ_ICU_DATA_ARCHIVE
-@RESPATH@/@ICU_DATA_FILE@
+@BINPATH@/@ICU_DATA_FILE@
 #endif
 #ifdef MOZ_GTK3
 @BINPATH@/@DLL_PREFIX@mozgtk@DLL_SUFFIX@
@@ -99,36 +82,35 @@
 #ifndef XP_UNIX
 @BINPATH@/@MOZ_APP_NAME@.exe
 @BINPATH@/@MOZ_APP_NAME@.VisualElementsManifest.xml
-@BINPATH@/browser/VisualElements/VisualElements_150.png
-@BINPATH@/browser/VisualElements/VisualElements_70.png
+@BINPATH@/VisualElements/VisualElements_150.png
+@BINPATH@/VisualElements/VisualElements_70.png
 #else
-@RESPATH@/@MOZ_APP_NAME@-bin
+@BINPATH@/@MOZ_APP_NAME@-bin
 @BINPATH@/@MOZ_APP_NAME@
 #endif
-@RESPATH@/application.ini
+@BINPATH@/@MOZ_APP_NAME@.res
+@BINPATH@/application.ini
+@BINPATH@/license.txt
 #ifdef MOZ_UPDATER
-@RESPATH@/update-settings.ini
+@BINPATH@/update-settings.ini
 #endif
-@RESPATH@/platform.ini
+@BINPATH@/platform.ini
 #ifndef MOZ_SYSTEM_SQLITE
 @BINPATH@/@DLL_PREFIX@mozsqlite3@DLL_SUFFIX@
 #endif
-@BINPATH@/@DLL_PREFIX@lgpllibs@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@lgplmedia@DLL_SUFFIX@
 #ifdef MOZ_FFVPX
-@BINPATH@/@DLL_PREFIX@mozavutil@DLL_SUFFIX@
-@BINPATH@/@DLL_PREFIX@mozavcodec@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@ffvpxutil@DLL_SUFFIX@
+@BINPATH@/@DLL_PREFIX@ffvpxcodec@DLL_SUFFIX@
 #endif
-@RESPATH@/browser/blocklist.xml
-@RESPATH@/browser/ua-update.json
+@BINPATH@/blocklist.xml
+@BINPATH@/ua-update.json
 #ifdef XP_UNIX
-@RESPATH@/run-mozilla.sh
+@BINPATH@/run-mozilla.sh
 #endif
 
 ; [Components]
-@RESPATH@/components/*
-@RESPATH@/browser/components/*
-#ifdef MOZ_ARTIFACT_BUILDS
-#endif
+@BINPATH@/components/*
 #ifdef ACCESSIBILITY
 #ifdef XP_WIN32
 @BINPATH@/Accessible.tlb
@@ -136,27 +118,9 @@
 @BINPATH@/IA2Marshal.dll
 #endif
 #endif
-#ifdef MOZ_WEBRTC
-#endif
-#ifdef MOZ_WEBSPEECH
-#endif
-#ifdef MOZ_GTK
-#endif
-#ifdef NS_PRINTING
-#endif
-#ifdef NECKO_WIFI
-#endif
-#ifdef MOZ_WEBRTC
-#endif
-#ifdef MOZ_ENABLE_XREMOTE
-#endif
-
-@RESPATH@/chrome/marionette@JAREXT@
-@RESPATH@/chrome/marionette.manifest
 
 ; Modules
-@RESPATH@/browser/modules/*
-@RESPATH@/modules/*
+@BINPATH@/modules/*
 
 ; ANGLE GLES-on-D3D rendering library
 #ifdef MOZ_ANGLE_RENDERER
@@ -169,92 +133,96 @@
 #endif # MOZ_ANGLE_RENDERER
 
 ; [Browser Chrome Files]
-@RESPATH@/browser/chrome.manifest
-@RESPATH@/browser/chrome/browser@JAREXT@
-@RESPATH@/browser/chrome/browser.manifest
-@RESPATH@/browser/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
-@RESPATH@/browser/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
-@RESPATH@/browser/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
-@RESPATH@/chrome/toolkit@JAREXT@
-@RESPATH@/chrome/toolkit.manifest
-@RESPATH@/chrome/recording.manifest
-@RESPATH@/chrome/recording/*
+@BINPATH@/chrome.manifest
+@BINPATH@/chrome/browser@JAREXT@
+@BINPATH@/chrome/browser.manifest
+@BINPATH@/chrome/classic@JAREXT@
+@BINPATH@/chrome/classic.manifest
+@BINPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/chrome.manifest
+@BINPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/icon.png
+@BINPATH@/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}/install.rdf
+@BINPATH@/chrome/toolkit@JAREXT@
+@BINPATH@/chrome/toolkit.manifest
+#ifdef MOZ_DEBUG
+@BINPATH@/chrome/recording.manifest
+@BINPATH@/chrome/recording/*
+#endif
 #ifdef MOZ_GTK
-@RESPATH@/browser/chrome/icons/default/default16.png
-@RESPATH@/browser/chrome/icons/default/default32.png
-@RESPATH@/browser/chrome/icons/default/default48.png
+@BINPATH@/chrome/icons/default/default16.png
+@BINPATH@/chrome/icons/default/default32.png
+@BINPATH@/chrome/icons/default/default48.png
 #endif
 
 #ifdef MOZ_DEVTOOLS
 ; DevTools
-@RESPATH@/browser/chrome/devtools@JAREXT@
-@RESPATH@/browser/chrome/devtools.manifest
-@RESPATH@/browser/@PREF_DIR@/devtools.js
+@BINPATH@/chrome/devtools@JAREXT@
+@BINPATH@/chrome/devtools.manifest
+@BINPATH@/@PREF_DIR@/devtools.js
 #endif
 
 ; shell icons
 #ifdef XP_UNIX
 ; shell icons
-@RESPATH@/browser/icons/*.png
+@BINPATH@/icons/*.png
 #ifdef MOZ_UPDATER
 ; updater icon
-@RESPATH@/icons/updater.png
+@BINPATH@/icons/updater.png
 #endif
 #endif
 
 ; [Default Preferences]
 ; All the pref files must be part of base to prevent migration bugs
-@RESPATH@/browser/defaults/permissions
-@RESPATH@/browser/@PREF_DIR@/palemoon.js
-@RESPATH@/browser/@PREF_DIR@/palemoon-branding.js
-@RESPATH@/goanna.js
-@RESPATH@/defaults/autoconfig/prefcalls.js
+@BINPATH@/defaults/permissions
+@BINPATH@/@PREF_DIR@/palemoon.js
+@BINPATH@/@PREF_DIR@/palemoon-branding.js
+@BINPATH@/goanna.js
+@BINPATH@/defaults/autoconfig/prefcalls.js
 
 ; Warning: changing the path to channel-prefs.js can cause bugs (Bug 756325)
 ; Technically this is an app pref file, but we are keeping it in the original
 ; gre location for now.
-@RESPATH@/defaults/pref/channel-prefs.js
+@BINPATH@/defaults/pref/channel-prefs.js
 
 #ifdef MOZ_SERVICES_SYNC
 ; Services (gre) prefs
-@RESPATH@/defaults/pref/services-sync.js
+@BINPATH@/defaults/pref/weave-prefs.js
 #endif
 
 ; [Layout Engine Resources]
 ; Style Sheets, Graphics and other Resources used by the layout engine.
-@RESPATH@/res/EditorOverride.css
-@RESPATH@/res/contenteditable.css
-@RESPATH@/res/designmode.css
-@RESPATH@/res/ImageDocument.css
-@RESPATH@/res/TopLevelImageDocument.css
-@RESPATH@/res/TopLevelVideoDocument.css
-@RESPATH@/res/table-add-column-after-active.gif
-@RESPATH@/res/table-add-column-after-hover.gif
-@RESPATH@/res/table-add-column-after.gif
-@RESPATH@/res/table-add-column-before-active.gif
-@RESPATH@/res/table-add-column-before-hover.gif
-@RESPATH@/res/table-add-column-before.gif
-@RESPATH@/res/table-add-row-after-active.gif
-@RESPATH@/res/table-add-row-after-hover.gif
-@RESPATH@/res/table-add-row-after.gif
-@RESPATH@/res/table-add-row-before-active.gif
-@RESPATH@/res/table-add-row-before-hover.gif
-@RESPATH@/res/table-add-row-before.gif
-@RESPATH@/res/table-remove-column-active.gif
-@RESPATH@/res/table-remove-column-hover.gif
-@RESPATH@/res/table-remove-column.gif
-@RESPATH@/res/table-remove-row-active.gif
-@RESPATH@/res/table-remove-row-hover.gif
-@RESPATH@/res/table-remove-row.gif
-@RESPATH@/res/grabber.gif
-@RESPATH@/res/fonts/*
-@RESPATH@/res/dtd/*
-@RESPATH@/res/html/*
-@RESPATH@/res/language.properties
-@RESPATH@/res/entityTables/*
+@BINPATH@/res/EditorOverride.css
+@BINPATH@/res/contenteditable.css
+@BINPATH@/res/designmode.css
+@BINPATH@/res/ImageDocument.css
+@BINPATH@/res/TopLevelImageDocument.css
+@BINPATH@/res/TopLevelVideoDocument.css
+@BINPATH@/res/table-add-column-after-active.gif
+@BINPATH@/res/table-add-column-after-hover.gif
+@BINPATH@/res/table-add-column-after.gif
+@BINPATH@/res/table-add-column-before-active.gif
+@BINPATH@/res/table-add-column-before-hover.gif
+@BINPATH@/res/table-add-column-before.gif
+@BINPATH@/res/table-add-row-after-active.gif
+@BINPATH@/res/table-add-row-after-hover.gif
+@BINPATH@/res/table-add-row-after.gif
+@BINPATH@/res/table-add-row-before-active.gif
+@BINPATH@/res/table-add-row-before-hover.gif
+@BINPATH@/res/table-add-row-before.gif
+@BINPATH@/res/table-remove-column-active.gif
+@BINPATH@/res/table-remove-column-hover.gif
+@BINPATH@/res/table-remove-column.gif
+@BINPATH@/res/table-remove-row-active.gif
+@BINPATH@/res/table-remove-row-hover.gif
+@BINPATH@/res/table-remove-row.gif
+@BINPATH@/res/grabber.gif
+@BINPATH@/res/fonts/*
+@BINPATH@/res/dtd/*
+@BINPATH@/res/html/*
+@BINPATH@/res/language.properties
+@BINPATH@/res/entityTables/*
 
 ; svg
-@RESPATH@/res/svg.css
+@BINPATH@/res/svg.css
 
 ; [Personal Security Manager]
 ;
@@ -262,7 +230,7 @@
 ; meaning their .chk files are created there directly.
 ;
 #ifndef MOZ_SYSTEM_NSS
-#if defined(XP_LINUX) && !defined(ANDROID)
+#if defined(XP_LINUX)
 @BINPATH@/@DLL_PREFIX@freeblpriv3@DLL_SUFFIX@
 #elif defined(XP_SOLARIS) && defined(SPARC64)
 @BINPATH@/@DLL_PREFIX@freebl_64fpu_3@DLL_SUFFIX@
@@ -276,9 +244,6 @@
 #endif
 @BINPATH@/@DLL_PREFIX@nss3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@nssckbi@DLL_SUFFIX@
-#ifndef NSS_DISABLE_DBM
-@BINPATH@/@DLL_PREFIX@nssdbm3@DLL_SUFFIX@
-#endif
 #ifndef MOZ_FOLD_LIBS
 @BINPATH@/@DLL_PREFIX@nssutil3@DLL_SUFFIX@
 @BINPATH@/@DLL_PREFIX@smime3@DLL_SUFFIX@
@@ -286,8 +251,8 @@
 #endif
 @BINPATH@/@DLL_PREFIX@softokn3@DLL_SUFFIX@
 #endif
-@RESPATH@/chrome/pippki@JAREXT@
-@RESPATH@/chrome/pippki.manifest
+@BINPATH@/chrome/pippki@JAREXT@
+@BINPATH@/chrome/pippki.manifest
 
 ; [Updater]
 ;
@@ -295,14 +260,3 @@
 @BINPATH@/updater@BIN_SUFFIX@
 #endif
 
-; Shutdown Terminator
-
-#if defined(CLANG_CXX)
-#if defined(MOZ_ASAN) || defined(MOZ_TSAN)
-@BINPATH@/llvm-symbolizer
-#endif
-#endif
-
-#if defined(MOZ_ASAN) && defined(CLANG_CL)
-@BINPATH@/clang_rt.asan_dynamic-*.dll
-#endif

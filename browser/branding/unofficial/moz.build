@@ -5,15 +5,12 @@
 
 DIRS += ['content', 'locales']
 
-DIST_SUBDIR = 'browser'
-export('DIST_SUBDIR')
-
 JS_PREFERENCE_PP_FILES += [
     'pref/palemoon-branding.js',
 ]
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    FINAL_TARGET_FILES['..'] += [
+    FINAL_TARGET_FILES += [
         'palemoon.VisualElementsManifest.xml',
     ]
     FINAL_TARGET_FILES.VisualElements += [
@@ -45,6 +42,8 @@ elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
         'default32.png',
         'default48.png',
     ]
+
+BRANDING_FILES += ['license.txt']
 
 DEFINES['MOZ_APP_VERSION'] = CONFIG['MOZ_APP_VERSION']
 DEFINES['MOZ_BRANDING_DIRECTORY'] = CONFIG['MOZ_BRANDING_DIRECTORY']

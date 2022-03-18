@@ -4,22 +4,25 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_JS_MODULES += [
-    'AutoCompletePopup.jsm',
     'BrowserNewTabPreloader.jsm',
-    'CharsetMenu.jsm',
     'FormSubmitObserver.jsm',
     'FormValidationHandler.jsm',
     'NetworkPrioritizer.jsm',
     'offlineAppCache.jsm',
     'openLocationLastURL.jsm',
-    'PageMenu.jsm',
-    'PopupNotifications.jsm',
     'QuotaManager.jsm',
     'SharedFrame.jsm'
 ]
 
-if CONFIG['MOZ_WEBRTC']:
-    EXTRA_JS_MODULES += ['webrtcUI.jsm']
+# These js modules have toolkit versions that are incompatible with
+# Pale Moon. Also, their names collide not using DIST_SUBDIR.
+# We should REALLY look at resolving these one day...
+EXTRA_JS_MODULES.private += [
+    'AutoCompletePopup.jsm',
+    'CharsetMenu.jsm',
+    'PageMenu.jsm',
+    'PopupNotifications.jsm',
+]
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     EXTRA_JS_MODULES += [

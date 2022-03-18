@@ -445,12 +445,12 @@ window[chromehidden~="toolbar"] toolbar:not(.toolbar-primary):not(#nav-bar):not(
 %ifdef MOZ_SERVICES_SYNC
 /* Sync notification UI */
 #sync-notifications {
-  -moz-binding: url("chrome://browser/content/sync/notification.xml#notificationbox");
+  -moz-binding: url("chrome://weave/content/notification.xml#notificationbox");
   overflow-y: visible !important;
 }
 
 #sync-notifications notification {
-  -moz-binding: url("chrome://browser/content/sync/notification.xml#notification");
+  -moz-binding: url("chrome://weave/content/notification.xml#notification");
 }
 %endif
 

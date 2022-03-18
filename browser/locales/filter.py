@@ -7,21 +7,21 @@ def test(mod, path, entity = None):
   # ignore anything but Firefox
   if mod not in ("netwerk", "dom", "toolkit", "security/manager",
                  "browser", "browser/metro", "webapprt",
-                 "extensions/reporter", "extensions/spellcheck",
+                 "extensions/reporter", "system/intl/spellcheck",
                  "other-licenses/branding/firefox",
                  "browser/branding/official",
                  "services/sync"):
     return False
-  if mod != "browser" and mod != "extensions/spellcheck":
-    # we only have exceptions for browser and extensions/spellcheck
+  if mod != "browser" and mod != "system/intl/spellcheck":
+    # we only have exceptions for browser and system/intl/spellcheck
     return True
   if not entity:
-    if mod == "extensions/spellcheck":
+    if mod == "system/intl/spellcheck":
       return False
     # browser
     return not (re.match(r"searchplugins\/.+\.xml", path) or
                 re.match(r"chrome\/help\/images\/[A-Za-z-_]+\.png", path))
-  if mod == "extensions/spellcheck":
+  if mod == "system/intl/spellcheck":
     # l10n ships en-US dictionary or something, do compare
     return True
   if path == "defines.inc":

@@ -53,28 +53,6 @@
       </hbox>
     </panel>
 
-#ifdef MOZ_WEBRTC
-    <popupnotification id="webRTC-shareDevices-notification" hidden="true">
-      <popupnotificationcontent id="webRTC-selectCamera" orient="vertical">
-        <separator class="thin"/>
-        <label value="&getUserMedia.selectCamera.label;"
-               accesskey="&getUserMedia.selectCamera.accesskey;"
-               control="webRTC-selectCamera-menulist"/>
-        <menulist id="webRTC-selectCamera-menulist">
-          <menupopup id="webRTC-selectCamera-menupopup"/>
-        </menulist>
-      </popupnotificationcontent>
-      <popupnotificationcontent id="webRTC-selectMicrophone" orient="vertical">
-        <separator class="thin"/>
-        <label value="&getUserMedia.selectMicrophone.label;"
-               accesskey="&getUserMedia.selectMicrophone.accesskey;"
-               control="webRTC-selectMicrophone-menulist"/>
-        <menulist id="webRTC-selectMicrophone-menulist">
-          <menupopup id="webRTC-selectMicrophone-menupopup"/>
-        </menulist>
-      </popupnotificationcontent>
-    </popupnotification>
-#endif
     <popupnotification id="servicesInstall-notification" hidden="true">
       <popupnotificationcontent orient="vertical" align="start">
         <!-- XXX bug 974146, tests are looking for this, can't remove yet. -->

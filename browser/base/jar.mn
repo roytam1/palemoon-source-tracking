@@ -10,6 +10,10 @@ browser.jar:
 % overlay chrome://global/content/viewPartialSource.xul chrome://browser/content/viewSourceOverlay.xul
 % style chrome://global/content/customizeToolbar.xul chrome://browser/content/browser.css
 % style chrome://global/content/customizeToolbar.xul chrome://browser/skin/
+#ifdef MOZ_SERVICES_SYNC
+% style chrome://weave/content/aboutSyncTabs.xul chrome://browser/skin/
+% style about:sync-tabs chrome://browser/skin/
+#endif
 * content/browser/aboutDialog.xul               (content/aboutDialog.xul)
   content/browser/aboutDialog.js                (content/aboutDialog.js)
   content/browser/aboutDialog.css               (content/aboutDialog.css)
@@ -66,5 +70,5 @@ browser.jar:
   content/browser/win6BrowserOverlay.xul        (content/win6BrowserOverlay.xul)
 #endif
 # the following files are browser-specific overrides
-* content/browser/license.html                  (/platform/toolkit/content/license.html)
+* content/browser/license.html                  (/platform/components/global/content/license.html)
 % override chrome://global/content/license.html chrome://browser/content/license.html

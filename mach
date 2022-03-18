@@ -8,12 +8,13 @@ if [ ! -f "$MCP_MACH" ]; then
   exit 1
 fi
 
-MCP_APP=palemoon
+MCP_APP=browser
+MCP_APP_NAME=palemoon
 MCP_VERSION=`cat ./$MCP_APP/config/version.txt`
 
 MCP_XZ=`which xz 2>/dev/null`
-MCP_TAR_BASEDIR="s/^./$MCP_APP-source/"
-MCP_TAR_FILENAME="$MCP_APP-$MCP_VERSION.source.tar.xz"
+MCP_TAR_BASEDIR="s/^./$MCP_APP_NAME-source/"
+MCP_TAR_FILENAME="$MCP_APP_NAME-$MCP_VERSION.source.tar.xz"
 MCP_TAR_COMMAND="tar cfJv ../$MCP_TAR_FILENAME . --transform $MCP_TAR_BASEDIR --exclude-vcs --warning=no-file-changed"
 MCP_TAR_EXCLUDES=(
   "$MCP_APP/branding/beta"

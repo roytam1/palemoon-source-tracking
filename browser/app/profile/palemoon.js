@@ -15,10 +15,6 @@
 #  - Computed values (e.g. 50 * 1024) don't work.
 #
 
-#ifdef XP_UNIX
-#define UNIX_BUT_NOT_MAC
-#endif
-
 pref("browser.chromeURL","chrome://browser/content/");
 pref("browser.hiddenWindowChromeURL", "chrome://browser/content/hiddenWindow.xul");
 
@@ -234,7 +230,7 @@ pref("general.useragent.compatMode.gecko", false);
 pref("general.useragent.compatMode.firefox", false);
 
 pref("general.smoothScroll", true);
-#ifdef UNIX_BUT_NOT_MAC
+#ifdef XP_UNIX
 pref("general.autoScroll", false);
 #else
 pref("general.autoScroll", true);
@@ -686,7 +682,7 @@ pref("browser.download.hide_plugins_without_extensions", true);
 // 0 goes Back/Forward
 // 1 act like PgUp/PgDown
 // 2 and other values, nothing
-#ifdef UNIX_BUT_NOT_MAC
+#ifdef XP_UNIX
 pref("browser.backspace_action", 2);
 #else
 pref("browser.backspace_action", 0);
@@ -932,19 +928,6 @@ pref("signon.startup.prompt", false);
 pref("toolbar.customization.usesheet", false);
 
 pref("dom.ipc.plugins.enabled", true);
-
-pref("browser.tabs.remote", false);
-
-// This pref governs whether we attempt to work around problems caused by
-// plugins using OS calls to manipulate the cursor while running out-of-
-// process.  These workarounds all involve intercepting (hooking) certain
-// OS calls in the plugin process, then arranging to make certain OS calls
-// in the browser process.  Eventually plugins will be required to use the
-// NPAPI to manipulate the cursor, and these workarounds will be removed.
-// See bug 621117.
-#ifdef XP_MACOSX
-pref("dom.ipc.plugins.nativeCursorSupport", true);
-#endif
 
 #ifdef XP_WIN
 pref("browser.taskbar.previews.enable", false);

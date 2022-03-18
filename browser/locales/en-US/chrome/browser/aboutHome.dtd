@@ -5,7 +5,7 @@
 <!ENTITY % brandDTD SYSTEM "chrome://branding/locale/brand.dtd">
 %brandDTD;
 #ifdef MOZ_SERVICES_SYNC
-<!ENTITY % syncBrandDTD SYSTEM "chrome://browser/locale/syncBrand.dtd">
+<!ENTITY % syncBrandDTD SYSTEM "chrome://branding/locale/syncBrand.dtd">
 %syncBrandDTD;
 #endif
 

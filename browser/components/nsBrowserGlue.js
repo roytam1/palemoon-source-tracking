@@ -29,9 +29,6 @@ XPCOMUtils.defineLazyServiceGetter(this, "AlertsService",
   ["PageThumbs", "resource://gre/modules/PageThumbs.jsm"],
   ["NewTabUtils", "resource://gre/modules/NewTabUtils.jsm"],
   ["BrowserNewTabPreloader", "resource:///modules/BrowserNewTabPreloader.jsm"],
-#ifdef MOZ_WEBRTC
-  ["webrtcUI", "resource:///modules/webrtcUI.jsm"],
-#endif
   ["PrivateBrowsingUtils", "resource://gre/modules/PrivateBrowsingUtils.jsm"],
   ["RecentWindow", "resource:///modules/RecentWindow.jsm"],
   ["Task", "resource://gre/modules/Task.jsm"],
@@ -39,7 +36,7 @@ XPCOMUtils.defineLazyServiceGetter(this, "AlertsService",
   ["OS", "resource://gre/modules/osfile.jsm"],
   ["LoginManagerParent", "resource://gre/modules/LoginManagerParent.jsm"],
   ["FormValidationHandler", "resource:///modules/FormValidationHandler.jsm"],
-  ["AutoCompletePopup", "resource:///modules/AutoCompletePopup.jsm"],
+  ["AutoCompletePopup", "resource:///modules/private/AutoCompletePopup.jsm"],
   ["DateTimePickerHelper", "resource://gre/modules/DateTimePickerHelper.jsm"],
   ["ShellService", "resource:///modules/ShellService.jsm"],
 ].forEach(([name, resource]) => XPCOMUtils.defineLazyModuleGetter(this, name, resource));
@@ -458,9 +455,6 @@ BrowserGlue.prototype = {
     PageThumbs.init();
     NewTabUtils.init();
     BrowserNewTabPreloader.init();
-#ifdef MOZ_WEBRTC
-    webrtcUI.init();
-#endif
     FormValidationHandler.init();
     
     AutoCompletePopup.init();
@@ -633,9 +627,6 @@ BrowserGlue.prototype = {
   _onProfileShutdown: function() {
     BrowserNewTabPreloader.uninit();
     UserAgentOverrides.uninit();
-#ifdef MOZ_WEBRTC
-    webrtcUI.uninit();
-#endif
     FormValidationHandler.uninit();
     AutoCompletePopup.uninit();
     this._dispose();
@@ -1284,7 +1275,7 @@ BrowserGlue.prototype = {
   },
 
   _migrateUI: function() {
-    const UI_VERSION = 24;
+    const UI_VERSION = 25;
     const BROWSER_DOCURL = "chrome://browser/content/browser.xul#";
     let currentUIVersion = 0;
     try {
@@ -1537,6 +1528,14 @@ BrowserGlue.prototype = {
       Services.prefs.clearUserPref("dom.abortController.enabled");
     }
 
+    if (currentUIVersion < 25) {
+      // DoNotTrack is now GPC. Carry across user preference.
+      if (Services.prefs.prefHasUserValue("privacy.donottrackheader.enabled")) {
+        let DNTEnabled = Services.prefs.getBoolPref("privacy.donottrackheader.enabled");
+        Service.prefs.setBoolPref("privacy.GPCheader.enabled", DNTEnabled);
+        Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
+      }
+    }
     
     // Clear out dirty storage
     if (this._dirty) {

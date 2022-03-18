@@ -282,7 +282,6 @@ var AddonsMgrListener = {
   }
 };
 
-#ifdef MOZ_PERSONAS
 var LightWeightThemeWebInstaller = {
   handleEvent: function (event) {
     switch (event.type) {
@@ -561,4 +560,3 @@ var LightweightThemeListener = {
     this.updateStyleSheet("url(" + themeData.headerURL + ")");
   },
 };
-#endif

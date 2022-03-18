@@ -155,7 +155,7 @@ var gSyncPane = {
     if (win) {
       win.focus();
     } else {
-      window.openDialog("chrome://browser/content/sync/setup.xul",
+      window.openDialog("chrome://weave/content/setup.xul",
                         "weaveSetup", "centerscreen,chrome,resizable=no",
                         wizardType);
     }
@@ -166,7 +166,7 @@ var gSyncPane = {
     if (win) {
       win.focus();
     } else {
-      window.openDialog("chrome://browser/content/sync/quota.xul", "",
+      window.openDialog("chrome://weave/content/quota.xul", "",
                         "centerscreen,chrome,dialog,modal");
     }
   },
@@ -180,7 +180,7 @@ var gSyncPane = {
     if (win) {
       win.focus();
     } else {
-      window.openDialog("chrome://browser/content/sync/addDevice.xul",
+      window.openDialog("chrome://weave/content/addDevice.xul",
                         "syncAddDevice", "centerscreen,chrome,resizable=no");
     }
   },

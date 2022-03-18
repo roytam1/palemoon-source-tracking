@@ -2,4 +2,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOZ_APP_DISPLAYNAME="Browser"
+MOZ_APP_VENDOR=Generic
+MOZ_APP_BASENAME=Browser
+MOZ_APP_DISPLAYNAME=$MOZ_APP_BASENAME

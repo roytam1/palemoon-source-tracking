@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-browser.jar:
+classic.jar:
 % skin browser classic/1.0 %skin/classic/browser/
 % override chrome://global/skin/icons/warning-16.png moz-icon://stock/gtk-dialog-warning?size=menu
   skin/classic/browser/sanitizeDialog.css
@@ -13,9 +13,6 @@ browser.jar:
   skin/classic/browser/aboutCertError_sectionCollapsed.png
   skin/classic/browser/aboutCertError_sectionCollapsed-rtl.png
   skin/classic/browser/aboutCertError_sectionExpanded.png
-#ifdef MOZ_SERVICES_SYNC
-  skin/classic/browser/aboutSyncTabs.css
-#endif
 * skin/classic/browser/autocomplete.css
   skin/classic/browser/actionicon-tab.png
 * skin/classic/browser/browser.css
@@ -54,11 +51,6 @@ browser.jar:
   skin/classic/browser/urlbar-arrow.png
   skin/classic/browser/web-notifications-icon.svg
   skin/classic/browser/web-notifications-tray.svg
-#ifdef MOZ_WEBRTC
-  skin/classic/browser/webRTC-shareDevice-16.png
-  skin/classic/browser/webRTC-shareDevice-64.png
-  skin/classic/browser/webRTC-sharingDevice-16.png
-#endif
   skin/classic/browser/downloads/buttons.png                          (downloads/buttons.png)
   skin/classic/browser/downloads/download-glow.png                    (downloads/download-glow.png)
   skin/classic/browser/downloads/download-glow-small.png              (downloads/download-glow-small.png)
@@ -125,17 +117,7 @@ browser.jar:
   skin/classic/browser/tabbrowser/tab-audio-small.svg                 (../shared/tabbrowser/tab-audio-small.svg)
 #ifdef MOZ_SERVICES_SYNC
   skin/classic/browser/sync-16-throbber.png
-  skin/classic/browser/sync-16.png
   skin/classic/browser/sync-24-throbber.png
-  skin/classic/browser/sync-32.png
-  skin/classic/browser/sync-bg.png
-  skin/classic/browser/sync-128.png
-  skin/classic/browser/sync-desktopIcon.png
-  skin/classic/browser/sync-mobileIcon.png
-  skin/classic/browser/syncSetup.css
-  skin/classic/browser/syncCommon.css
-  skin/classic/browser/syncQuota.css
-  skin/classic/browser/syncProgress.css
 #endif
   skin/classic/browser/notification-pluginNormal.png                  (../shared/plugins/notification-pluginNormal.png)
   skin/classic/browser/notification-pluginAlert.png                   (../shared/plugins/notification-pluginAlert.png)
