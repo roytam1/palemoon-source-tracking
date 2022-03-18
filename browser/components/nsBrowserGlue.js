@@ -1532,7 +1532,7 @@ BrowserGlue.prototype = {
       // DoNotTrack is now GPC. Carry across user preference.
       if (Services.prefs.prefHasUserValue("privacy.donottrackheader.enabled")) {
         let DNTEnabled = Services.prefs.getBoolPref("privacy.donottrackheader.enabled");
-        Service.prefs.setBoolPref("privacy.GPCheader.enabled", DNTEnabled);
+        Services.prefs.setBoolPref("privacy.GPCheader.enabled", DNTEnabled);
         Services.prefs.clearUserPref("privacy.donottrackheader.enabled");
       }
     }
