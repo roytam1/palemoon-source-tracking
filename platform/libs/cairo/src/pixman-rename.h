@@ -82,14 +82,14 @@
 #define pixman_image_set_source_clipping _moz_pixman_image_set_source_clipping
 #define pixman_image_set_alpha_map _moz_pixman_image_set_alpha_map
 #define pixman_image_set_component_alpha _moz_pixman_image_set_component_alpha
-#define pixman_image_set_accessors	 _moz_pixman_image_set_accessors	
-#define pixman_image_set_indexed	 _moz_pixman_image_set_indexed	
+#define pixman_image_set_accessors     _moz_pixman_image_set_accessors    
+#define pixman_image_set_indexed     _moz_pixman_image_set_indexed    
 #define pixman_image_get_data _moz_pixman_image_get_data
 #define pixman_image_get_width _moz_pixman_image_get_width
 #define pixman_image_get_height _moz_pixman_image_get_height
 #define pixman_image_get_stride _moz_pixman_image_get_stride
 #define pixman_image_get_depth _moz_pixman_image_get_depth
-#define pixman_image_fill_rectangles	 _moz_pixman_image_fill_rectangles	
+#define pixman_image_fill_rectangles     _moz_pixman_image_fill_rectangles    
 #define pixman_compute_composite_region _moz_pixman_compute_composite_region
 #define pixman_image_composite _moz_pixman_image_composite
 #define pixman_sample_ceil_y _moz_pixman_sample_ceil_y

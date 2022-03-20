@@ -208,11 +208,7 @@ else:
     env.setdefault('CC', compiler)
     env.setdefault('CXX', cxx)
 
-if platform.system() == 'Darwin':
-    os.environ['SOURCE'] = DIR.source
-    set_vars_from_script(os.path.join(DIR.scripts, 'macbuildenv.sh'),
-                         ['CC', 'CXX'])
-elif platform.system() == 'Windows':
+if platform.system() == 'Windows':
     MAKE = env.get('MAKE', 'mozmake')
     os.environ['SOURCE'] = DIR.source
     if word_bits == 64:

@@ -51,16 +51,15 @@ FFVPXRuntimeLinker::Init()
 
   sLinkStatus = LinkStatus_FAILED;
 
-  // We retrieve the path of the lgpllibs library as this is where mozavcodec
-  // and mozavutil libs are located.
-  char* lgpllibsname = PR_GetLibraryName(nullptr, "lgpllibs");
-  if (!lgpllibsname) {
+  // We retrieve the path of the lgplmedia library as this is where ffvpx* libs are located.
+  char* lgplmedianame = PR_GetLibraryName(nullptr, "lgplmedia");
+  if (!lgplmedianame) {
     return false;
   }
   char* path =
-    PR_GetLibraryFilePathname(lgpllibsname,
+    PR_GetLibraryFilePathname(lgplmedianame,
                               (PRFuncPtr)&soundtouch::SoundTouch::getVersionId);
-  PR_FreeLibraryName(lgpllibsname);
+  PR_FreeLibraryName(lgplmedianame);
   if (!path) {
     return false;
   }
@@ -77,19 +76,23 @@ FFVPXRuntimeLinker::Init()
     return false;
   }
   nsAutoCString rootPath;
+#ifdef XP_WIN
+  if (NS_FAILED(rootDir->GetPersistentDescriptor(rootPath))) {
+#else
   if (NS_FAILED(rootDir->GetNativePath(rootPath))) {
+#endif
     return false;
   }
 
   char* libname = NULL;
   /* Get the platform-dependent library name of the module */
-  libname = PR_GetLibraryName(rootPath.get(), "mozavutil");
+  libname = PR_GetLibraryName(rootPath.get(), "ffvpxutil");
   if (!libname) {
     return false;
   }
   sFFVPXLib.mAVUtilLib = MozAVLink(libname);
   PR_FreeLibraryName(libname);
-  libname = PR_GetLibraryName(rootPath.get(), "mozavcodec");
+  libname = PR_GetLibraryName(rootPath.get(), "ffvpxcodec");
   if (libname) {
     sFFVPXLib.mAVCodecLib = MozAVLink(libname);
     PR_FreeLibraryName(libname);

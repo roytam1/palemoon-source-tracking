@@ -13,9 +13,9 @@ SOURCES += [
 
 FINAL_LIBRARY = 'xul'
 LOCAL_INCLUDES += [
-    '/image',
-    '/image/encoders/bmp',
-    '/image/encoders/ico',
-    '/image/encoders/jpeg',
-    '/image/encoders/png',
+    '/system/image',
+    '/system/image/encoders/bmp',
+    '/system/image/encoders/ico',
+    '/system/image/encoders/jpeg',
+    '/system/image/encoders/png',
 ]

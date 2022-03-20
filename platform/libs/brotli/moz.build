@@ -39,7 +39,7 @@ CFLAGS += ['-DBROTLI_BUILD_PORTABLE']
 
 Library('brotli')
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 HostProgram('brotli')
 

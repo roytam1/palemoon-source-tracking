@@ -29,7 +29,7 @@ SOURCES += [
 LOCAL_INCLUDES += [
     '/dom/base',
     '/dom/workers',
-    '/netwerk/base',
+    '/system/network/base',
 ]
 
 MOCHITEST_MANIFESTS += [ 'tests/mochitest.ini' ]

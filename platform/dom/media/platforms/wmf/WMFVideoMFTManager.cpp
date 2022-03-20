@@ -1,13 +1,14 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
+#include "WMF.h"
 #include <algorithm>
 #include <winsdkver.h>
 #include <psapi.h>
 #include "WMFVideoMFTManager.h"
+#include "WMFDecoderModule.h"
 #include "MediaDecoderReader.h"
 #include "gfxPrefs.h"
 #include "WMFUtils.h"
@@ -18,6 +19,7 @@
 #include "Layers.h"
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/layers/LayersTypes.h"
+#include "mozilla/gfx/gfxVars.h"
 #include "MediaInfo.h"
 #include "mozilla/Logging.h"
 #include "nsWindowsHelpers.h"
@@ -25,12 +27,12 @@
 #include "gfxWindowsPlatform.h"
 #include "IMFYCbCrImage.h"
 #include "mozilla/WindowsVersion.h"
-#include "mozilla/Telemetry.h"
 #include "nsPrintfCString.h"
-#include "GMPUtils.h" // For SplitAt. TODO: Move SplitAt to a central place.
+#include "nsIFile.h"
 #include "MP4Decoder.h"
 #include "VPXDecoder.h"
 #include "mozilla/SyncRunnable.h"
+
 
 #define LOG(...) MOZ_LOG(sPDMLog, mozilla::LogLevel::Debug, (__VA_ARGS__))
 
@@ -67,6 +69,21 @@ const CLSID CLSID_WebmMfVpxDec =
 };
 
 namespace mozilla {
+
+// Utility function only used here.
+// XXXMC: Perhaps make this available globally?
+void
+SplitAt(const char* aDelims,
+        const nsACString& aInput,
+        nsTArray<nsCString>& aOutTokens)
+{
+  nsAutoCString str(aInput);
+  char* end = str.BeginWriting();
+  const char* start = nullptr;
+  while (!!(start = NS_strtok(aDelims, &end))) {
+    aOutTokens.AppendElement(nsCString(start));
+  }
+}
 
 LayersBackend
 GetCompositorBackendType(layers::KnowsCompositor* aKnowsCompositor)
@@ -116,19 +133,6 @@ WMFVideoMFTManager::~WMFVideoMFTManager()
   if (mDXVA2Manager) {
     DeleteOnMainThread(mDXVA2Manager);
   }
-
-  // Record whether the video decoder successfully decoded, or output null
-  // samples but did/didn't recover.
-  uint32_t telemetry = (mNullOutputCount == 0) ? 0 :
-                       (mGotValidOutputAfterNullOutput && mGotExcessiveNullOutput) ? 1 :
-                       mGotExcessiveNullOutput ? 2 :
-                       mGotValidOutputAfterNullOutput ? 3 :
-                       4;
-
-  nsCOMPtr<nsIRunnable> task = NS_NewRunnableFunction([=]() -> void {
-    LOG(nsPrintfCString("Reporting telemetry VIDEO_MFT_OUTPUT_NULL_SAMPLES=%d", telemetry).get());
-  });
-  AbstractThread::MainThread()->Dispatch(task.forget());
 }
 
 const GUID&

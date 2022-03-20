@@ -166,12 +166,3 @@ dictionary RTCStatsReportInternal {
   boolean                             closed; // Is the PC now closed
 };
 
-[Pref="media.peerconnection.enabled",
-// TODO: Use MapClass here once it's available (Bug 928114)
-// MapClass(DOMString, object)
- JSImplementation="@mozilla.org/dom/rtcstatsreport;1"]
-interface RTCStatsReport {
-  readonly maplike<DOMString, object>;
-  [ChromeOnly]
-  readonly attribute DOMString mozPcid;
-};

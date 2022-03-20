@@ -71,7 +71,7 @@ if CONFIG['MOZ_MAILNEWS_OAUTH2']:
     ]
 
 LOCAL_INCLUDES += [
-  '/netwerk/base'
+  '/system/network/base'
 ]
 
 FINAL_LIBRARY = 'mail'

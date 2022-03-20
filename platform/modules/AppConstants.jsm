@@ -6,6 +6,10 @@
 
 "use strict";
 
+// XXXTobin: This file is deprecated but too much annoying shit still uses it.
+// Half of what it provides is just hard-coded to false.
+// So don't fuckin trust it, moron.
+
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 XPCOMUtils.defineLazyModuleGetter(this, "Services", "resource://gre/modules/Services.jsm");
 
@@ -13,21 +17,10 @@ this.EXPORTED_SYMBOLS = ["AppConstants"];
 
 // Immutable for export.
 this.AppConstants = Object.freeze({
-  // See this wiki page for more details about channel specific build
-  // defines: https://wiki.mozilla.org/Platform/Channel-specific_build_defines
-  NIGHTLY_BUILD:
-#ifdef NIGHTLY_BUILD
-  true,
-#else
-  false,
-#endif
 
-  RELEASE_OR_BETA:
-#ifdef RELEASE_OR_BETA
-  true,
-#else
-  false,
-#endif
+  // We don't use nightly or alpha channels here. Flag all as release.
+  NIGHTLY_BUILD: false,
+  RELEASE_OR_BETA: true,
 
   ACCESSIBILITY:
 #ifdef ACCESSIBILITY
@@ -35,22 +28,13 @@ this.AppConstants = Object.freeze({
 #else
   false,
 #endif
-
-  // Official corresponds to whether this build is considered an
-  // official, branded release for the public. You should
-  // disable developer-only functionality when this flag is set.
-  // MOZILLA_OFFICIAL is deprecated but kept for extension compatibility.
-  MOZILLA_OFFICIAL:
+  
 #ifdef MC_OFFICIAL
-  true,
+  MOZILLA_OFFICIAL: true,
+  MC_OFFICIAL: true,
 #else
-  false,
-#endif
-  MC_OFFICIAL:
-#ifdef MC_OFFICIAL
-  true,
-#else
-  false,
+  MOZILLA_OFFICIAL: false,
+  MC_OFFICIAL: false,
 #endif
 
   MOZ_OFFICIAL_BRANDING:
@@ -60,57 +44,8 @@ this.AppConstants = Object.freeze({
   false,
 #endif
 
-  MOZ_SERVICES_HEALTHREPORT:
-#ifdef MOZ_SERVICES_HEALTHREPORT
-  true,
-#else
-  false,
-#endif
-
-  MOZ_DATA_REPORTING:
-#ifdef MOZ_DATA_REPORTING
-  true,
-#else
-  false,
-#endif
-
-MOZ_SAFE_BROWSING:
-#ifdef MOZ_SAFE_BROWSING
-  true,
-#else
-  false,
-#endif
-
-  MOZ_TELEMETRY_REPORTING:
-#ifdef MOZ_TELEMETRY_REPORTING
-  true,
-#else
-  false,
-#endif
-
-  MOZ_TELEMETRY_ON_BY_DEFAULT:
-#ifdef MOZ_TELEMETRY_ON_BY_DEFAULT
-  true,
-#else
-  false,
-#endif
-
   MOZ_UPDATER:
 #ifdef MOZ_UPDATER
-  true,
-#else
-  false,
-#endif
-
-  MOZ_SWITCHBOARD:
-#ifdef MOZ_SWITCHBOARD
-  true,
-#else
-  false,
-#endif
-
-  MOZ_WEBRTC:
-#ifdef MOZ_WEBRTC
   true,
 #else
   false,
@@ -125,36 +60,6 @@ MOZ_SAFE_BROWSING:
 
   XP_UNIX:
 #ifdef XP_UNIX
-  true,
-#else
-  false,
-#endif
-
-  platform:
-#ifdef MOZ_WIDGET_GTK
-  "linux",
-#elif XP_WIN
-  "win",
-#elif XP_LINUX
-  "linux",
-#else
-  "other",
-#endif
-
-  isPlatformAndVersionAtLeast(platform, version) {
-    let platformVersion = Services.sysinfo.getProperty("version");
-    return platform == this.platform &&
-           Services.vc.compare(platformVersion, version) >= 0;
-  },
-
-  isPlatformAndVersionAtMost(platform, version) {
-    let platformVersion = Services.sysinfo.getProperty("version");
-    return platform == this.platform &&
-           Services.vc.compare(platformVersion, version) <= 0;
-  },
-
-  MOZ_VERIFY_MAR_SIGNATURE:
-#ifdef MOZ_VERIFY_MAR_SIGNATURE
   true,
 #else
   false,
@@ -202,28 +107,6 @@ MOZ_SAFE_BROWSING:
   false,
 #endif
 
-  DLL_PREFIX: "@DLL_PREFIX@",
-  DLL_SUFFIX: "@DLL_SUFFIX@",
-
-  MOZ_APP_NAME: "@MOZ_APP_NAME@",
-  MOZ_APP_VERSION: "@MOZ_APP_VERSION@",
-  MOZ_APP_VERSION_DISPLAY: "@MOZ_APP_VERSION_DISPLAY@",
-
-  MOZ_BUILD_APP:
-#ifdef MOZ_PHOENIX
-  "browser",
-#else
-  "@MOZ_BUILD_APP@",
-#endif
-
-  MOZ_MACBUNDLE_NAME: "@MOZ_MACBUNDLE_NAME@",
-  MOZ_UPDATE_CHANNEL: "@MOZ_UPDATE_CHANNEL@",
-  INSTALL_LOCALE: "@AB_CD@",
-  MOZ_WIDGET_TOOLKIT: "@MOZ_WIDGET_TOOLKIT@",
-  ANDROID_PACKAGE_NAME: "@ANDROID_PACKAGE_NAME@",
-
-  DEBUG_JS_MODULES: "@DEBUG_JS_MODULES@",
-
   // URL to the hg revision this was built from (e.g.
   // "https://hg.mozilla.org/mozilla-central/rev/6256ec9113c1")
   // On unofficial builds, this is an empty string.
@@ -245,4 +128,67 @@ MOZ_SAFE_BROWSING:
 #else
     false,
 #endif
+
+  DLL_PREFIX: "@DLL_PREFIX@",
+  DLL_SUFFIX: "@DLL_SUFFIX@",
+
+  MOZ_APP_NAME: "@MOZ_APP_NAME@",
+  MOZ_APP_VERSION: "@MOZ_APP_VERSION@",
+  MOZ_APP_VERSION_DISPLAY: "@MOZ_APP_VERSION_DISPLAY@",
+  MOZ_BUILD_APP: "@MOZ_BUILD_APP@",
+  MOZ_MACBUNDLE_NAME: "FakeMacBundleName.app",
+  MOZ_UPDATE_CHANNEL: "@MOZ_UPDATE_CHANNEL@",
+  INSTALL_LOCALE: "@AB_CD@",
+  MOZ_WIDGET_TOOLKIT: "@MOZ_WIDGET_TOOLKIT@",
+  ANDROID_PACKAGE_NAME: "name.package.android.fake",
+  MOZ_B2G_VERSION: "2.6.0.0-prerelease",
+  MOZ_B2G_OS_NAME: "Boot2Failure",
+
+  DEBUG_JS_MODULES: "@DEBUG_JS_MODULES@",
+
+  MOZ_DEV_EDITION: false,
+  MOZ_SERVICES_HEALTHREPORT: false,
+  MOZ_DATA_REPORTING: false,
+  MOZ_SANDBOX: false,
+  MOZ_CONTENT_SANDBOX: false,
+  MOZ_TELEMETRY_REPORTING: false,
+  MOZ_TELEMETRY_ON_BY_DEFAULT: false,
+  MOZ_SERVICES_CLOUDSYNC: false,
+  MOZ_SWITCHBOARD: false,
+  MOZ_WEBRTC: false,
+  MOZ_B2G: false,
+  MOZ_CRASHREPORTER: false,
+  MOZ_VERIFY_MAR_SIGNATURE: false,
+  MOZ_MAINTENANCE_SERVICE: false,
+  E10S_TESTING_ONLY: false,
+  MOZ_B2G_RIL: false,
+  MOZ_GRAPHENE: false,
+  MOZ_SYSTEM_NSS: false,
+  MOZ_REQUIRE_SIGNING: false,
+  MOZ_ANDROID_HISTORY: false,
+  MOZ_ENABLE_PROFILER_SPS: false,
+  MOZ_ANDROID_ACTIVITY_STREAM: false,
+
+  platform:
+#ifdef MOZ_WIDGET_GTK
+  "linux",
+#elif XP_WIN
+  "win",
+#elif XP_LINUX
+  "linux",
+#else
+  "other",
+#endif
+
+  isPlatformAndVersionAtLeast(platform, version) {
+    let platformVersion = Services.sysinfo.getProperty("version");
+    return platform == this.platform &&
+           Services.vc.compare(platformVersion, version) >= 0;
+  },
+
+  isPlatformAndVersionAtMost(platform, version) {
+    let platformVersion = Services.sysinfo.getProperty("version");
+    return platform == this.platform &&
+           Services.vc.compare(platformVersion, version) <= 0;
+  },
 });

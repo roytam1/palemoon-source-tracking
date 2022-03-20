@@ -29,6 +29,6 @@ SOURCES += [
     'vp9mc_16bpp.asm',
 ]
 
-FINAL_LIBRARY = 'mozavcodec'
+FINAL_LIBRARY = 'ffvpxcodec'
 
-include('/media/ffvpx/ffvpxcommon.mozbuild')
+include('/libs/ffvpx/ffvpxcommon.mozbuild')

@@ -15,7 +15,7 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    '/media/openmax_il/il112',
+    '/libs/openmax_il/il112',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')

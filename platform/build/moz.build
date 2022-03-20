@@ -3,9 +3,6 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-with Files('**'):
-    BUG_COMPONENT = ('Core', 'Build Config')
-
 # This cannot be named "build" because of bug 922191.
 SPHINX_TREES['buildsystem'] = 'docs'
 
@@ -13,9 +10,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
     DIRS += ['win32']
 else:
     DIRS += ['unix']
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'android':
-    DIRS += ['annotationProcessors']
 
 for var in ('GRE_MILESTONE',
             'MOZ_APP_VERSION',
@@ -28,8 +22,9 @@ for var in ('GRE_MILESTONE',
             'MOZ_BUILD_APP'):
     DEFINES[var] = CONFIG[var]
 
-if CONFIG['MOZ_APP_DISPLAYNAME'] != CONFIG['MOZ_APP_BASENAME']:
-    DEFINES['MOZ_APP_DISPLAYNAME'] = CONFIG['MOZ_APP_DISPLAYNAME']
+if CONFIG['MOZ_APP_DISPLAYNAME']:
+  if CONFIG['MOZ_APP_DISPLAYNAME'] != CONFIG['MOZ_APP_BASENAME']:
+      DEFINES['MOZ_APP_DISPLAYNAME'] = CONFIG['MOZ_APP_DISPLAYNAME']
 
 if CONFIG['MOZ_PHOENIX']:
     DEFINES['MOZ_PHOENIX'] = CONFIG['MOZ_PHOENIX']
@@ -45,6 +40,15 @@ for var in ('MOZ_PROFILE_MIGRATOR',
             'MOZ_APP_STATIC_INI'):
     if CONFIG[var]:
         DEFINES[var] = True
+
+if CONFIG['MOZ_APP_BASENAME'] in ('Palemoon', 'PaleMoon'):
+    DEFINES['MOZ_APP_BASENAME'] = "Pale Moon"
+    DEFINES['MOZ_APP_DISPLAYNAME'] = "Pale Moon"
+
+if CONFIG['MOZ_APP_VENDOR'] in ('Moonchild', 'MoonchildProductions'):
+    DEFINES['MOZ_APP_VENDOR'] = "Moonchild Productions"
+elif CONFIG['MOZ_APP_VENDOR'] in ('BinOC', 'Binary Outcast'):
+    DEFINES['MOZ_APP_VENDOR'] = "Binary Outcast"
 
 if CONFIG['MOZ_PHOENIX']:
     PYTHON_UNIT_TESTS += [
@@ -70,7 +74,7 @@ if CONFIG['MOZ_ASAN'] and CONFIG['CLANG_CL']:
 
 if CONFIG['MOZ_APP_BASENAME']:
     FINAL_TARGET_PP_FILES += ['application.ini']
-    if CONFIG['MOZ_WIDGET_TOOLKIT'] != 'android' and CONFIG['MOZ_UPDATER']:
+    if CONFIG['MOZ_UPDATER']:
         FINAL_TARGET_PP_FILES += ['update-settings.ini']
 
     if CONFIG['MOZ_APP_STATIC_INI']:
@@ -102,11 +106,4 @@ if CONFIG['MOZ_VALGRIND']:
         'valgrind/cross-architecture.sup',
         'valgrind/i386-redhat-linux-gnu.sup',
         'valgrind/x86_64-redhat-linux-gnu.sup',
-    ]
-
-if CONFIG['MOZ_ARTIFACT_BUILDS']:
-    # Ensure a pre-built interfaces.xpt installed to the objdir by the artifact
-    # code is included by the top-level chrome.manifest.
-    EXTRA_COMPONENTS += [
-        'prebuilt-interfaces.manifest',
     ]

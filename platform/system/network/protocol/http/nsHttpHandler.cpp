@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-/* vim:set ts=4 sw=4 sts=4 et cin: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -71,11 +70,6 @@
 #include <windows.h>
 #endif
 
-#if defined(XP_MACOSX)
-#include <CoreServices/CoreServices.h>
-#include "nsCocoaFeatures.h"
-#endif
-
 //-----------------------------------------------------------------------------
 #include "mozilla/net/HttpChannelChild.h"
 
@@ -89,12 +83,12 @@
 #define HTTP_PREF_PREFIX        "network.http."
 #define INTL_ACCEPT_LANGUAGES   "intl.accept_languages"
 #define BROWSER_PREF_PREFIX     "browser.cache."
-#define DONOTTRACK_HEADER_ENABLED "privacy.donottrackheader.enabled"
-#define H2MANDATORY_SUITE        "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256"
-#define ALLOW_EXPERIMENTS        "network.allow-experiments"
-#define SAFE_HINT_HEADER_VALUE   "safeHint.enabled"
-#define SECURITY_PREFIX          "security."
-#define NEW_TAB_REMOTE_MODE           "browser.newtabpage.remote.mode"
+#define GPC_HEADER_ENABLED      "privacy.GPCheader.enabled"
+#define H2MANDATORY_SUITE       "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256"
+#define ALLOW_EXPERIMENTS       "network.allow-experiments"
+#define SAFE_HINT_HEADER_VALUE  "safeHint.enabled"
+#define SECURITY_PREFIX         "security."
+#define NEW_TAB_REMOTE_MODE     "browser.newtabpage.remote.mode"
 
 #define GUA_PREF(_pref) GENERAL_UA_PREF_PREFIX _pref
 #define UA_PREF(_pref) HTTP_PREF_PREFIX UA_PREF_PREFIX _pref
@@ -184,7 +178,7 @@ nsHttpHandler::nsHttpHandler()
     , mAcceptLanguagesIsDirty(true)
     , mPromptTempRedirect(true)
     , mEnablePersistentHttpsCaching(false)
-    , mDoNotTrackEnabled(false)
+    , mGPCEnabled(false)
     , mSafeHintEnabled(false)
     , mParentalControlEnabled(false)
     , mHandlerActive(false)
@@ -282,7 +276,7 @@ nsHttpHandler::Init()
         prefBranch->AddObserver(GENERAL_UA_PREF_PREFIX, this, true);
         prefBranch->AddObserver(INTL_ACCEPT_LANGUAGES, this, true);
         prefBranch->AddObserver(BROWSER_PREF("disk_cache_ssl"), this, true);
-        prefBranch->AddObserver(DONOTTRACK_HEADER_ENABLED, this, true);
+        prefBranch->AddObserver(GPC_HEADER_ENABLED, this, true);
         prefBranch->AddObserver(H2MANDATORY_SUITE, this, true);
         prefBranch->AddObserver(HTTP_PREF("tcp_keepalive.short_lived_connections"), this, true);
         prefBranch->AddObserver(HTTP_PREF("tcp_keepalive.long_lived_connections"), this, true);
@@ -786,8 +780,6 @@ nsHttpHandler::InitUserAgentComponents()
     mPlatform.AssignLiteral(
 #if defined(XP_WIN)
     "Windows"
-#elif defined(XP_MACOSX)
-    "Macintosh"
 #elif defined(XP_UNIX)
     // We historically have always had X11 here,
     // and there seems little a webpage can sensibly do
@@ -1491,11 +1483,11 @@ nsHttpHandler::PrefsChanged(nsIPrefBranch *prefs, const char *pref)
     // Tracking options
     //
 
-    if (PREF_CHANGED(DONOTTRACK_HEADER_ENABLED)) {
+    if (PREF_CHANGED(GPC_HEADER_ENABLED)) {
         cVar = false;
-        rv = prefs->GetBoolPref(DONOTTRACK_HEADER_ENABLED, &cVar);
+        rv = prefs->GetBoolPref(GPC_HEADER_ENABLED, &cVar);
         if (NS_SUCCEEDED(rv)) {
-            mDoNotTrackEnabled = cVar;
+            mGPCEnabled = cVar;
         }
     }
     // Hint option
@@ -1507,8 +1499,7 @@ nsHttpHandler::PrefsChanged(nsIPrefBranch *prefs, const char *pref)
         }
     }
 
-    // toggle to true anytime a token bucket related pref is changed.. that
-    // includes telemetry and allow-experiments because of the abtest profile
+    // toggle to true anytime a token bucket related pref is changed.
     bool requestTokenBucketUpdated = false;
 
     // "security.ssl3.ecdhe_rsa_aes_128_gcm_sha256" is the required h2 interop

@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -79,14 +78,8 @@ public:
   void SetFFmpegFailedToLoad() { mFFmpegFailedToLoad = true; }
   bool DidFFmpegFailToLoad() const { return mFFmpegFailedToLoad; }
 
-  void SetGMPPDMFailedToStartup() { mGMPPDMFailedToStartup = true; }
-  bool DidGMPPDMFailToStartup() const { return mGMPPDMFailedToStartup; }
-
   void SetVideoNotSupported() { mVideoNotSupported = true; }
   void SetAudioNotSupported() { mAudioNotSupported = true; }
-
-  void SetGMP(const nsACString& aGMP) { mGMP = aGMP; }
-  const nsACString& GMP() const { return mGMP; }
 
   const nsAString& KeySystem() const { return mKeySystem; }
   bool IsKeySystemSupported() const { return mIsKeySystemSupported; }
@@ -120,10 +113,8 @@ private:
 
   bool mWMFFailedToLoad = false;
   bool mFFmpegFailedToLoad = false;
-  bool mGMPPDMFailedToStartup = false;
   bool mVideoNotSupported = false;
   bool mAudioNotSupported = false;
-  nsCString mGMP;
 
   nsString mKeySystem;
   bool mIsKeySystemSupported = false;

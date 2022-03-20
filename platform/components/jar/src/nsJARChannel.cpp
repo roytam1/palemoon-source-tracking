@@ -1023,8 +1023,7 @@ nsJARChannel::OnStopRequest(nsIRequest *req, nsISupports *ctx, nsresult status)
     mCallbacks = nullptr;
     mProgressSink = nullptr;
 
-    #if defined(XP_WIN) || defined(MOZ_WIDGET_COCOA)
-    #else
+    #if !defined(XP_WIN)
     // To deallocate file descriptor by RemoteOpenFileChild destructor.
     mJarFile = nullptr;
     #endif

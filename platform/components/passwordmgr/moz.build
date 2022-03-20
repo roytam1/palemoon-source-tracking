@@ -7,51 +7,40 @@ if CONFIG['MOZ_PHOENIX']:
     DEFINES['MOZ_BUILD_APP_IS_BROWSER'] = True
 
 XPIDL_SOURCES += [
-    'nsILoginInfo.idl',
-    'nsILoginManager.idl',
-    'nsILoginManagerCrypto.idl',
-    'nsILoginManagerPrompter.idl',
-    'nsILoginManagerStorage.idl',
-    'nsILoginMetaInfo.idl',
+    'public/nsILoginInfo.idl',
+    'public/nsILoginManager.idl',
+    'public/nsILoginManagerCrypto.idl',
+    'public/nsILoginManagerPrompter.idl',
+    'public/nsILoginManagerStorage.idl',
+    'public/nsILoginMetaInfo.idl',
 ]
 
-XPIDL_MODULE = 'loginmgr'
-
 EXTRA_COMPONENTS += [
-    'crypto-SDR.js',
-    'nsLoginInfo.js',
-    'nsLoginManager.js',
-    'nsLoginManagerPrompter.js',
-    'passwordmgr.manifest'
+    'passwordmgr.manifest',
+    'src/crypto-SDR.js',
+    'src/nsLoginInfo.js',
+    'src/nsLoginManager.js',
+    'src/nsLoginManagerPrompter.js',
+    'src/storage-json.js',
 ]
 
 EXTRA_JS_MODULES += [
-    'InsecurePasswordUtils.jsm',
-    'LoginHelper.jsm',
-    'LoginManagerContent.jsm',
-    'LoginManagerParent.jsm',
-    'LoginRecipes.jsm',
-]
-
-EXTRA_PP_JS_MODULES += ['OSCrypto.jsm']
-
-EXTRA_COMPONENTS += [
-    'storage-json.js',
-]
-
-EXTRA_JS_MODULES += [
-    'LoginImport.jsm',
-    'LoginStore.jsm',
+    'src/InsecurePasswordUtils.jsm',
+    'src/LoginHelper.jsm',
+    'src/LoginImport.jsm',
+    'src/LoginManagerContent.jsm',
+    'src/LoginManagerParent.jsm',
+    'src/LoginRecipes.jsm',
+    'src/LoginStore.jsm',
 ]
 
 if CONFIG['OS_TARGET'] == 'WINNT':
-    EXTRA_JS_MODULES += [
-        'OSCrypto_win.js',
-    ]
+    EXTRA_JS_MODULES += ['src/OSCrypto_win.js']
 
 if CONFIG['MOZ_PHOENIX']:
-    EXTRA_JS_MODULES += [
-        'LoginManagerContextMenu.jsm',
-    ]
+    EXTRA_JS_MODULES += ['src/LoginManagerContextMenu.jsm']
 
+EXTRA_PP_JS_MODULES += ['src/OSCrypto.jsm']
+
+XPIDL_MODULE = 'loginmgr'
 JAR_MANIFESTS += ['jar.mn']

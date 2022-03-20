@@ -87,7 +87,7 @@ case $cmd in
     cp -pPR ${TOPSRCDIR}/Makefile.in ${TOPSRCDIR}/moz.build ${tgtpath}
 
     # copy nspr.
-    cp -pPR ${SRCDIR}/../../nsprpub ${tgtpath}
+    cp -pPR ${SRCDIR}/../../libs/nspr/src ${tgtpath}
 
     # copy top-level build and config files.
     cp -p ${TOPSRCDIR}/configure.py ${TOPSRCDIR}/moz.configure ${tgtpath}
@@ -116,18 +116,14 @@ case $cmd in
     cp -pPR \
         ${TOPSRCDIR}/dom/bindings/mozwebidlcodegen \
         ${tgtpath}/dom/bindings
-    ${MKDIR} -p ${tgtpath}/media/webrtc/trunk/tools
-    cp -pPR \
-        ${TOPSRCDIR}/media/webrtc/trunk/tools/gyp \
-        ${tgtpath}/media/webrtc/trunk/tools
     ${MKDIR} -p ${tgtpath}/testing
     cp -pPR \
         ${TOPSRCDIR}/testing/mozbase \
         ${tgtpath}/testing
     ${MKDIR} -p ${tgtpath}/modules
     cp -pPR \
-       ${TOPSRCDIR}/modules/fdlibm \
-       ${tgtpath}/modules/fdlibm
+       ${TOPSRCDIR}/libs/fdlibm \
+       ${tgtpath}/libs/fdlibm
     cp -pPR \
         ${TOPSRCDIR}/modules/zlib/src/ \
         ${tgtpath}/modules/zlib

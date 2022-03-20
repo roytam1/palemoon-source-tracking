@@ -112,10 +112,6 @@ public:
     return mReader->CanonicalBuffered();
   }
 
-#ifdef MOZ_EME
-  void SetCDMProxy(CDMProxy* aProxy) { mReader->SetCDMProxy(aProxy); }
-#endif
-
   void SetVideoBlankDecode(bool aIsBlankDecode);
 
 private:

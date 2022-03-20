@@ -28,10 +28,7 @@
 #include "plstr.h"
 #include "mozilla/Attributes.h"
 
-#ifdef MOZ_WIDGET_COCOA
-#include <CoreFoundation/CoreFoundation.h>
-#include "nsILocalFileMac.h"
-#elif defined(XP_WIN)
+#if defined(XP_WIN)
 #include <windows.h>
 #include <shlobj.h>
 #elif defined(XP_UNIX)
@@ -252,35 +249,7 @@ nsCommandLine::ResolveFile(const nsAString& aArgument, nsIFile* *aResult)
 
   nsresult rv;
 
-#if defined(MOZ_WIDGET_COCOA)
-  nsCOMPtr<nsILocalFileMac> lfm (do_QueryInterface(mWorkingDir));
-  NS_ENSURE_TRUE(lfm, NS_ERROR_NO_INTERFACE);
-
-  nsCOMPtr<nsILocalFileMac> newfile (do_CreateInstance(NS_LOCAL_FILE_CONTRACTID));
-  NS_ENSURE_TRUE(newfile, NS_ERROR_OUT_OF_MEMORY);
-
-  CFURLRef baseurl;
-  rv = lfm->GetCFURL(&baseurl);
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  nsAutoCString path;
-  NS_CopyUnicodeToNative(aArgument, path);
-
-  CFURLRef newurl =
-    CFURLCreateFromFileSystemRepresentationRelativeToBase(nullptr, (const UInt8*) path.get(),
-                                                          path.Length(),
-                                                          true, baseurl);
-
-  CFRelease(baseurl);
-
-  rv = newfile->InitWithCFURL(newurl);
-  CFRelease(newurl);
-  if (NS_FAILED(rv)) return rv;
-
-  newfile.forget(aResult);
-  return NS_OK;
-
-#elif defined(XP_UNIX)
+#if defined(XP_UNIX)
   nsCOMPtr<nsIFile> lf (do_CreateInstance(NS_LOCAL_FILE_CONTRACTID));
   NS_ENSURE_TRUE(lf, NS_ERROR_OUT_OF_MEMORY);
 
@@ -297,7 +266,11 @@ nsCommandLine::ResolveFile(const nsAString& aArgument, nsIFile* *aResult)
   NS_CopyUnicodeToNative(aArgument, nativeArg);
 
   nsAutoCString newpath;
+#ifdef XP_WIN
+  mWorkingDir->GetPersistentDescriptor(newpath);
+#else
   mWorkingDir->GetNativePath(newpath);
+#endif
 
   newpath.Append('/');
   newpath.Append(nativeArg);

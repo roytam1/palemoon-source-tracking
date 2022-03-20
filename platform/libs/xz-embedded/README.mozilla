@@ -9,6 +9,6 @@ and cloned by
 
 The in-tree copy is updated by running
   sh update.sh
-from within the modules/xz-embedded directory.
+from within the libs/xz-embedded directory.
 
 Current version: [e75f4eb79165213a02d567940d344f5c2ff1be03].

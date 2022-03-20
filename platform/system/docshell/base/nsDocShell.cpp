@@ -174,8 +174,6 @@
 
 #include "nsISelectionDisplay.h"
 
-#include "nsIGlobalHistory2.h"
-
 #include "nsIFrame.h"
 #include "nsSubDocumentFrame.h"
 
@@ -530,9 +528,8 @@ SendPing(void* aClosure, nsIContent* aContent, nsIURI* aURI,
     return;
   }
 
-  // Don't bother caching the result of this URI load, but do not exempt
-  // it from Safe Browsing.
-  chan->SetLoadFlags(nsIRequest::INHIBIT_CACHING | nsIChannel::LOAD_CLASSIFY_URI);
+  // Don't bother caching the result of this URI load.
+  chan->SetLoadFlags(nsIRequest::INHIBIT_CACHING);
 
   nsCOMPtr<nsIHttpChannel> httpChan = do_QueryInterface(chan);
   if (!httpChan) {
@@ -1562,10 +1559,6 @@ nsDocShell::LoadURI(nsIURI* aURI,
     flags |= INTERNAL_LOAD_FLAGS_FIRST_LOAD;
   }
 
-  if (aLoadFlags & LOAD_FLAGS_BYPASS_CLASSIFIER) {
-    flags |= INTERNAL_LOAD_FLAGS_BYPASS_CLASSIFIER;
-  }
-
   if (aLoadFlags & LOAD_FLAGS_FORCE_ALLOW_COOKIES) {
     flags |= INTERNAL_LOAD_FLAGS_FORCE_ALLOW_COOKIES;
   }
@@ -1664,7 +1657,7 @@ nsDocShell::LoadStream(nsIInputStream* aStream, nsIURI* aURI,
   nsCOMPtr<nsIURILoader> uriLoader(do_GetService(NS_URI_LOADER_CONTRACTID));
   NS_ENSURE_TRUE(uriLoader, NS_ERROR_FAILURE);
 
-  NS_ENSURE_SUCCESS(DoChannelLoad(channel, uriLoader, false),
+  NS_ENSURE_SUCCESS(DoChannelLoad(channel, uriLoader),
                     NS_ERROR_FAILURE);
   return NS_OK;
 }
@@ -4404,27 +4397,15 @@ nsDocShell::AddChildSHEntryToParent(nsISHEntry* aNewEntry, int32_t aChildOffset,
 NS_IMETHODIMP
 nsDocShell::SetUseGlobalHistory(bool aUseGlobalHistory)
 {
-  nsresult rv;
-
   mUseGlobalHistory = aUseGlobalHistory;
 
   if (!aUseGlobalHistory) {
-    mGlobalHistory = nullptr;
     return NS_OK;
   }
 
-  // No need to initialize mGlobalHistory if IHistory is available.
   nsCOMPtr<IHistory> history = services::GetHistoryService();
-  if (history) {
-    return NS_OK;
-  }
 
-  if (mGlobalHistory) {
-    return NS_OK;
-  }
-
-  mGlobalHistory = do_GetService(NS_GLOBALHISTORY2_CONTRACTID, &rv);
-  return rv;
+  return history ? NS_OK : NS_ERROR_FAILURE;
 }
 
 NS_IMETHODIMP
@@ -4995,31 +4976,6 @@ nsDocShell::DisplayLoadError(nsresult aError, nsIURI* aURI,
         error.AssignLiteral("nssFailure2");
       }
     }
-  } else if (NS_ERROR_PHISHING_URI == aError ||
-             NS_ERROR_MALWARE_URI == aError ||
-             NS_ERROR_UNWANTED_URI == aError) {
-    nsAutoCString host;
-    aURI->GetHost(host);
-    CopyUTF8toUTF16(host, formatStrs[0]);
-    formatStrCount = 1;
-
-    // Malware and phishing detectors may want to use an alternate error
-    // page, but if the pref's not set, we'll fall back on the standard page
-    nsAdoptingCString alternateErrorPage =
-      Preferences::GetCString("urlclassifier.alternate_error_page");
-    if (alternateErrorPage) {
-      errorPage.Assign(alternateErrorPage);
-    }
-
-    if (NS_ERROR_PHISHING_URI == aError) {
-      error.AssignLiteral("deceptiveBlocked");
-    } else if (NS_ERROR_MALWARE_URI == aError) {
-      error.AssignLiteral("malwareBlocked");
-    } else if (NS_ERROR_UNWANTED_URI == aError) {
-      error.AssignLiteral("unwantedBlocked");
-    }
-
-    cssClass.AssignLiteral("blacklist");
   } else if (NS_ERROR_CONTENT_CRASHED == aError) {
     errorPage.AssignLiteral("tabcrashed");
     error.AssignLiteral("tabcrashed");
@@ -5374,7 +5330,7 @@ nsDocShell::Reload(uint32_t aReloadFlags)
   if (rootSH) {
     shistInt->NotifyOnHistoryReload(mCurrentURI, aReloadFlags, &canReload);
   }
-
+  
   // If we're being flooded with reload requests, we should abort early
   // from the reload logic.
   if (IsReloadFlooding()) {
@@ -5383,13 +5339,11 @@ nsDocShell::Reload(uint32_t aReloadFlags)
     // Do this only if not yet marked reported so we only report it once per
     // flood interval.
     if (!mReloadFloodGuardReported) {
-#if 0
       nsContentUtils::ReportToConsole(nsIScriptError::warningFlag,
                                       NS_LITERAL_CSTRING("Reload"),
                                       GetDocument(),
                                       nsContentUtils::eDOM_PROPERTIES,
                                       "ReloadFloodingPrevented");
-#endif
       mReloadFloodGuardReported = true;
     }
     return NS_OK;
@@ -6522,8 +6476,6 @@ nsDocShell::SetTitle(const char16_t* aTitle)
     nsCOMPtr<IHistory> history = services::GetHistoryService();
     if (history) {
       history->SetURITitle(mCurrentURI, mTitle);
-    } else if (mGlobalHistory) {
-      mGlobalHistory->SetPageTitle(mCurrentURI, nsString(mTitle));
     }
   }
 
@@ -7701,42 +7653,6 @@ nsDocShell::EndPageLoad(nsIWebProgress* aProgress,
                      nullptr);                  // Headers stream
     }
 
-    // Handle iframe document not loading error because source was
-    // a tracking URL. We make a note of this iframe node by including
-    // it in a dedicated array of blocked tracking nodes under its parent
-    // document. (document of parent window of blocked document)
-    if (isTopFrame == false && aStatus == NS_ERROR_TRACKING_URI) {
-      // frameElement is our nsIContent to be annotated
-      nsCOMPtr<nsIDOMElement> frameElement;
-      nsPIDOMWindowOuter* thisWindow = GetWindow();
-      if (!thisWindow) {
-        return NS_OK;
-      }
-
-      frameElement = thisWindow->GetFrameElement();
-      if (!frameElement) {
-        return NS_OK;
-      }
-
-      // Parent window
-      nsCOMPtr<nsIDocShellTreeItem> parentItem;
-      GetSameTypeParent(getter_AddRefs(parentItem));
-      if (!parentItem) {
-        return NS_OK;
-      }
-
-      nsCOMPtr<nsIDocument> parentDoc;
-      parentDoc = parentItem->GetDocument();
-      if (!parentDoc) {
-        return NS_OK;
-      }
-
-      nsCOMPtr<nsIContent> cont = do_QueryInterface(frameElement);
-      parentDoc->AddBlockedTrackingNode(cont);
-
-      return NS_OK;
-    }
-
     if (sURIFixup) {
       //
       // Try and make an alternative URI from the old one
@@ -7911,9 +7827,6 @@ nsDocShell::EndPageLoad(nsIWebProgress* aProgress,
                aStatus == NS_ERROR_NET_INTERRUPT ||
                aStatus == NS_ERROR_NET_RESET ||
                aStatus == NS_ERROR_OFFLINE ||
-               aStatus == NS_ERROR_MALWARE_URI ||
-               aStatus == NS_ERROR_PHISHING_URI ||
-               aStatus == NS_ERROR_UNWANTED_URI ||
                aStatus == NS_ERROR_UNSAFE_CONTENT_TYPE ||
                aStatus == NS_ERROR_REMOTE_XUL ||
                aStatus == NS_ERROR_INTERCEPTION_FAILED ||
@@ -10452,8 +10365,6 @@ nsDocShell::InternalLoad(nsIURI* aURI,
         nsCOMPtr<IHistory> history = services::GetHistoryService();
         if (history) {
           history->SetURITitle(aURI, mTitle);
-        } else if (mGlobalHistory) {
-          mGlobalHistory->SetPageTitle(aURI, mTitle);
         }
       }
 
@@ -10713,7 +10624,6 @@ nsDocShell::InternalLoad(nsIURI* aURI,
                  aFileName, aPostData, aHeadersData,
                  aFirstParty, aDocShell, getter_AddRefs(req),
                  (aFlags & INTERNAL_LOAD_FLAGS_FIRST_LOAD) != 0,
-                 (aFlags & INTERNAL_LOAD_FLAGS_BYPASS_CLASSIFIER) != 0,
                  (aFlags & INTERNAL_LOAD_FLAGS_FORCE_ALLOW_COOKIES) != 0,
                  srcdoc, aBaseURI, contentType);
   if (req && aRequest) {
@@ -10802,7 +10712,6 @@ nsDocShell::DoURILoad(nsIURI* aURI,
                       nsIDocShell** aDocShell,
                       nsIRequest** aRequest,
                       bool aIsNewWindowTarget,
-                      bool aBypassClassifier,
                       bool aForceAllowCookies,
                       const nsAString& aSrcdoc,
                       nsIURI* aBaseURI,
@@ -11272,7 +11181,7 @@ nsDocShell::DoURILoad(nsIURI* aURI,
     }
   }
 
-  rv = DoChannelLoad(channel, uriLoader, aBypassClassifier);
+  rv = DoChannelLoad(channel, uriLoader);
 
   //
   // If the channel load failed, we failed and nsIWebProgress just ain't
@@ -11368,8 +11277,7 @@ nsDocShell::AddHeadersToChannel(nsIInputStream* aHeadersData,
 
 nsresult
 nsDocShell::DoChannelLoad(nsIChannel* aChannel,
-                          nsIURILoader* aURILoader,
-                          bool aBypassClassifier)
+                          nsIURILoader* aURILoader)
 {
   nsresult rv;
   // Mark the channel as being a document URI and allow content sniffing...
@@ -11437,10 +11345,6 @@ nsDocShell::DoChannelLoad(nsIChannel* aChannel,
           break;
       }
       break;
-  }
-
-  if (!aBypassClassifier) {
-    loadFlags |= nsIChannel::LOAD_CLASSIFY_URI;
   }
 
   // If the user pressed shift-reload, then do not allow ServiceWorker
@@ -12287,8 +12191,6 @@ nsDocShell::UpdateURLAndHistory(nsIDocument* aDocument, nsIURI* aNewURI,
       nsCOMPtr<IHistory> history = services::GetHistoryService();
       if (history) {
         history->SetURITitle(aNewURI, mTitle);
-      } else if (mGlobalHistory) {
-        mGlobalHistory->SetPageTitle(aNewURI, mTitle);
       }
     }
 
@@ -13263,12 +13165,6 @@ nsDocShell::AddURIVisit(nsIURI* aURI,
     }
 
     (void)history->VisitURI(aURI, aPreviousURI, visitURIFlags);
-  } else if (mGlobalHistory) {
-    // Falls back to sync global history interface.
-    (void)mGlobalHistory->AddURI(aURI,
-                                 !!aChannelRedirectFlags,
-                                 !IsFrame(),
-                                 aReferrerURI);
   }
 }
 

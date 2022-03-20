@@ -3,16 +3,55 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-EXTRA_COMPONENTS += ['nsHelperAppDlg.manifest']
+DEFINES['GOOGLE_PROTOBUF_NO_RTTI'] = True
+DEFINES['GOOGLE_PROTOBUF_NO_STATIC_INITIALIZER'] = True
 
-EXTRA_PP_COMPONENTS += ['nsHelperAppDlg.js']
+CXXFLAGS += CONFIG['TK_CFLAGS']
 
-EXTRA_JS_MODULES += [
-    'DownloadLastDir.jsm',
-    'DownloadPaths.jsm',
-    'DownloadUtils.jsm',
+if CONFIG['GNU_CXX']:
+    CXXFLAGS += ['-Wno-shadow']
+
+XPIDL_SOURCES += [
+    'public/nsIDownload.idl',
+    'public/nsIDownloadManager.idl',
+    'public/nsIDownloadManagerUI.idl',
+    'public/nsIDownloadProgressListener.idl',
 ]
 
-EXTRA_PP_JS_MODULES += ['DownloadTaskbarProgress.jsm']
+SOURCES += [
+    'src/nsDownloadManager.cpp',
+    'src/SQLFunctions.cpp',
+]
 
+if CONFIG['OS_ARCH'] == 'WINNT':
+    SOURCES += ['src/nsDownloadScanner.cpp']
+
+EXTRA_COMPONENTS += ['nsHelperAppDlg.manifest']
+
+EXTRA_PP_COMPONENTS += ['src/nsHelperAppDlg.js']
+
+# The Communicator Downloads Manager uses its own DownloadManagerUI
+# component and it can't be guaranteed that its implementation will override
+# toolkit's so don't include toolkit's
+if not CONFIG['BINOC_DOWNLOADS']:
+    EXTRA_COMPONENTS += [
+        'nsDownloadManagerUI.manifest',
+        'src/nsDownloadManagerUI.js',
+    ]
+
+EXTRA_JS_MODULES += [
+    'src/DownloadLastDir.jsm',
+    'src/DownloadPaths.jsm',
+    'src/DownloadUtils.jsm',
+]
+
+EXTRA_PP_JS_MODULES += ['src/DownloadTaskbarProgress.jsm']
+
+LOCAL_INCLUDES += [
+    '/ipc/chromium/src',
+    '/libs/protobuf',
+]
+
+XPIDL_MODULE = 'downloads'
+FINAL_LIBRARY = 'xul'
 JAR_MANIFESTS += ['jar.mn']

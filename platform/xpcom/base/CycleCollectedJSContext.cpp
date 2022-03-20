@@ -60,7 +60,6 @@
 #include "mozilla/Move.h"
 #include "mozilla/MemoryReporting.h"
 #include "mozilla/Sprintf.h"
-#include "mozilla/Telemetry.h"
 #include "mozilla/TimelineConsumers.h"
 #include "mozilla/TimelineMarker.h"
 #include "mozilla/Unused.h"
@@ -1434,16 +1433,7 @@ CycleCollectedJSContext::RunInMetastableState(already_AddRefed<nsIRunnable>&& aR
   data.mRecursionDepth = RecursionDepth();
 
   // There must be an event running to get here.
-#ifndef MOZ_WIDGET_COCOA
   MOZ_ASSERT(data.mRecursionDepth > mBaseRecursionDepth);
-#else
-  // XXX bug 1261143
-  // Recursion depth should be greater than mBaseRecursionDepth,
-  // or the runnable will stay in the queue forever.
-  if (data.mRecursionDepth <= mBaseRecursionDepth) {
-    data.mRecursionDepth = mBaseRecursionDepth + 1;
-  }
-#endif
 
   mMetastableStateEvents.AppendElement(Move(data));
 }

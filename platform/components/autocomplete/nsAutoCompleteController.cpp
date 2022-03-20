@@ -517,27 +517,6 @@ nsAutoCompleteController::HandleKeyNavigation(uint32_t aKey, bool *_retval)
         }
       }
     } else {
-#ifdef XP_MACOSX
-      // on Mac, only show the popup if the caret is at the start or end of
-      // the input and there is no selection, so that the default defined key
-      // shortcuts for up and down move to the beginning and end of the field
-      // otherwise.
-      int32_t start, end;
-      if (aKey == nsIDOMKeyEvent::DOM_VK_UP) {
-        input->GetSelectionStart(&start);
-        input->GetSelectionEnd(&end);
-        if (start > 0 || start != end)
-          *_retval = false;
-      }
-      else if (aKey == nsIDOMKeyEvent::DOM_VK_DOWN) {
-        nsAutoString text;
-        input->GetTextValue(text);
-        input->GetSelectionStart(&start);
-        input->GetSelectionEnd(&end);
-        if (start != end || end < (int32_t)text.Length())
-          *_retval = false;
-      }
-#endif
       if (*_retval) {
         // Open the popup if there has been a previous search, or else kick off a new search
         if (!mResults.IsEmpty()) {
@@ -568,9 +547,7 @@ nsAutoCompleteController::HandleKeyNavigation(uint32_t aKey, bool *_retval)
     }
   } else if (   aKey == nsIDOMKeyEvent::DOM_VK_LEFT
              || aKey == nsIDOMKeyEvent::DOM_VK_RIGHT
-#ifndef XP_MACOSX
              || aKey == nsIDOMKeyEvent::DOM_VK_HOME
-#endif
             )
   {
     // The user hit a text-navigation key.

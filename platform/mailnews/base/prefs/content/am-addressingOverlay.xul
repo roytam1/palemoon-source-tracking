@@ -86,17 +86,6 @@
 
     <groupbox>
       <caption label="&addressingGroupTitle.label;"/>
-#ifndef MOZ_THUNDERBIRD
-      <hbox align="center">
-        <checkbox wsm_persist="true" id="identity.autocompleteToMyDomain"
-                  label="&autocompleteToMyDomain.label;"
-                  accesskey="&autocompleteToMyDomain.accesskey;"
-                  prefattribute="value"
-                  prefstring="mail.identity.%identitykey%.autocompleteToMyDomain"/>
-      </hbox>
-
-      <separator class="thin"/>
-#endif
 
       <label control="identity.overrideGlobal_Pref">&addressingText.label;</label>
       <radiogroup id="identity.overrideGlobal_Pref" class="indent"

@@ -27,7 +27,7 @@ if CONFIG['OS_TARGET'] == 'Linux':
     NO_PGO = True
 
 LOCAL_INCLUDES += [
-    '/memory/build',
+    '../build',
 ]
 
 if CONFIG['GNU_CC']:

@@ -55,19 +55,6 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     EXPORTS.mozilla.layers += [
         'TextureDIB.h',
     ]
-    if CONFIG['MOZ_ENABLE_D3D9_LAYER']:
-        EXPORTS += [
-            'd3d9/DeviceManagerD3D9.h',
-        ]
-        EXPORTS.mozilla.layers += [
-            'd3d9/CompositorD3D9.h',
-            'd3d9/TextureD3D9.h',
-        ]
-        SOURCES += [
-            'd3d9/CompositorD3D9.cpp',
-            'd3d9/DeviceManagerD3D9.cpp',
-            'd3d9/TextureD3D9.cpp',
-        ]
     if CONFIG['MOZ_ENABLE_D3D10_LAYER']:
         EXPORTS.mozilla.layers += [
             'd3d11/CompositorD3D11.h',
@@ -379,10 +366,10 @@ IPDL_SOURCES = [
 include('/ipc/chromium/chromium-config.mozbuild')
 
 LOCAL_INCLUDES += [
-    '/docshell/base',  # for nsDocShell.h
     '/layout/base',    # for TouchManager.h
     '/layout/generic', # for nsTextFrame.h
-    '/media/libyuv/include', # for libyuv.h
+    '/libs/libyuv/include', # for libyuv.h
+    '/system/docshell/base',  # for nsDocShell.h
 ]
 
 FINAL_LIBRARY = 'xul'

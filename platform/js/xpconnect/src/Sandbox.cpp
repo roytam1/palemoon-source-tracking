@@ -37,9 +37,6 @@
 #include "mozilla/dom/PromiseBinding.h"
 #include "mozilla/dom/RequestBinding.h"
 #include "mozilla/dom/ResponseBinding.h"
-#ifdef MOZ_WEBRTC
-#include "mozilla/dom/RTCIdentityProviderRegistrar.h"
-#endif
 #include "mozilla/dom/FileReaderBinding.h"
 #include "mozilla/dom/ScriptSettings.h"
 #include "mozilla/dom/TextDecoderBinding.h"
@@ -126,10 +123,6 @@ SandboxDump(JSContext* cx, unsigned argc, Value* vp)
     char* cstr = utf8str.encodeUtf8(cx, str);
     if (!cstr)
         return false;
-
-#ifdef ANDROID
-    __android_log_write(ANDROID_LOG_INFO, "GeckoDump", cstr);
-#endif
 
     fputs(cstr, stdout);
     fflush(stdout);
@@ -218,22 +211,6 @@ SandboxCreateCrypto(JSContext* cx, JS::HandleObject obj)
     JS::RootedObject wrapped(cx, crypto->WrapObject(cx, nullptr));
     return JS_DefineProperty(cx, obj, "crypto", wrapped, JSPROP_ENUMERATE);
 }
-
-#ifdef MOZ_WEBRTC
-static bool
-SandboxCreateRTCIdentityProvider(JSContext* cx, JS::HandleObject obj)
-{
-    MOZ_ASSERT(JS_IsGlobalObject(obj));
-
-    nsCOMPtr<nsIGlobalObject> nativeGlobal = xpc::NativeGlobal(obj);
-    MOZ_ASSERT(nativeGlobal);
-
-    dom::RTCIdentityProviderRegistrar* registrar =
-            new dom::RTCIdentityProviderRegistrar(nativeGlobal);
-    JS::RootedObject wrapped(cx, registrar->WrapObject(cx, nullptr));
-    return JS_DefineProperty(cx, obj, "rtcIdentityProvider", wrapped, JSPROP_ENUMERATE);
-}
-#endif
 
 static bool
 SetFetchRequestFromValue(JSContext *cx, RequestOrUSVString& request,
@@ -910,10 +887,6 @@ xpc::GlobalProperties::Parse(JSContext* cx, JS::HandleObject obj)
             File = true;
         } else if (!strcmp(name.ptr(), "crypto")) {
             crypto = true;
-#ifdef MOZ_WEBRTC
-        } else if (!strcmp(name.ptr(), "rtcIdentityProvider")) {
-            rtcIdentityProvider = true;
-#endif
         } else if (!strcmp(name.ptr(), "fetch")) {
             fetch = true;
         } else if (!strcmp(name.ptr(), "caches")) {
@@ -982,11 +955,6 @@ xpc::GlobalProperties::Define(JSContext* cx, JS::HandleObject obj)
 
     if (crypto && !SandboxCreateCrypto(cx, obj))
         return false;
-
-#ifdef MOZ_WEBRTC
-    if (rtcIdentityProvider && !SandboxCreateRTCIdentityProvider(cx, obj))
-        return false;
-#endif
 
     if (fetch && !SandboxCreateFetch(cx, obj))
         return false;

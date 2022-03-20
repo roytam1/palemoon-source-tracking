@@ -13,7 +13,7 @@ Cu.import("resource://services-sync/constants.js");
 Cu.import("resource://gre/modules/Log.jsm");
 Cu.import("resource://services-sync/identity.js");
 Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://services-common/async.js");
+Cu.import("resource://gre/modules/Async.jsm");
 
 this.Status = {
   _log: Log.repository.getLogger("Sync.Status"),

@@ -3,49 +3,63 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['internal']
+# This is used in multiple places, so is defined here to avoid it getting
+# out of sync.
+DEFINES['MOZ_EXTENSIONS_DB_SCHEMA'] = 16
 
-XPIDL_SOURCES += [
-    'amIAddonManager.idl',
-    'amIAddonPathService.idl',
-    'amIWebInstaller.idl',
-    'amIWebInstallListener.idl',
-]
-
-XPIDL_MODULE = 'extensions'
-
-EXTRA_COMPONENTS += [
-    'addonManager.js',
-    'amContentHandler.js',
-    'amInstallTrigger.js',
-    'amWebInstallListener.js',
-    'extensions.manifest',
-]
-
-EXTRA_JS_MODULES += [
-    'ChromeManifestParser.jsm',
-    'DeferredSave.jsm',
-    'LightweightThemeManager.jsm',
-]
-
-EXTRA_PP_JS_MODULES += [
-    'AddonManager.jsm',
-    'GMPInstallManager.jsm',
-    'GMPUtils.jsm',
-]
+if CONFIG['MC_APP_ID']:
+  DEFINES['MC_APP_ID'] = CONFIG['MC_APP_ID']
 
 # Additional debugging info is exposed in debug builds
 if CONFIG['MOZ_EM_DEBUG']:
     DEFINES['MOZ_EM_DEBUG'] = 1
 
-JAR_MANIFESTS += ['jar.mn']
-
-EXPORTS.mozilla += [
-    'AddonPathService.h',
+XPIDL_SOURCES += [
+    'public/amIAddonManager.idl',
+    'public/amIAddonPathService.idl',
+    'public/amIWebInstaller.idl',
+    'public/amIWebInstallListener.idl',
 ]
 
-UNIFIED_SOURCES += [
-    'AddonPathService.cpp'
+EXPORTS.mozilla += ['src/AddonPathService.h']
+
+SOURCES += ['src/AddonPathService.cpp']
+
+EXTRA_COMPONENTS += [
+    'extensions.manifest',
+    'src/addonManager.js',
+    'src/amContentHandler.js',
+    'src/amInstallTrigger.js',
+    'src/amWebInstallListener.js',
 ]
 
+EXTRA_JS_MODULES += [
+    'src/ChromeManifestParser.jsm',
+    'src/DeferredSave.jsm',
+    'src/LightweightThemeConsumer.jsm',
+    'src/LightweightThemeManager.jsm',
+]
+
+EXTRA_PP_JS_MODULES += [
+    'src/AddonManager.jsm',
+]
+
+EXTRA_JS_MODULES.addons += [
+    'src/AddonLogging.jsm',
+    'src/AddonRepository_SQLiteMigrator.jsm',
+    'src/Content.js',
+    'src/LightweightThemeImageOptimizer.jsm',
+    'src/PluginProvider.jsm',
+    'src/SpellCheckDictionaryBootstrap.js',
+]
+
+EXTRA_PP_JS_MODULES.addons += [
+    'src/AddonRepository.jsm',
+    'src/AddonUpdateChecker.jsm',
+    'src/XPIProvider.jsm',
+    'src/XPIProviderUtils.js',
+]
+
+XPIDL_MODULE = 'extensions'
 FINAL_LIBRARY = 'xul'
+JAR_MANIFESTS += ['jar.mn']

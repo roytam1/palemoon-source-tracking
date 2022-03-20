@@ -14,17 +14,14 @@ EXPORTS += [
     'WMFVideoMFTManager.h',
 ]
 
-UNIFIED_SOURCES += [
+SOURCES += [
     'DXVA2Manager.cpp',
     'MFTDecoder.cpp',
     'WMFAudioMFTManager.cpp',
     'WMFDecoderModule.cpp',
     'WMFMediaDataDecoder.cpp',
-    'WMFVideoMFTManager.cpp',
-]
-
-SOURCES += [
     'WMFUtils.cpp',
+    'WMFVideoMFTManager.cpp',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')

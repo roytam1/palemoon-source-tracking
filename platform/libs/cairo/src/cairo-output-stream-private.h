@@ -14,8 +14,8 @@
 
 typedef cairo_status_t
 (*cairo_output_stream_write_func_t) (cairo_output_stream_t *output_stream,
-				     const unsigned char   *data,
-				     unsigned int           length);
+                   const unsigned char   *data,
+                   unsigned int       length);
 
 typedef cairo_status_t
 (*cairo_output_stream_flush_func_t) (cairo_output_stream_t *output_stream);
@@ -24,21 +24,21 @@ typedef cairo_status_t
 (*cairo_output_stream_close_func_t) (cairo_output_stream_t *output_stream);
 
 struct _cairo_output_stream {
-    cairo_output_stream_write_func_t write_func;
-    cairo_output_stream_flush_func_t flush_func;
-    cairo_output_stream_close_func_t close_func;
-    unsigned long		     position;
-    cairo_status_t		     status;
-    cairo_bool_t		     closed;
+  cairo_output_stream_write_func_t write_func;
+  cairo_output_stream_flush_func_t flush_func;
+  cairo_output_stream_close_func_t close_func;
+  unsigned long           position;
+  cairo_status_t           status;
+  cairo_bool_t           closed;
 };
 
 extern const cairo_private cairo_output_stream_t _cairo_output_stream_nil;
 
 cairo_private void
-_cairo_output_stream_init (cairo_output_stream_t            *stream,
-			   cairo_output_stream_write_func_t  write_func,
-			   cairo_output_stream_flush_func_t  flush_func,
-			   cairo_output_stream_close_func_t  close_func);
+_cairo_output_stream_init (cairo_output_stream_t      *stream,
+               cairo_output_stream_write_func_t  write_func,
+               cairo_output_stream_flush_func_t  flush_func,
+               cairo_output_stream_close_func_t  close_func);
 
 cairo_private cairo_status_t
 _cairo_output_stream_fini (cairo_output_stream_t *stream);
@@ -46,9 +46,9 @@ _cairo_output_stream_fini (cairo_output_stream_t *stream);
 
 /* We already have the following declared in cairo.h:
 
-typedef cairo_status_t (*cairo_write_func_t) (void		  *closure,
-					      const unsigned char *data,
-					      unsigned int	   length);
+typedef cairo_status_t (*cairo_write_func_t) (void          *closure,
+                        const unsigned char *data,
+                        unsigned int       length);
 */
 typedef cairo_status_t (*cairo_close_func_t) (void *closure);
 
@@ -62,9 +62,9 @@ typedef cairo_status_t (*cairo_close_func_t) (void *closure);
  * _cairo_output_stream_destroy.
  */
 cairo_private cairo_output_stream_t *
-_cairo_output_stream_create (cairo_write_func_t		write_func,
-			     cairo_close_func_t		close_func,
-			     void			*closure);
+_cairo_output_stream_create (cairo_write_func_t        write_func,
+               cairo_close_func_t        close_func,
+               void            *closure);
 
 cairo_private cairo_output_stream_t *
 _cairo_output_stream_create_in_error (cairo_status_t status);
@@ -87,22 +87,22 @@ _cairo_output_stream_destroy (cairo_output_stream_t *stream);
 
 cairo_private void
 _cairo_output_stream_write (cairo_output_stream_t *stream,
-			    const void *data, size_t length);
+              const void *data, size_t length);
 
 cairo_private void
 _cairo_output_stream_write_hex_string (cairo_output_stream_t *stream,
-				       const unsigned char *data,
-				       size_t length);
+                     const unsigned char *data,
+                     size_t length);
 
 cairo_private void
 _cairo_output_stream_vprintf (cairo_output_stream_t *stream,
-			      const char *fmt,
-			      va_list ap) CAIRO_PRINTF_FORMAT ( 2, 0);
+                const char *fmt,
+                va_list ap) CAIRO_PRINTF_FORMAT ( 2, 0);
 
 cairo_private void
 _cairo_output_stream_printf (cairo_output_stream_t *stream,
-			     const char *fmt,
-			     ...) CAIRO_PRINTF_FORMAT (2, 3);
+               const char *fmt,
+               ...) CAIRO_PRINTF_FORMAT (2, 3);
 
 cairo_private long
 _cairo_output_stream_get_position (cairo_output_stream_t *stream);
@@ -136,15 +136,15 @@ _cairo_memory_stream_create (void);
 
 cairo_private void
 _cairo_memory_stream_copy (cairo_output_stream_t *base,
-			   cairo_output_stream_t *dest);
+               cairo_output_stream_t *dest);
 
 cairo_private int
 _cairo_memory_stream_length (cairo_output_stream_t *stream);
 
 cairo_private cairo_status_t
 _cairo_memory_stream_destroy (cairo_output_stream_t *abstract_stream,
-			      unsigned char **data_out,
-			      unsigned long *length_out);
+                unsigned char **data_out,
+                unsigned long *length_out);
 
 cairo_private cairo_output_stream_t *
 _cairo_null_stream_create (void);

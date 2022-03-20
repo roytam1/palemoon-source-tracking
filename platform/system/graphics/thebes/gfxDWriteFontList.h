@@ -407,10 +407,8 @@ private:
 
     void GetFontsFromCollection(IDWriteFontCollection* aCollection);
 
-#ifdef MOZ_BUNDLED_FONTS
     already_AddRefed<IDWriteFontCollection>
     CreateBundledFontsCollection(IDWriteFactory* aFactory);
-#endif
 
     /**
      * Fonts listed in the registry as substitutes but for which no actual
@@ -436,9 +434,7 @@ private:
     RefPtr<IDWriteTextFormat>    mFallbackFormat;
 
     RefPtr<IDWriteFontCollection> mSystemFonts;
-#ifdef MOZ_BUNDLED_FONTS
     RefPtr<IDWriteFontCollection> mBundledFonts;
-#endif
 };
 
 

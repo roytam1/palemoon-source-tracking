@@ -132,11 +132,6 @@
 #include "nsIObjectOutputStream.h"
 #include "nsIPipe.h"
 
-#ifdef MOZ_WIDGET_COCOA
-#include "nsILocalFileMac.h"
-#include "nsIMacUtils.h"
-#endif
-
 // xpcom/glue utility headers
 
 #include "nsComponentManagerUtils.h"

@@ -175,21 +175,6 @@ nsMsgContentPolicy::ShouldLoad(uint32_t          aContentType,
           aContentLocation->GetSpecOrDefault().get());
 #endif
 
-#ifndef MOZ_THUNDERBIRD
-  // Go find out if we are dealing with mailnews. Anything else
-  // isn't our concern and we accept content.
-  nsCOMPtr<nsIDocShell> rootDocShell;
-  rv = GetRootDocShellForContext(aRequestingContext,
-                                 getter_AddRefs(rootDocShell));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  uint32_t appType;
-  rv = rootDocShell->GetAppType(&appType);
-  // We only want to deal with mailnews
-  if (NS_FAILED(rv) || appType != nsIDocShell::APP_TYPE_MAIL)
-    return NS_OK;
-#endif
-
   switch(aContentType) {
     // Plugins (nsIContentPolicy::TYPE_OBJECT) are blocked on document load.
   case nsIContentPolicy::TYPE_DOCUMENT:

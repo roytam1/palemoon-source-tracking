@@ -3,8 +3,29 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += [
-    'base',
-    'exthandler',
-    'prefetch',
+XPIDL_SOURCES += [
+  'public/nsCURILoader.idl',
+  'public/nsIContentHandler.idl',
+  'public/nsIDocumentLoader.idl',
+  'public/nsITransfer.idl',
+  'public/nsIURIContentListener.idl',
+  'public/nsIURILoader.idl',
+  'public/nsIWebProgress.idl',
+  'public/nsIWebProgressListener.idl',
+  'public/nsIWebProgressListener2.idl',
 ]
+
+EXPORTS += [
+  'src/nsDocLoader.h',
+  'src/nsURILoader.h',
+]
+
+SOURCES += [
+  'src/nsDocLoader.cpp',
+  'src/nsURILoader.cpp',
+]
+
+XPIDL_MODULE = 'uriloader'
+FINAL_LIBRARY = 'xul'
+
+include('/ipc/chromium/chromium-config.mozbuild')

@@ -184,9 +184,6 @@ static DllBlockInfo sWindowsDllBlocklist[] = {
   // Crashes with CyberLink YouCam, bug 1136968
   { "ycwebcamerasource.ax", MAKE_VERSION(2, 0, 0, 1611) },
 
-  // Old version of WebcamMax crashes WebRTC, bug 1130061
-  { "vwcsource.ax", MAKE_VERSION(1, 5, 0, 0) },
-
   // NetOp School, discontinued product, bug 763395
   { "nlsp.dll", MAKE_VERSION(6, 23, 2012, 19) },
 

@@ -146,7 +146,7 @@ pgo-profile-run:
 	$(PYTHON) $(topsrcdir)/build/pgo/profileserver.py $(EXTRA_TEST_ARGS)
 
 # Package up the tests and test harnesses
-include $(topsrcdir)/toolkit/mozapps/installer/package-name.mk
+include $(topsrcdir)/system/installer/package-name.mk
 
 PKG_STAGE = $(DIST)/test-stage
 

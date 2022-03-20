@@ -20,7 +20,6 @@ dictionary MediaStreamConstraints {
     boolean fake;       // For testing purpose. Generates frames of solid
                         // colors if video is enabled, and sound of 1Khz sine
                         // wave if audio is enabled.
-    DOMString? peerIdentity = null;
 };
 
 [Exposed=Window,

@@ -22,7 +22,7 @@ SDK_FILES.bin += [
 ]
 
 SDK_FILES.bin.ply += [
-    '/other-licenses/ply/ply/__init__.py',
-    '/other-licenses/ply/ply/lex.py',
-    '/other-licenses/ply/ply/yacc.py',
+    '/python/ply/ply/__init__.py',
+    '/python/ply/ply/lex.py',
+    '/python/ply/ply/yacc.py',
 ]

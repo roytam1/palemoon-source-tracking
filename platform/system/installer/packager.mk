@@ -2,9 +2,9 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/package-name.mk
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/upload-files.mk
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/make-eme.mk
+include $(MOZILLA_DIR)/system/installer/package-name.mk
+include $(MOZILLA_DIR)/system/installer/upload-files.mk
+include $(MOZILLA_DIR)/system/installer/make-eme.mk
 
 # This is how we create the binary packages we release to the public.
 
@@ -40,7 +40,7 @@ export USE_ELF_HACK ELF_HACK_FLAGS
 stage-package: $(MOZ_PKG_MANIFEST) $(MOZ_PKG_MANIFEST_DEPS)
 	OMNIJAR_NAME=$(OMNIJAR_NAME) \
 	NO_PKG_FILES="$(NO_PKG_FILES)" \
-	$(PYTHON) $(MOZILLA_DIR)/toolkit/mozapps/installer/packager.py $(DEFINES) $(ACDEFINES) \
+	$(PYTHON) $(MOZILLA_DIR)/system/installer/packager.py $(DEFINES) $(ACDEFINES) \
 		--format $(MOZ_PACKAGER_FORMAT) \
 		$(addprefix --removals ,$(MOZ_PKG_REMOVALS)) \
 		$(if $(filter-out 0,$(MOZ_PKG_FATAL_WARNINGS)),,--ignore-errors) \
@@ -54,7 +54,7 @@ stage-package: $(MOZ_PKG_MANIFEST) $(MOZ_PKG_MANIFEST_DEPS)
 		$(addprefix --unify ,$(UNIFY_DIST)) \
 		$(MOZ_PKG_MANIFEST) '$(DIST)' '$(DIST)'/$(STAGEPATH)$(MOZ_PKG_DIR)$(if $(MOZ_PKG_MANIFEST),,$(_BINPATH)) \
 		$(if $(filter omni,$(MOZ_PACKAGER_FORMAT)),$(if $(NON_OMNIJAR_FILES),--non-resource $(NON_OMNIJAR_FILES)))
-	$(PYTHON) $(MOZILLA_DIR)/toolkit/mozapps/installer/find-dupes.py $(DIST)/$(STAGEPATH)$(MOZ_PKG_DIR)
+	$(PYTHON) $(MOZILLA_DIR)/system/installer/find-dupes.py $(DIST)/$(STAGEPATH)$(MOZ_PKG_DIR)
 	@(cd $(DIST)/$(MOZ_PKG_DIR) && $(CREATE_PRECOMPLETE_CMD))
 ifdef MOZ_PACKAGE_JSSHELL
 	# Package JavaScript Shell
@@ -62,19 +62,6 @@ ifdef MOZ_PACKAGE_JSSHELL
 	$(RM) $(PKG_JSSHELL)
 	$(MAKE_JSSHELL)
 endif # MOZ_PACKAGE_JSSHELL
-ifdef MOZ_ARTIFACT_BUILD_SYMBOLS
-	@echo 'Packaging existing crashreporter symbols from artifact build...'
-	$(NSINSTALL) -D $(DIST)/$(PKG_PATH)
-	cd $(DIST)/crashreporter-symbols && \
-          zip -r5D '../$(PKG_PATH)$(SYMBOL_ARCHIVE_BASENAME).zip' . -i '*.sym' -i '*.txt'
-endif # MOZ_ARTIFACT_BUILD_SYMBOLS
-ifdef MOZ_CODE_COVERAGE
-	# Package code coverage gcno tree
-	@echo 'Packaging code coverage data...'
-	$(RM) $(CODE_COVERAGE_ARCHIVE_BASENAME).zip
-	$(PYTHON) -mmozbuild.codecoverage.packager \
-		--output-file='$(DIST)/$(PKG_PATH)$(CODE_COVERAGE_ARCHIVE_BASENAME).zip'
-endif
 ifeq (Darwin, $(OS_ARCH))
 ifdef MOZ_ASAN
 	@echo "Rewriting ASan runtime dylib paths for all binaries in $(DIST)/$(STAGEPATH)$(MOZ_PKG_DIR)$(_BINPATH) ..."
@@ -103,7 +90,7 @@ endif
 
 .PHONY: make-buildinfo-file
 make-buildinfo-file:
-	$(PYTHON) $(MOZILLA_DIR)/toolkit/mozapps/installer/informulate.py \
+	$(PYTHON) $(MOZILLA_DIR)/system/installer/informulate.py \
 		$(MOZ_BUILDINFO_FILE) \
 		BUILDID=$(BUILDID) \
 		$(addprefix MOZ_SOURCE_REPO=,MOZ_SOURCE_REPO=$(shell awk '$$2 == "MOZ_SOURCE_REPO" {print $$3}' $(DEPTH)/source-repo.h)) \
@@ -186,7 +173,7 @@ endif
 	  (cd $(DIST)/$(MOZ_APP_NAME)-sdk/lib && tar -xf -)
 	$(NSINSTALL) -D $(DIST)/$(SDK_PATH)
 ifndef PKG_SKIP_STRIP
-	USE_ELF_HACK= $(PYTHON) $(MOZILLA_DIR)/toolkit/mozapps/installer/strip.py $(DIST)/$(MOZ_APP_NAME)-sdk
+	USE_ELF_HACK= $(PYTHON) $(MOZILLA_DIR)/system/installer/strip.py $(DIST)/$(MOZ_APP_NAME)-sdk
 endif
 	cd $(DIST) && $(MAKE_SDK)
 ifdef UNIFY_DIST

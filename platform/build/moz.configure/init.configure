@@ -308,10 +308,7 @@ def split_triplet(triplet):
     # mix of uname and config.guess output, while we now only use the latter,
     # which presumably has a cleaner and leaner output. Let's refine later.
     os = os.replace('/', '_')
-    if 'android' in os:
-        canonical_os = 'Android'
-        canonical_kernel = 'Linux'
-    elif os.startswith('linux'):
+    if os.startswith('linux'):
         canonical_os = 'GNU'
         canonical_kernel = 'Linux'
     elif os.startswith('kfreebsd') and os.endswith('-gnu'):
@@ -521,6 +518,7 @@ def host_variables(host):
         HOST_OS_ARCH=os_arch,
     )
 
+set_config('HOST_CPU_ARCH', delayed_getattr(host, 'cpu'))
 set_config('HOST_OS_ARCH', delayed_getattr(host_variables, 'HOST_OS_ARCH'))
 add_old_configure_assignment('HOST_OS_ARCH',
                              delayed_getattr(host_variables, 'HOST_OS_ARCH'))
@@ -586,9 +584,7 @@ imply_option('--enable-project', application)
 
 @depends(check_build_environment, '--help')
 def default_project(build_env, help):
-    if build_env.topobjdir.endswith('/js/src'):
-        return 'js'
-    return 'application/xulrunner'
+    return 'js'
 
 option('--enable-project', nargs=1, default=default_project,
        help='Project to build')
@@ -611,7 +607,7 @@ def include_project_configure(project, external_source_dir, build_env, help):
     if exists(path_project_src_dir_root):
         return path_project_src_dir_root
     else:
-        return os.path.join(build_env.topsrcdir, 'toolkit', 'moz.configure')
+        return os.path.join(build_env.topsrcdir, 'system', 'moz.configure')
 
 @depends('--with-external-source-dir')
 def external_source_dir(value):
@@ -634,7 +630,7 @@ def build_project(project, external_source_dir, build_env, help):
 
     build_app = project[0]
 
-    if not external_source_dir and build_app not in ('xulrunner', 'js'):
+    if not external_source_dir and build_app not in ('js'):
         die('Cannot find project %s', build_app)
 
     build_app_abspath = os.path.join(base_dir, build_app)
@@ -788,13 +784,3 @@ def js_option(*args, **kwargs):
             return value.format(opt.option)
 
     add_old_configure_arg(js_option)
-
-
-# Bug 1278542: This function is a workaround to resolve
-# |android_ndk_include|'s dependency on 'gonkdir.' The
-# actual implementation is located in b2g/moz.configure.
-# Remove this function as soon as 'android_ndk_include'
-# depends on 'target.'
-@depends('--help')
-def gonkdir(_):
-    return None

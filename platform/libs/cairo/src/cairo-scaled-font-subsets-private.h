@@ -10,15 +10,15 @@
 #if CAIRO_HAS_FONT_SUBSET
 
 typedef struct _cairo_scaled_font_subsets_glyph {
-    unsigned int font_id;
-    unsigned int subset_id;
-    unsigned int subset_glyph_index;
-    cairo_bool_t is_scaled;
-    cairo_bool_t is_composite;
-    double       x_advance;
-    double       y_advance;
-    cairo_bool_t utf8_is_mapped;
-    uint32_t 	 unicode;
+  unsigned int font_id;
+  unsigned int subset_id;
+  unsigned int subset_glyph_index;
+  cairo_bool_t is_scaled;
+  cairo_bool_t is_composite;
+  double     x_advance;
+  double     y_advance;
+  cairo_bool_t utf8_is_mapped;
+  uint32_t      unicode;
 } cairo_scaled_font_subsets_glyph_t;
 
 /**
@@ -104,11 +104,11 @@ _cairo_scaled_font_subsets_destroy (cairo_scaled_font_subsets_t *font_subsets);
  * Map a glyph from a #cairo_scaled_font to a new index within a
  * subset of that font. The mapping performed is from the tuple:
  *
- *	(scaled_font, scaled_font_glyph_index)
+ *    (scaled_font, scaled_font_glyph_index)
  *
  * to the tuple:
  *
- *	(font_id, subset_id, subset_glyph_index)
+ *    (font_id, subset_id, subset_glyph_index)
  *
  * This mapping is 1:1. If the input tuple has previously mapped, the
  * the output tuple previously returned will be returned again.
@@ -116,18 +116,18 @@ _cairo_scaled_font_subsets_destroy (cairo_scaled_font_subsets_t *font_subsets);
  * Otherwise, the return tuple will be constructed as follows:
  *
  * 1) There is a 1:1 correspondence between the input scaled_font
- *    value and the output font_id value. If no mapping has been
- *    previously performed with the scaled_font value then the
- *    smallest unused font_id value will be returned.
+ *  value and the output font_id value. If no mapping has been
+ *  previously performed with the scaled_font value then the
+ *  smallest unused font_id value will be returned.
  *
  * 2) Within the set of output tuples of the same font_id value the
- *    smallest value of subset_id will be returned such that
- *    subset_glyph_index does not exceed max_glyphs_per_subset (as
- *    passed to _cairo_scaled_font_subsets_create()) and that the
- *    resulting tuple is unique.
+ *  smallest value of subset_id will be returned such that
+ *  subset_glyph_index does not exceed max_glyphs_per_subset (as
+ *  passed to _cairo_scaled_font_subsets_create()) and that the
+ *  resulting tuple is unique.
  *
  * 3) The smallest value of subset_glyph_index is returned such that
- *    the resulting tuple is unique.
+ *  the resulting tuple is unique.
  *
  * The net result is that any #cairo_scaled_font_t will be represented
  * by one or more font subsets. Each subset is effectively a tuple of
@@ -168,16 +168,16 @@ _cairo_scaled_font_subsets_destroy (cairo_scaled_font_subsets_t *font_subsets);
  * %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_scaled_font_subsets_map_glyph (cairo_scaled_font_subsets_t	*font_subsets,
-				      cairo_scaled_font_t		*scaled_font,
-				      unsigned long			 scaled_font_glyph_index,
-				      const char * 			 utf8,
-				      int				 utf8_len,
-                                      cairo_scaled_font_subsets_glyph_t *subset_glyph_ret);
+_cairo_scaled_font_subsets_map_glyph (cairo_scaled_font_subsets_t    *font_subsets,
+                    cairo_scaled_font_t        *scaled_font,
+                    unsigned long             scaled_font_glyph_index,
+                    const char *              utf8,
+                    int                 utf8_len,
+                    cairo_scaled_font_subsets_glyph_t *subset_glyph_ret);
 
 typedef cairo_status_t
-(*cairo_scaled_font_subset_callback_func_t) (cairo_scaled_font_subset_t	*font_subset,
-					     void			*closure);
+(*cairo_scaled_font_subset_callback_func_t) (cairo_scaled_font_subset_t    *font_subset,
+                       void            *closure);
 
 /**
  * _cairo_scaled_font_subsets_foreach:
@@ -210,9 +210,9 @@ typedef cairo_status_t
  * %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_scaled_font_subsets_foreach_scaled (cairo_scaled_font_subsets_t		    *font_subsets,
-				           cairo_scaled_font_subset_callback_func_t  font_subset_callback,
-				           void					    *closure);
+_cairo_scaled_font_subsets_foreach_scaled (cairo_scaled_font_subsets_t          *font_subsets,
+                       cairo_scaled_font_subset_callback_func_t  font_subset_callback,
+                       void                      *closure);
 
 /**
  * _cairo_scaled_font_subsets_foreach_unscaled:
@@ -245,9 +245,9 @@ _cairo_scaled_font_subsets_foreach_scaled (cairo_scaled_font_subsets_t		    *fon
  * %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_scaled_font_subsets_foreach_unscaled (cairo_scaled_font_subsets_t              *font_subsets,
-                                             cairo_scaled_font_subset_callback_func_t  font_subset_callback,
-				             void				      *closure);
+_cairo_scaled_font_subsets_foreach_unscaled (cairo_scaled_font_subsets_t        *font_subsets,
+                       cairo_scaled_font_subset_callback_func_t  font_subset_callback,
+                       void                    *closure);
 
 /**
  * _cairo_scaled_font_subsets_foreach_user:
@@ -280,9 +280,9 @@ _cairo_scaled_font_subsets_foreach_unscaled (cairo_scaled_font_subsets_t        
  * %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_scaled_font_subsets_foreach_user (cairo_scaled_font_subsets_t		  *font_subsets,
-					 cairo_scaled_font_subset_callback_func_t  font_subset_callback,
-					 void					  *closure);
+_cairo_scaled_font_subsets_foreach_user (cairo_scaled_font_subsets_t          *font_subsets,
+                     cairo_scaled_font_subset_callback_func_t  font_subset_callback,
+                     void                      *closure);
 
 /**
  * _cairo_scaled_font_subset_create_glyph_names:
@@ -300,13 +300,13 @@ cairo_private cairo_int_status_t
 _cairo_scaled_font_subset_create_glyph_names (cairo_scaled_font_subset_t *subset);
 
 typedef struct _cairo_cff_subset {
-    char *font_name;
-    char *ps_name;
-    double *widths;
-    double x_min, y_min, x_max, y_max;
-    double ascent, descent;
-    char *data;
-    unsigned long data_length;
+  char *font_name;
+  char *ps_name;
+  double *widths;
+  double x_min, y_min, x_max, y_max;
+  double ascent, descent;
+  char *data;
+  unsigned long data_length;
 } cairo_cff_subset_t;
 
 /**
@@ -326,9 +326,9 @@ typedef struct _cairo_cff_subset {
  * errors include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_cff_subset_init (cairo_cff_subset_t          *cff_subset,
-                        const char                  *name,
-                        cairo_scaled_font_subset_t  *font_subset);
+_cairo_cff_subset_init (cairo_cff_subset_t      *cff_subset,
+            const char          *name,
+            cairo_scaled_font_subset_t  *font_subset);
 
 /**
  * _cairo_cff_subset_fini:
@@ -357,9 +357,9 @@ _cairo_cff_subset_fini (cairo_cff_subset_t *cff_subset);
  * errors include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_cff_fallback_init (cairo_cff_subset_t          *cff_subset,
-                          const char                  *name,
-                          cairo_scaled_font_subset_t  *font_subset);
+_cairo_cff_fallback_init (cairo_cff_subset_t      *cff_subset,
+              const char          *name,
+              cairo_scaled_font_subset_t  *font_subset);
 
 /**
  * _cairo_cff_fallback_fini:
@@ -373,15 +373,15 @@ cairo_private void
 _cairo_cff_fallback_fini (cairo_cff_subset_t *cff_subset);
 
 typedef struct _cairo_truetype_subset {
-    char *font_name;
-    char *ps_name;
-    double *widths;
-    double x_min, y_min, x_max, y_max;
-    double ascent, descent;
-    unsigned char *data;
-    unsigned long data_length;
-    unsigned long *string_offsets;
-    unsigned long num_string_offsets;
+  char *font_name;
+  char *ps_name;
+  double *widths;
+  double x_min, y_min, x_max, y_max;
+  double ascent, descent;
+  unsigned char *data;
+  unsigned long data_length;
+  unsigned long *string_offsets;
+  unsigned long num_string_offsets;
 } cairo_truetype_subset_t;
 
 /**
@@ -401,8 +401,8 @@ typedef struct _cairo_truetype_subset {
  * errors include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_truetype_subset_init (cairo_truetype_subset_t    *truetype_subset,
-			     cairo_scaled_font_subset_t	*font_subset);
+_cairo_truetype_subset_init (cairo_truetype_subset_t  *truetype_subset,
+               cairo_scaled_font_subset_t    *font_subset);
 
 /**
  * _cairo_truetype_subset_fini:
@@ -418,14 +418,14 @@ _cairo_truetype_subset_fini (cairo_truetype_subset_t *truetype_subset);
 
 
 typedef struct _cairo_type1_subset {
-    char *base_font;
-    double *widths;
-    double x_min, y_min, x_max, y_max;
-    double ascent, descent;
-    char *data;
-    unsigned long header_length;
-    unsigned long data_length;
-    unsigned long trailer_length;
+  char *base_font;
+  double *widths;
+  double x_min, y_min, x_max, y_max;
+  double ascent, descent;
+  char *data;
+  unsigned long header_length;
+  unsigned long data_length;
+  unsigned long trailer_length;
 } cairo_type1_subset_t;
 
 
@@ -448,10 +448,10 @@ typedef struct _cairo_type1_subset {
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_type1_subset_init (cairo_type1_subset_t		*type_subset,
-			  const char			*name,
-			  cairo_scaled_font_subset_t	*font_subset,
-                          cairo_bool_t                   hex_encode);
+_cairo_type1_subset_init (cairo_type1_subset_t        *type_subset,
+              const char            *name,
+              cairo_scaled_font_subset_t    *font_subset,
+              cairo_bool_t           hex_encode);
 
 /**
  * _cairo_type1_subset_fini:
@@ -474,7 +474,7 @@ _cairo_type1_subset_fini (cairo_type1_subset_t *subset);
  * Return %TRUE if @scaled_font is a Type 1 font, otherwise return %FALSE.
  **/
 cairo_private cairo_bool_t
-_cairo_type1_scaled_font_is_type1 (cairo_scaled_font_t	*scaled_font);
+_cairo_type1_scaled_font_is_type1 (cairo_scaled_font_t    *scaled_font);
 
 /**
  * _cairo_type1_fallback_init_binary:
@@ -493,9 +493,9 @@ _cairo_type1_scaled_font_is_type1 (cairo_scaled_font_t	*scaled_font);
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_type1_fallback_init_binary (cairo_type1_subset_t	      *type_subset,
-                                   const char		      *name,
-                                   cairo_scaled_font_subset_t *font_subset);
+_cairo_type1_fallback_init_binary (cairo_type1_subset_t        *type_subset,
+                   const char            *name,
+                   cairo_scaled_font_subset_t *font_subset);
 
 /**
  * _cairo_type1_fallback_init_hexencode:
@@ -514,9 +514,9 @@ _cairo_type1_fallback_init_binary (cairo_type1_subset_t	      *type_subset,
  * include %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_status_t
-_cairo_type1_fallback_init_hex (cairo_type1_subset_t	   *type_subset,
-                                const char		   *name,
-                                cairo_scaled_font_subset_t *font_subset);
+_cairo_type1_fallback_init_hex (cairo_type1_subset_t       *type_subset,
+                const char           *name,
+                cairo_scaled_font_subset_t *font_subset);
 
 /**
  * _cairo_type1_fallback_fini:
@@ -530,10 +530,10 @@ cairo_private void
 _cairo_type1_fallback_fini (cairo_type1_subset_t *subset);
 
 typedef struct _cairo_type2_charstrings {
-    int *widths;
-    long x_min, y_min, x_max, y_max;
-    long ascent, descent;
-    cairo_array_t charstrings;
+  int *widths;
+  long x_min, y_min, x_max, y_max;
+  long ascent, descent;
+  cairo_array_t charstrings;
 } cairo_type2_charstrings_t;
 
 /**
@@ -553,7 +553,7 @@ typedef struct _cairo_type2_charstrings {
  **/
 cairo_private cairo_status_t
 _cairo_type2_charstrings_init (cairo_type2_charstrings_t   *charstrings,
-                               cairo_scaled_font_subset_t  *font_subset);
+                 cairo_scaled_font_subset_t  *font_subset);
 
 /**
  * _cairo_type2_charstrings_fini:
@@ -581,7 +581,7 @@ _cairo_type2_charstrings_fini (cairo_type2_charstrings_t *charstrings);
  * %CAIRO_STATUS_NO_MEMORY.
  **/
 cairo_private cairo_int_status_t
-_cairo_truetype_create_glyph_to_unicode_map (cairo_scaled_font_subset_t	*font_subset);
+_cairo_truetype_create_glyph_to_unicode_map (cairo_scaled_font_subset_t    *font_subset);
 
 /**
  * _cairo_truetype_index_to_ucs4:
@@ -602,14 +602,14 @@ _cairo_truetype_create_glyph_to_unicode_map (cairo_scaled_font_subset_t	*font_su
  **/
 cairo_private cairo_int_status_t
 _cairo_truetype_index_to_ucs4 (cairo_scaled_font_t *scaled_font,
-                               unsigned long        index,
-                               uint32_t            *ucs4);
+                 unsigned long    index,
+                 uint32_t      *ucs4);
 
 /**
  * _cairo_truetype_read_font_name:
  * @scaled_font: the #cairo_scaled_font_t
  * @ps_name: returns the PostScript name of the font
- *           or %NULL if the name could not be found.
+ *       or %NULL if the name could not be found.
  * @font_name: returns the font name or %NULL if the name could not be found.
  *
  * If possible (depending on the format of the underlying
@@ -628,8 +628,8 @@ _cairo_truetype_index_to_ucs4 (cairo_scaled_font_t *scaled_font,
  **/
 cairo_private cairo_int_status_t
 _cairo_truetype_read_font_name (cairo_scaled_font_t   *scaled_font,
-				char		     **ps_name,
-				char		     **font_name);
+                char           **ps_name,
+                char           **font_name);
 
 #endif /* CAIRO_HAS_FONT_SUBSET */
 

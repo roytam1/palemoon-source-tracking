@@ -3,7 +3,52 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['idl', 'locales', 'hunspell', 'src']
+include('/ipc/chromium/chromium-config.mozbuild')
 
-MOCHITEST_CHROME_MANIFESTS += ['tests/chrome/chrome.ini']
-MOCHITEST_MANIFESTS += ['tests/mochitest/mochitest.ini']
+DIRS += ['locales']
+
+XPIDL_SOURCES += [
+  'public/mozIPersonalDictionary.idl',
+  'public/mozISpellCheckingEngine.idl',
+  'public/mozISpellI18NManager.idl',
+  'public/mozISpellI18NUtil.idl',
+]
+
+IPDL_SOURCES = ['public/PRemoteSpellcheckEngine.ipdl']
+
+EXPORTS.mozilla += [
+   'src/mozSpellChecker.h',
+   'src/RemoteSpellCheckEngineChild.h',
+   'src/RemoteSpellCheckEngineParent.h',
+]
+
+SOURCES += [
+  'src/mozEnglishWordUtils.cpp',
+  'src/mozHunspell.cpp',
+  'src/mozHunspellDirProvider.cpp',
+  'src/mozInlineSpellChecker.cpp',
+  'src/mozInlineSpellWordUtil.cpp',
+  'src/mozPersonalDictionary.cpp',
+  'src/mozSpellChecker.cpp',
+  'src/mozSpellCheckerFactory.cpp',
+  'src/mozSpellI18NManager.cpp',
+  'src/RemoteSpellCheckEngineChild.cpp',
+  'src/RemoteSpellCheckEngineParent.cpp',
+]
+
+LOCAL_INCLUDES += [
+  '/dom/base',
+  'src'
+]
+
+if CONFIG['MOZ_SYSTEM_HUNSPELL']:
+  CXXFLAGS += CONFIG['MOZ_HUNSPELL_CFLAGS']
+else:
+  LOCAL_INCLUDES += ['/libs/hunspell/src']
+  DEFINES['HUNSPELL_STATIC'] = True
+
+if CONFIG['GNU_CXX']:
+  CXXFLAGS += ['-Wno-error=shadow']
+
+XPIDL_MODULE = 'spellchecker'
+FINAL_LIBRARY = 'xul'

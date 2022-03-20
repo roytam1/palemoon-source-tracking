@@ -318,13 +318,7 @@ class MozbuildObject(ProcessExecutionMixin):
         if where == 'staged-package':
             stem = os.path.join(stem, substs['MOZ_APP_NAME'])
 
-        if substs['OS_ARCH'] == 'Darwin':
-            if substs['MOZ_BUILD_APP'] == 'xulrunner':
-                stem = os.path.join(stem, 'XUL.framework');
-            else:
-                stem = os.path.join(stem, substs['MOZ_MACBUNDLE_NAME'], 'Contents',
-                    'MacOS')
-        elif where == 'default':
+        if where == 'default':
             stem = os.path.join(stem, 'bin')
 
         leaf = None
@@ -775,13 +769,6 @@ class MachCommandConditions(object):
                    cls.device_name.startswith('emulator')
         except AttributeError:
             return False
-
-    @staticmethod
-    def is_android(cls):
-        """Must have an Android build."""
-        if hasattr(cls, 'substs'):
-            return cls.substs.get('MOZ_WIDGET_TOOLKIT') == 'android'
-        return False
 
     @staticmethod
     def is_hg(cls):

@@ -1,0 +1,37 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+toolkit.jar:
+% content weave %content/weave/ contentaccessible=yes
+  content/weave/aboutSyncTabs.xul             (content/aboutSyncTabs.xul)
+  content/weave/aboutSyncTabs.js              (content/aboutSyncTabs.js)
+  content/weave/aboutSyncTabs.css             (content/aboutSyncTabs.css)
+  content/weave/aboutSyncTabs-bindings.xml    (content/aboutSyncTabs-bindings.xml)
+  content/weave/setup.xul                     (content/setup.xul)
+  content/weave/addDevice.js                  (content/addDevice.js)
+  content/weave/addDevice.xul                 (content/addDevice.xul)
+  content/weave/setup.js                      (content/setup.js)
+  content/weave/genericChange.xul             (content/genericChange.xul)
+  content/weave/genericChange.js              (content/genericChange.js)
+  content/weave/key.xhtml                     (content/key.xhtml)
+  content/weave/notification.xml              (content/notification.xml)
+  content/weave/quota.xul                     (content/quota.xul)
+  content/weave/quota.js                      (content/quota.js)
+  content/weave/utils.js                      (content/utils.js)
+  content/weave/progress.js                   (content/progress.js)
+  content/weave/progress.xhtml                (content/progress.xhtml)
+
+classic.jar:
+% skin weave classic/1.0 %skin/classic/weave/
+  skin/classic/weave/aboutSyncTabs.css        (skin/aboutSyncTabs.css)
+  skin/classic/weave/sync-16.png              (skin/sync-16.png)
+  skin/classic/weave/sync-32.png              (skin/sync-32.png)
+  skin/classic/weave/sync-128.png             (skin/sync-128.png)
+  skin/classic/weave/sync-bg.png              (skin/sync-bg.png)
+  skin/classic/weave/sync-desktopIcon.png     (skin/sync-desktopIcon.png)
+  skin/classic/weave/sync-mobileIcon.png      (skin/sync-mobileIcon.png)
+* skin/classic/weave/syncSetup.css            (skin/syncSetup.css)
+* skin/classic/weave/syncCommon.css           (skin/syncCommon.css)
+  skin/classic/weave/syncQuota.css            (skin/syncQuota.css)
+  skin/classic/weave/syncProgress.css         (skin/syncProgress.css)

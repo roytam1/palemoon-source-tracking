@@ -142,7 +142,6 @@ ChannelFromScriptURL(nsIPrincipal* principal,
     parentDoc = nullptr;
   }
 
-  aLoadFlags |= nsIChannel::LOAD_CLASSIFY_URI;
   uint32_t secFlags = aIsMainScript ? nsILoadInfo::SEC_REQUIRE_SAME_ORIGIN_DATA_IS_BLOCKED
                                     : nsILoadInfo::SEC_ALLOW_CROSS_ORIGIN_DATA_INHERITS;
 
@@ -2231,6 +2230,10 @@ void ReportLoadError(ErrorResult& aRv, nsresult aLoadResult,
     case NS_ERROR_DOM_BAD_URI:
       // This is actually a security error.
       aLoadResult = NS_ERROR_DOM_SECURITY_ERR;
+      break;
+
+    case NS_ERROR_CORRUPTED_CONTENT:
+      aLoadResult = NS_ERROR_DOM_NETWORK_ERR;
       break;
 
     default:

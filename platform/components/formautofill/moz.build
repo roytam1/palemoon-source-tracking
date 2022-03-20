@@ -3,21 +3,20 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += ['nsIFormAutofillContentService.idl']
-
-XPIDL_MODULE = 'toolkit_formautofill'
+XPIDL_SOURCES += ['public/nsIFormAutofillContentService.idl']
 
 EXTRA_COMPONENTS += [
-    'FormAutofillContentService.js',
-    'FormAutofillStartup.js',
+    'src/FormAutofillContentService.js',
+    'src/FormAutofillStartup.js',
 ]
 
 EXTRA_PP_COMPONENTS += ['formautofill.manifest']
 
 EXTRA_JS_MODULES += [
-    'content/RequestAutocompleteUI.jsm',
-    'FormAutofill.jsm',
-    'FormAutofillIntegration.jsm',
+    'src/FormAutofill.jsm',
+    'src/FormAutofillIntegration.jsm',
+    'src/RequestAutocompleteUI.jsm',
 ]
 
+XPIDL_MODULE = 'toolkit_formautofill'
 JAR_MANIFESTS += ['jar.mn']

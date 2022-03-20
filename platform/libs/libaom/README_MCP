@@ -2,7 +2,7 @@ This directory contains build files for the aom video
 codec reference implementation.
 
 Any patches or additional configuration to be applied to the
-upstream source should be kept here in the media/libaom
+upstream source should be kept here in the libs/libaom
 directory.
 
 The upstream aom git repository is:

@@ -9,7 +9,7 @@
 include reftest-sanity/reftest.list
 
 # images (if ImageLib is busted, could result in weird failures in other tests)
-include ../../image/test/reftest/reftest.list
+include ../../system/image/test/reftest/reftest.list
 
 # CSSWG tests
 include w3c-css/submitted/reftest.list
@@ -206,7 +206,7 @@ include font-matching/reftest.list
 include forms/reftest.list
 
 # gfx
-include ../../gfx/tests/reftest/reftest.list
+include ../../system/graphics/tests/reftest/reftest.list
 
 # block-inside-inline splits
 include ib-split/reftest.list
@@ -251,7 +251,7 @@ include margin-collapsing/reftest.list
 include native-theme/reftest.list
 
 # netwerk/
-include ../../netwerk/test/reftest/reftest.list
+include ../../system/network/test/reftest/reftest.list
 
 include outline/reftest.list
 
@@ -266,9 +266,6 @@ skip-if(browserIsRemote) include webm-video/reftest.list
 
 # mp4-video/
 skip-if(browserIsRemote) include mp4-video/reftest.list
-
-# parser/
-include ../../parser/htmlparser/tests/reftest/reftest.list
 
 # percent-overflow-sizing/
 include percent-overflow-sizing/reftest.list
@@ -347,7 +344,7 @@ include text-svgglyphs/reftest.list
 # text-transform/
 include text-transform/reftest.list
 
-include ../../toolkit/content/tests/reftests/reftest.list
+include ../../components/global/content/tests/reftests/reftest.list
 
 # -moz-transform/
 include transform/reftest.list
@@ -367,7 +364,7 @@ include web-animations/reftest.list
 include webcomponents/reftest.list
 
 # widget/
-include ../../widget/reftests/reftest.list
+include ../../system/interface/reftests/reftest.list
 
 # xml-stylesheet/
 include ../../dom/tests/reftest/xml-stylesheet/reftest.list
@@ -400,7 +397,7 @@ include z-index/reftest.list
 include ../../dom/html/reftests/reftest.list
 
 # editor/
-include ../../editor/reftests/reftest.list
+include ../../system/editor/reftests/reftest.list
 
 # box-sizing
 include box-sizing/reftest.list
@@ -412,4 +409,4 @@ include invalidation/reftest.list
 include ../../dom/encoding/test/reftest/reftest.list
 
 # APZ/async positioning tests
-include ../../gfx/layers/apz/test/reftest/reftest.list
+include ../../system/graphics/layers/apz/test/reftest/reftest.list

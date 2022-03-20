@@ -8,7 +8,7 @@
 if CONFIG['FFVPX_ASFLAGS']:
     DIRS += ['x86']
 
-SharedLibrary('mozavutil')
+SharedLibrary('ffvpxutil')
 SOURCES += [
     'adler32.c',
     'avstring.c',

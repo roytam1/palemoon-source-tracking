@@ -18,6 +18,7 @@ SOURCES += [
     'nsAboutCache.cpp',
     'nsAboutCacheEntry.cpp',
     'nsAboutProtocolHandler.cpp',
+    'nsAboutRedirector.cpp',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')
@@ -25,8 +26,8 @@ include('/ipc/chromium/chromium-config.mozbuild')
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/netwerk/base',
-    '/netwerk/cache2',
+    '/system/network/base',
+    '/system/network/cache2',
 ]
 
 if CONFIG['GNU_CXX']:

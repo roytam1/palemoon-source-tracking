@@ -3,34 +3,30 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+CONFIGURE_DEFINE_FILES += ['necko-config.h']
+EXPORTS += ['!necko-config.h']
+
 DIRS += [
-    'base',
-    'cookie',
-    'dns',
-    'socket',
-    'mime',
-    'streamconv',
-    'cache',
-    'cache2',
-    'protocol',
-    'system',
-    'ipc',
-    'standalone',
+  'base',
+  'cache',
+  'cache2',
+  'cookie',
+  'dns',
+  'exthandler',
+  'ipc',
+  'locales',
+  'mime',
+  'protocol',
+  'socket',
+  'streamconv',
+  'system',
 ]
 
-if CONFIG['MOZ_SRTP']:
-    DIRS += ['srtp/src']
-
-if CONFIG['MOZ_SCTP']:
-    DIRS += ['sctp/src', 'sctp/datachannel']
+if CONFIG['MOZ_AUTH_EXTENSION']:
+  DIRS += ['auth']
 
 if CONFIG['NECKO_WIFI']:
-    DIRS += ['wifi']
-
-DIRS += ['locales']
+  DIRS += ['wifi']
 
 DIRS += ['build']
 TEST_DIRS += ['test']
-
-CONFIGURE_DEFINE_FILES += ['necko-config.h']
-EXPORTS += ['!necko-config.h']

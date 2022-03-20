@@ -236,7 +236,11 @@ NS_IMETHODIMP nsMsgFolderCache::Init(nsIFile *aFile)
   aFile->Exists(&exists);
 
   nsAutoCString dbPath;
+#ifdef XP_WIN
+  aFile->GetPersistentDescriptor(dbPath);
+#else
   aFile->GetNativePath(dbPath);
+#endif
   // ### evil cast until MDB supports file streams.
   nsresult rv = OpenMDB(dbPath, exists);
   // if this fails and panacea.dat exists, try blowing away the db and recreating it

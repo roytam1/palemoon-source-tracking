@@ -16,9 +16,9 @@
 #endif
 
 /* A fully qualified no-operation statement */
-#define CAIRO_MUTEX_IMPL_NOOP	do {/*no-op*/} while (0)
+#define CAIRO_MUTEX_IMPL_NOOP    do {/*no-op*/} while (0)
 /* And one that evaluates its argument once */
-#define CAIRO_MUTEX_IMPL_NOOP1(expr)        do { (void)(expr); } while (0)
+#define CAIRO_MUTEX_IMPL_NOOP1(expr)    do { (void)(expr); } while (0)
 /* Note: 'if (expr) {}' is an alternative to '(void)(expr);' that will 'use' the
  * result of __attribute__((warn_used_result)) functions. */
 
@@ -39,7 +39,7 @@
  *   running it):
  *
  *   <programlisting>
- *	cairo_mutex_impl_t _cairo_some_mutex;
+ *    cairo_mutex_impl_t _cairo_some_mutex;
  *   </programlisting>
  *
  * - #define %CAIRO_MUTEX_IMPL_<NAME> 1 with suitable name for your platform.  You
@@ -54,12 +54,12 @@
  *   You should be able to compile the following snippet:
  *
  *   <programlisting>
- *	cairo_mutex_impl_t _cairo_some_mutex;
+ *    cairo_mutex_impl_t _cairo_some_mutex;
  *
- *      if (1)
- *          CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
- *      else
- *          CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *    if (1)
+ *      CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *    else
+ *      CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  *   </programlisting>
  *
  * - #define %CAIRO_MUTEX_IMPL_NIL_INITIALIZER to something that can
@@ -68,12 +68,12 @@
  *   you should be able to compile the following snippet:
  *
  *   <programlisting>
- *	cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
+ *    cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
  *
- *      if (1)
- *          CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
- *      else
- *          CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *    if (1)
+ *      CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *    else
+ *      CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  *   </programlisting>
  *
  * - If the above code is not enough to initialize a mutex on
@@ -82,14 +82,14 @@
  *   you should be able to compile AND RUN the following snippet:
  *
  *   <programlisting>
- *	cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
+ *    cairo_mutex_impl_t _cairo_some_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;
  *
- *      CAIRO_MUTEX_IMPL_INIT (_cairo_some_mutex);
+ *    CAIRO_MUTEX_IMPL_INIT (_cairo_some_mutex);
  *
- *      if (1)
- *          CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
- *      else
- *          CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
+ *    if (1)
+ *      CAIRO_MUTEX_IMPL_LOCK (_cairo_some_mutex);
+ *    else
+ *      CAIRO_MUTEX_IMPL_UNLOCK (_cairo_some_mutex);
  *   </programlisting>
  *
  * - If you define CAIRO_MUTEX_IMPL_INIT(mutex), cairo will use it to
@@ -97,7 +97,7 @@
  *   not happen (eg. %CAIRO_MUTEX_IMPL_INIT is just a faster way than
  *   what cairo does using %CAIRO_MUTEX_IMPL_NIL_INITIALIZER), then
  *   <programlisting>
- *      #define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
+ *    #define CAIRO_MUTEX_IMPL_INITIALIZE() CAIRO_MUTEX_IMPL_NOOP
  *   </programlisting>
  *
  * - If your system supports freeing a mutex object (deallocating
@@ -111,7 +111,7 @@
  *   So, if for any reason finalizing static mutex'es is not needed
  *   (eg. you never call CAIRO_MUTEX_IMPL_FINALIZE()), then
  *   <programlisting>
- *      #define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
+ *    #define CAIRO_MUTEX_IMPL_FINALIZE() CAIRO_MUTEX_IMPL_NOOP
  *   </programlisting>
  *
  * - That is all.  If for any reason you think the above API is
@@ -163,32 +163,6 @@
 # define CAIRO_MUTEX_IMPL_FINI(mutex) CAIRO_MUTEX_IMPL_NOOP
 # define CAIRO_MUTEX_IMPL_NIL_INITIALIZER SRWLOCK_INIT
 
-#elif defined __OS2__ /******************************************************/
-
-# define INCL_BASE
-# define INCL_PM
-# include <os2.h>
-
-  typedef HMTX cairo_mutex_impl_t;
-
-# define CAIRO_MUTEX_IMPL_OS2 1
-# define CAIRO_MUTEX_IMPL_LOCK(mutex) DosRequestMutexSem(mutex, SEM_INDEFINITE_WAIT)
-# define CAIRO_MUTEX_IMPL_UNLOCK(mutex) DosReleaseMutexSem(mutex)
-# define CAIRO_MUTEX_IMPL_INIT(mutex) DosCreateMutexSem (NULL, &(mutex), 0L, FALSE)
-# define CAIRO_MUTEX_IMPL_FINI(mutex) DosCloseMutexSem (mutex)
-# define CAIRO_MUTEX_IMPL_NIL_INITIALIZER 0
-
-#elif CAIRO_HAS_BEOS_SURFACE /***********************************************/
-
-  typedef BLocker* cairo_mutex_impl_t;
-
-# define CAIRO_MUTEX_IMPL_BEOS 1
-# define CAIRO_MUTEX_IMPL_LOCK(mutex) (mutex)->Lock()
-# define CAIRO_MUTEX_IMPL_UNLOCK(mutex) (mutex)->Unlock()
-# define CAIRO_MUTEX_IMPL_INIT(mutex) (mutex) = new BLocker()
-# define CAIRO_MUTEX_IMPL_FINI(mutex) delete (mutex)
-# define CAIRO_MUTEX_IMPL_NIL_INITIALIZER NULL
-
 #elif CAIRO_HAS_PTHREAD /* and finally if there are no native mutexes ********/
 
 # include <pthread.h>
@@ -215,11 +189,11 @@
 
 # define CAIRO_MUTEX_HAS_RECURSIVE_IMPL 1
 # define CAIRO_RECURSIVE_MUTEX_IMPL_INIT(mutex) do { \
-    pthread_mutexattr_t attr; \
-    pthread_mutexattr_init (&attr); \
-    pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE); \
-    pthread_mutex_init (&(mutex), &attr); \
-    pthread_mutexattr_destroy (&attr); \
+  pthread_mutexattr_t attr; \
+  pthread_mutexattr_init (&attr); \
+  pthread_mutexattr_settype (&attr, PTHREAD_MUTEX_RECURSIVE); \
+  pthread_mutex_init (&(mutex), &attr); \
+  pthread_mutexattr_destroy (&attr); \
 } while (0)
 # define CAIRO_RECURSIVE_MUTEX_IMPL_NIL_INITIALIZER PTHREAD_RECURSIVE_MUTEX_INITIALIZER_NP
 

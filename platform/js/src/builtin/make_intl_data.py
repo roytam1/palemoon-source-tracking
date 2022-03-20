@@ -473,6 +473,9 @@ def readICUTimeZonesFromTimezoneTypes(icuTzDir):
     # tables consistent with IANA.
     del links[Zone("Canada/East-Saskatchewan")]
 
+    # XXXTobin: ICU-Fuck removal
+    del links[Zone("US/Pacific-New")]
+
     validateTimeZones(zones, links)
 
     return (zones, links)
@@ -512,6 +515,9 @@ def readICUTimeZonesFromZoneInfo(icuTzDir, ignoreFactory):
     # Remove the placeholder time zone "Factory".
     if ignoreFactory:
         zones.remove(Zone("Factory"))
+
+    # XXXTobin: ICU-Fuck removal
+    del links[Zone("US/Pacific-New")]
 
     validateTimeZones(zones, links)
 
@@ -589,6 +595,11 @@ def icuTzDataVersion(icuTzDir):
     if not os.path.isfile(zoneinfo):
         raise RuntimeError("file not found: %s" % zoneinfo)
     version = searchInFile("^//\s+tz version:\s+([0-9]{4}[a-z])$", zoneinfo)
+    
+    if version is None:
+        # XXXTobin: ICU tzdata != IANA tzdata anymore and so we need to
+        # check for a trailing number because /FUCK STANDARDS/ apparently.
+        version = searchInFile("^//\s+tz version:\s+([0-9]{4}[a-z][0-9]{1})$", zoneinfo)
     if version is None:
         raise RuntimeError("%s does not contain a valid tzdata version string" % zoneinfo)
     return version
@@ -888,11 +899,11 @@ def updateTzdata(args):
         raise RuntimeError("%s must reside in js/src/builtin" % sys.argv[0])
     topsrcdir = "/".join(thisDir.split(os.sep)[:-3])
 
-    icuDir = os.path.join(topsrcdir, "intl/icu/source")
+    icuDir = os.path.join(topsrcdir, "libs/icu/src")
     if not os.path.isdir(icuDir):
         raise RuntimeError("not a directory: %s" % icuDir)
 
-    icuTzDir = os.path.join(topsrcdir, "intl/tzdata/source")
+    icuTzDir = os.path.join(topsrcdir, "system/intl/tzdata/source")
     if not os.path.isdir(icuTzDir):
         raise RuntimeError("not a directory: %s" % icuTzDir)
 
@@ -909,7 +920,10 @@ def updateTzdata(args):
     out = args.out
 
     version = icuTzDataVersion(icuTzDir)
-    url = "https://www.iana.org/time-zones/repository/releases/tzdata%s.tar.gz" % version
+    # XXXTobin: ICU likely with Mozilla's blessing has fucked us.. ICU tzdata != IANA tzdata anymore 
+    # url = "https://www.iana.org/time-zones/repository/releases/tzdata%s.tar.gz" % version
+    url = "https://github.com/unicode-org/icu-data/blob/main/tzdata/tzdata_patch/tzdata%s.tar.gz?raw=true" % version
+    
 
     print("Arguments:")
     print("\ttzdata version: %s" % version)

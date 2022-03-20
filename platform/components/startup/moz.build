@@ -3,20 +3,25 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['public']
+XPIDL_SOURCES += ['public/nsIAppStartup.idl']
 
-EXPORTS.mozilla += ['StartupTimeline.h']
+if CONFIG['MOZ_USERINFO']:
+  XPIDL_SOURCES += ['public/nsIUserInfo.idl']
+
+EXPORTS += ['src/nsIAppStartupNotifier.h']
+EXPORTS.mozilla += ['src/StartupTimeline.h']
 
 SOURCES += [
-    'nsAppStartup.cpp',
-    'StartupTimeline.cpp',
+  'src/nsAppStartup.cpp',
+  'src/nsAppStartupNotifier.cpp',
+  'src/StartupTimeline.cpp',
 ]
 
 if CONFIG['MOZ_USERINFO']:
-    if CONFIG['OS_ARCH'] == 'WINNT':
-        # This file cannot be built in unified mode because of name clashes with Windows headers.
-        SOURCES += ['nsUserInfoWin.cpp']
-    else:
-        SOURCES += ['nsUserInfoUnix.cpp']
+  if CONFIG['OS_ARCH'] == 'WINNT':
+    SOURCES += ['src/nsUserInfoWin.cpp']
+  else:
+    SOURCES += ['src/nsUserInfoUnix.cpp']
 
+XPIDL_MODULE = 'appstartup'
 FINAL_LIBRARY = 'xul'

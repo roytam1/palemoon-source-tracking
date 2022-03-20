@@ -59,7 +59,6 @@
 #include "mozilla/BasePrincipal.h"
 #include "mozilla/WebBrowserPersistDocumentChild.h"
 #include "imgLoader.h"
-#include "GMPServiceChild.h"
 
 #include "mozilla/Unused.h"
 
@@ -119,14 +118,8 @@
 #include "nsIScriptSecurityManager.h"
 #include "nsHostObjectProtocolHandler.h"
 
-#ifdef MOZ_WEBRTC
-#include "signaling/src/peerconnection/WebrtcGlobalChild.h"
-#endif
-
-#ifdef MOZ_PERMISSIONS
 #include "nsPermission.h"
 #include "nsPermissionManager.h"
-#endif
 
 #include "PermissionMessageUtils.h"
 
@@ -161,7 +154,6 @@
 #include "mozilla/net/NeckoMessageUtils.h"
 #include "mozilla/widget/PuppetBidiKeyboard.h"
 #include "mozilla/RemoteSpellCheckEngineChild.h"
-#include "GMPServiceChild.h"
 #include "gfxPlatform.h"
 #include "nscore.h" // for NS_FREE_PERMANENT_DATA
 
@@ -171,7 +163,6 @@ using namespace mozilla::dom::ipc;
 using namespace mozilla::dom::workers;
 using namespace mozilla::media;
 using namespace mozilla::embedding;
-using namespace mozilla::gmp;
 using namespace mozilla::hal_sandbox;
 using namespace mozilla::ipc;
 using namespace mozilla::layers;
@@ -1123,20 +1114,6 @@ ContentChild::AllocPContentBridgeParent(mozilla::ipc::Transport* aTransport,
   return mLastBridge;
 }
 
-PGMPServiceChild*
-ContentChild::AllocPGMPServiceChild(mozilla::ipc::Transport* aTransport,
-                                    base::ProcessId aOtherProcess)
-{
-  return GMPServiceChild::Create(aTransport, aOtherProcess);
-}
-
-bool
-ContentChild::RecvGMPsChanged(nsTArray<GMPCapabilityData>&& capabilities)
-{
-  GeckoMediaPluginServiceChild::UpdateGMPCapabilities(Move(capabilities));
-  return true;
-}
-
 bool
 ContentChild::RecvInitRendering(Endpoint<PCompositorBridgeChild>&& aCompositor,
                                 Endpoint<PImageBridgeChild>&& aImageBridge,
@@ -1651,29 +1628,6 @@ ContentChild::DeallocPSpeechSynthesisChild(PSpeechSynthesisChild* aActor)
   return false;
 #endif
 }
-
-PWebrtcGlobalChild *
-ContentChild::AllocPWebrtcGlobalChild()
-{
-#ifdef MOZ_WEBRTC
-  WebrtcGlobalChild *child = new WebrtcGlobalChild();
-  return child;
-#else
-  return nullptr;
-#endif
-}
-
-bool
-ContentChild::DeallocPWebrtcGlobalChild(PWebrtcGlobalChild *aActor)
-{
-#ifdef MOZ_WEBRTC
-  delete static_cast<WebrtcGlobalChild*>(aActor);
-  return true;
-#else
-  return false;
-#endif
-}
-
 
 bool
 ContentChild::RecvRegisterChrome(InfallibleTArray<ChromePackage>&& packages,

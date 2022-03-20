@@ -30,6 +30,6 @@ if 'ftp' in CONFIG['NECKO_PROTOCOLS']:
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/modules/brotli/dec',
-    '/netwerk/base',
+    '/libs/brotli/dec',
+    '/system/network/base',
 ]

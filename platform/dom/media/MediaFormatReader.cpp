@@ -1,17 +1,11 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#ifdef MOZ_EME
-#include "mozilla/CDMProxy.h"
-#endif
-
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/dom/HTMLMediaElement.h"
 #include "mozilla/Preferences.h"
-#include "mozilla/Telemetry.h"
 #include "nsContentUtils.h"
 #include "nsPrintfCString.h"
 #include "nsSize.h"
@@ -353,12 +347,7 @@ MediaFormatReader::DecoderFactory::DoCreateDecoder(TrackType aTrack)
   if (!mOwner->mPlatform) {
     mOwner->mPlatform = new PDMFactory();
     if (mOwner->IsEncrypted()) {
-#ifdef MOZ_EME
-      MOZ_ASSERT(mOwner->mCDMProxy);
-      mOwner->mPlatform->SetCDMProxy(mOwner->mCDMProxy);
-#else
       return MediaResult(NS_ERROR_DOM_MEDIA_FATAL_ERR, "EME not supported");
-#endif
     }
   }
 
@@ -370,7 +359,6 @@ MediaFormatReader::DecoderFactory::DoCreateDecoder(TrackType aTrack)
         : *ownerData.mOriginalInfo->GetAsAudioInfo(),
         ownerData.mTaskQueue,
         ownerData.mCallback.get(),
-        mOwner->mCrashHelper,
         ownerData.mIsBlankDecode,
         &result
       });
@@ -388,7 +376,6 @@ MediaFormatReader::DecoderFactory::DoCreateDecoder(TrackType aTrack)
         ownerData.mCallback.get(),
         mOwner->mKnowsCompositor,
         mOwner->GetImageContainer(),
-        mOwner->mCrashHelper,
         ownerData.mIsBlankDecode,
         &result
       });
@@ -581,61 +568,13 @@ MediaFormatReader::InitInternal()
   mVideo.mTaskQueue =
     new TaskQueue(GetMediaThreadPool(MediaThreadType::PLATFORM_DECODER));
 
-  // Note: GMPCrashHelper must be created on main thread, as it may use
-  // weak references, which aren't threadsafe.
-  mCrashHelper = mDecoder->GetCrashHelper();
-
   return NS_OK;
 }
 
-#ifdef MOZ_EME
-class DispatchKeyNeededEvent : public Runnable {
-public:
-  DispatchKeyNeededEvent(AbstractMediaDecoder* aDecoder,
-                         nsTArray<uint8_t>& aInitData,
-                         const nsString& aInitDataType)
-    : mDecoder(aDecoder)
-    , mInitData(aInitData)
-    , mInitDataType(aInitDataType)
-  {
-  }
-  NS_IMETHOD Run() override {
-    // Note: Null check the owner, as the decoder could have been shutdown
-    // since this event was dispatched.
-    MediaDecoderOwner* owner = mDecoder->GetOwner();
-    if (owner) {
-      owner->DispatchEncrypted(mInitData, mInitDataType);
-    }
-    mDecoder = nullptr;
-    return NS_OK;
-  }
-private:
-  RefPtr<AbstractMediaDecoder> mDecoder;
-  nsTArray<uint8_t> mInitData;
-  nsString mInitDataType;
-};
-
-void
-MediaFormatReader::SetCDMProxy(CDMProxy* aProxy)
-{
-  RefPtr<CDMProxy> proxy = aProxy;
-  RefPtr<MediaFormatReader> self = this;
-  nsCOMPtr<nsIRunnable> r = NS_NewRunnableFunction([=] () {
-    MOZ_ASSERT(self->OnTaskQueue());
-    self->mCDMProxy = proxy;
-  });
-  OwnerThread()->Dispatch(r.forget());
-}
-#endif // MOZ_EME
-
 bool
 MediaFormatReader::IsWaitingOnCDMResource() {
-  MOZ_ASSERT(OnTaskQueue());
-#ifdef MOZ_EME
-  return IsEncrypted() && !mCDMProxy;
-#else
+  /* STUB */
   return false;
-#endif
 }
 
 RefPtr<MediaDecoderReader::MetadataPromise>
@@ -742,13 +681,6 @@ MediaFormatReader::OnDemuxerInitDone(nsresult)
 
   UniquePtr<EncryptionInfo> crypto = mDemuxer->GetCrypto();
   if (mDecoder && crypto && crypto->IsEncrypted()) {
-#ifdef MOZ_EME
-    // Try and dispatch 'encrypted'. Won't go if ready state still HAVE_NOTHING.
-    for (uint32_t i = 0; i < crypto->mInitDatas.Length(); i++) {
-      NS_DispatchToMainThread(
-        new DispatchKeyNeededEvent(mDecoder, crypto->mInitDatas[i].mInitData, crypto->mInitDatas[i].mType));
-    }
-#endif
     mInfo.mCrypto = *crypto;
   }
 

@@ -14,12 +14,6 @@ Cu.import("resource://gre/modules/Services.jsm");
 #ifdef MOZ_PHOENIX
 const MOZ_APP_NAME = "firefox";
 const MOZ_BUILD_APP = "browser";
-#elifdef MOZ_THUNDERBIRD
-const MOZ_APP_NAME = "thunderbird";
-const MOZ_BUILD_APP = "mail";
-#elif defined(MOZ_SUITE) && !defined(BINOC_BOREALIS)
-const MOZ_APP_NAME = "seamonkey";
-const MOZ_BUILD_APP = "suite";
 #else
 #expand const MOZ_APP_NAME = "__MOZ_APP_NAME__";
 #expand const MOZ_BUILD_APP = "__MOZ_BUILD_APP__".match(/([^\/]*)\/*$/)[1];

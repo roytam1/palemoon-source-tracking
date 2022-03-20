@@ -77,13 +77,13 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
+    '../txmgr',
     '/dom/base',
-    '/editor/txmgr',
-    '/extensions/spellcheck/src',
     '/layout/generic',
     '/layout/style',
     '/layout/tables',
     '/layout/xul',
+    '/system/intl/spellcheck/src',
 ]
 
 EXTRA_COMPONENTS += [

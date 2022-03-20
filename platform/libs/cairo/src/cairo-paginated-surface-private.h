@@ -10,22 +10,22 @@
 #include "cairo-surface-private.h"
 
 typedef struct _cairo_paginated_surface {
-    cairo_surface_t base;
+  cairo_surface_t base;
 
-    /* The target surface to hold the final result. */
-    cairo_surface_t *target;
+  /* The target surface to hold the final result. */
+  cairo_surface_t *target;
 
-    cairo_content_t content;
+  cairo_content_t content;
 
-    /* Paginated-surface specific functions for the target */
-    const cairo_paginated_surface_backend_t *backend;
+  /* Paginated-surface specific functions for the target */
+  const cairo_paginated_surface_backend_t *backend;
 
-    /* A cairo_recording_surface to record all operations. To be replayed
-     * against target, and also against image surface as necessary for
-     * fallbacks. */
-    cairo_surface_t *recording_surface;
+  /* A cairo_recording_surface to record all operations. To be replayed
+   * against target, and also against image surface as necessary for
+   * fallbacks. */
+  cairo_surface_t *recording_surface;
 
-    int page_num;
+  int page_num;
 } cairo_paginated_surface_t;
 
 #endif /* CAIRO_PAGINATED_SURFACE_H */

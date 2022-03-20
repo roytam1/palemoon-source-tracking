@@ -150,7 +150,11 @@ nsLocalURI2Path(const char* rootURI, const char* uriStr,
 
   nsCString localNativePath;
 
+#ifdef XP_WIN
+  localPath->GetPersistentDescriptor(localNativePath);
+#else
   localPath->GetNativePath(localNativePath);
+#endif  
   nsEscapeNativePath(localNativePath);
   pathResult = localNativePath.get();
   const char *curPos = uriStr + PL_strlen(rootURI);

@@ -1393,7 +1393,6 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
   rv = aCmdLine->FindFlag(NS_LITERAL_STRING("compose"), false, &found);
   NS_ENSURE_SUCCESS(rv, rv);
 
-#ifndef MOZ_SUITE
   // MAC OS X passes in -url mailto:mscott@mozilla.org into the command line
   // instead of -compose.
   if (found == -1)
@@ -1403,7 +1402,6 @@ nsMsgComposeService::Handle(nsICommandLine* aCmdLine)
     // figure that out shortly.
     composeShouldHandle = false;
   }
-#endif
 
   if (found == -1)
     return NS_OK;

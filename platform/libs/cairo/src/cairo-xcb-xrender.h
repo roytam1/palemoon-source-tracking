@@ -15,12 +15,12 @@
 CAIRO_BEGIN_DECLS
 
 cairo_public cairo_surface_t *
-cairo_xcb_surface_create_with_xrender_format (xcb_connection_t	    *c,
-					      xcb_drawable_t	     drawable,
-					      xcb_screen_t		    *screen,
-					      xcb_render_pictforminfo_t *format,
-					      int		     width,
-					      int		     height);
+cairo_xcb_surface_create_with_xrender_format (xcb_connection_t      *c,
+                        xcb_drawable_t       drawable,
+                        xcb_screen_t          *screen,
+                        xcb_render_pictforminfo_t *format,
+                        int           width,
+                        int           height);
 
 CAIRO_END_DECLS
 

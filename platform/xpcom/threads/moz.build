@@ -62,14 +62,13 @@ UNIFIED_SOURCES += [
     'nsTimerImpl.cpp',
     'SharedThreadPool.cpp',
     'TaskQueue.cpp',
-    'ThreadStackHelper.cpp',
     'ThrottledEventQueue.cpp',
     'TimerThread.cpp',
 ]
 
 LOCAL_INCLUDES += [
     '../build',
-    '/caps',
+    '/system/security/script',
     '/tools/profiler',
 ]
 

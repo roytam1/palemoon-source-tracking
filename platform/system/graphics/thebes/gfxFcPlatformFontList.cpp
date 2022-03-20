@@ -1110,9 +1110,7 @@ gfxFcPlatformFontList::gfxFcPlatformFontList()
         }
     }
 
-#ifdef MOZ_BUNDLED_FONTS
     mBundledFontsInitialized = false;
-#endif
 }
 
 gfxFcPlatformFontList::~gfxFcPlatformFontList()
@@ -1220,11 +1218,9 @@ gfxFcPlatformFontList::InitFontListForPlatform()
     AddFontSetFamilies(systemFonts, /* aAppFonts = */ false);
     mAlwaysUseFontconfigGenerics = PrefFontListsUseOnlyGenerics();
 
-#ifdef MOZ_BUNDLED_FONTS
     ActivateBundledFonts();
     FcFontSet* appFonts = FcConfigGetFonts(nullptr, FcSetApplication);
     AddFontSetFamilies(appFonts, /* aAppFonts = */ true);
-#endif
 
     mOtherFamilyNamesInitialized = true;
 
@@ -1821,7 +1817,6 @@ gfxFcPlatformFontList::CheckFontUpdates(nsITimer *aTimer, void *aThis)
     }
 }
 
-#ifdef MOZ_BUNDLED_FONTS
 void
 gfxFcPlatformFontList::ActivateBundledFonts()
 {
@@ -1847,7 +1842,6 @@ gfxFcPlatformFontList::ActivateBundledFonts()
         FcConfigAppFontAddDir(nullptr, ToFcChar8Ptr(mBundledFontsPath.get()));
     }
 }
-#endif
 
 #ifdef MOZ_WIDGET_GTK
 /***************************************************************************

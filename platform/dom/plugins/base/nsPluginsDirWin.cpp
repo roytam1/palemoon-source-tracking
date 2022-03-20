@@ -239,7 +239,7 @@ static bool CanLoadPlugin(char16ptr_t aBinaryPath)
 bool nsPluginsDir::IsPluginFile(nsIFile* file)
 {
   nsAutoCString path;
-  if (NS_FAILED(file->GetNativePath(path)))
+  if (NS_FAILED(file->GetPersistentDescriptor(path)))
     return false;
 
   const char *cPath = path.get();

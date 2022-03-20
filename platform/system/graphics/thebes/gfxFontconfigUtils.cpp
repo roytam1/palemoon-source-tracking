@@ -317,9 +317,7 @@ gfxFontconfigUtils::gfxFontconfigUtils()
     , mFontsByFullname(32)
     , mLangSupportTable(32)
     , mLastConfig(nullptr)
-#ifdef MOZ_BUNDLED_FONTS
     , mBundledFontsInitialized(false)
-#endif
 {
     UpdateFontListInternal();
 }
@@ -583,16 +581,12 @@ gfxFontconfigUtils::UpdateFontListInternal(bool aForce)
     if (currentConfig == mLastConfig)
         return NS_OK;
 
-#ifdef MOZ_BUNDLED_FONTS
     ActivateBundledFonts();
-#endif
 
     // These FcFontSets are owned by fontconfig
     FcFontSet *fontSets[] = {
         FcConfigGetFonts(currentConfig, FcSetSystem)
-#ifdef MOZ_BUNDLED_FONTS
         , FcConfigGetFonts(currentConfig, FcSetApplication)
-#endif
     };
 
     mFontsByFamily.Clear();
@@ -810,9 +804,7 @@ gfxFontconfigUtils::AddFullnameEntries()
     // These FcFontSets are owned by fontconfig
     FcFontSet *fontSets[] = {
         FcConfigGetFonts(nullptr, FcSetSystem)
-#ifdef MOZ_BUNDLED_FONTS
         , FcConfigGetFonts(nullptr, FcSetApplication)
-#endif
     };
 
     for (unsigned fs = 0; fs < ArrayLength(fontSets); ++fs) {
@@ -980,9 +972,7 @@ gfxFontconfigUtils::GetLangSupportEntry(const FcChar8 *aLang, bool aWithFonts)
     // These FcFontSets are owned by fontconfig
     FcFontSet *fontSets[] = {
         FcConfigGetFonts(nullptr, FcSetSystem)
-#ifdef MOZ_BUNDLED_FONTS
         , FcConfigGetFonts(nullptr, FcSetApplication)
-#endif
     };
 
     AutoTArray<FcPattern*,100> fonts;
@@ -1059,7 +1049,6 @@ gfxFontconfigUtils::GetFontsForLang(const FcChar8 *aLang)
     return entry->mFonts;
 }
 
-#ifdef MOZ_BUNDLED_FONTS
 
 void
 gfxFontconfigUtils::ActivateBundledFonts()
@@ -1087,7 +1076,6 @@ gfxFontconfigUtils::ActivateBundledFonts()
     }
 }
 
-#endif
 
 gfxFontconfigFontBase::gfxFontconfigFontBase(cairo_scaled_font_t *aScaledFont,
                                              FcPattern *aPattern,

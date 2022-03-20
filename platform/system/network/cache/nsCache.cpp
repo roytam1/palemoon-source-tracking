@@ -20,11 +20,19 @@ void
 CacheLogPrintPath(mozilla::LogLevel level, const char * format, nsIFile * item)
 {
     nsAutoCString path;
+#ifdef XP_WIN
+    nsresult rv = item->GetPersistentDescriptor(path);
+#else
     nsresult rv = item->GetNativePath(path);
+#endif
     if (NS_SUCCEEDED(rv)) {
         MOZ_LOG(gCacheLog, level, (format, path.get()));
     } else {
+#ifdef XP_WIN
+        MOZ_LOG(gCacheLog, level, ("GetPersistentDescriptor failed: %x", rv));
+#else
         MOZ_LOG(gCacheLog, level, ("GetNativePath failed: %x", rv));
+#endif
     }
 }
 

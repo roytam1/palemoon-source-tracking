@@ -53,7 +53,6 @@ FINAL_LIBRARY = 'xul'
 LOCAL_INCLUDES += [
     '../loader',
     '../wrappers',
-    '/caps',
     '/dom/base',
     '/dom/bindings',
     '/dom/html',
@@ -61,6 +60,7 @@ LOCAL_INCLUDES += [
     '/dom/workers',
     '/layout/base',
     '/layout/style',
+    '/system/security/script',
     '/xpcom/reflect/xptinfo',
 ]
 

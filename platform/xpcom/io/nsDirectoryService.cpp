@@ -28,10 +28,6 @@
 #include <stdlib.h>
 #include <sys/param.h>
 #include "prenv.h"
-#ifdef MOZ_WIDGET_COCOA
-#include <CoreServices/CoreServices.h>
-#include <Carbon/Carbon.h>
-#endif
 #endif
 
 #include "SpecialSystemDirectory.h"
@@ -43,8 +39,6 @@ using namespace mozilla;
 // For Windows platform, We are choosing Appdata folder as HOME
 #if defined (XP_WIN)
 #define HOME_DIR NS_WIN_APPDATA_DIR
-#elif defined (MOZ_WIDGET_COCOA)
-#define HOME_DIR NS_OSX_HOME_DIR
 #elif defined (XP_UNIX)
 #define HOME_DIR NS_UNIX_HOME_DIR
 #endif
@@ -99,40 +93,6 @@ nsDirectoryService::GetCurrentProcessDirectory(nsIFile** aFile)
 
     localFile->InitWithPath(nsDependentString(buf));
     localFile.forget(aFile);
-    return NS_OK;
-  }
-
-#elif defined(MOZ_WIDGET_COCOA)
-  // Works even if we're not bundled.
-  CFBundleRef appBundle = CFBundleGetMainBundle();
-  if (appBundle) {
-    CFURLRef bundleURL = CFBundleCopyExecutableURL(appBundle);
-    if (bundleURL) {
-      CFURLRef parentURL = CFURLCreateCopyDeletingLastPathComponent(
-        kCFAllocatorDefault, bundleURL);
-      if (parentURL) {
-        // Pass true for the "resolveAgainstBase" arg to CFURLGetFileSystemRepresentation.
-        // This will resolve the relative portion of the CFURL against it base, giving a full
-        // path, which CFURLCopyFileSystemPath doesn't do.
-        char buffer[PATH_MAX];
-        if (CFURLGetFileSystemRepresentation(parentURL, true,
-                                             (UInt8*)buffer, sizeof(buffer))) {
-#ifdef DEBUG_conrad
-          printf("nsDirectoryService - CurrentProcessDir is: %s\n", buffer);
-#endif
-          rv = localFile->InitWithNativePath(nsDependentCString(buffer));
-          if (NS_SUCCEEDED(rv)) {
-            localFile.forget(aFile);
-          }
-        }
-        CFRelease(parentURL);
-      }
-      CFRelease(bundleURL);
-    }
-  }
-
-  NS_ASSERTION(*aFile, "nsDirectoryService - Could not determine CurrentProcessDir.\n");
-  if (*aFile) {
     return NS_OK;
   }
 
@@ -528,83 +488,7 @@ nsDirectoryService::GetFile(const char* aProp, bool* aPersistent,
     rv = GetSpecialSystemDirectory(OS_CurrentWorkingDirectory, getter_AddRefs(localFile));
   }
 
-#if defined(MOZ_WIDGET_COCOA)
-  else if (inAtom == nsDirectoryService::sDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kSystemFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sTrashDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kTrashFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sStartupDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kStartupFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sShutdownDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kShutdownFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sAppleMenuDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kAppleMenuFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sControlPanelDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kControlPanelFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sExtensionDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kExtensionFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sFontsDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kFontsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sPreferencesDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kPreferencesFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sDocumentsDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sInternetSearchDirectory) {
-    rv = GetOSXFolderType(kClassicDomain, kInternetSearchSitesFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserLibDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kDomainLibraryFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sOS_HomeDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kDomainTopLevelFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sDefaultDownloadDirectory) {
-    // 10.5 and later, we can use kDownloadsFolderType which is defined in
-    // Folders.h as "down".  However, in order to support 10.4 still, we
-    // cannot use the named constant.  We'll use it's value, and if it
-    // fails, fall back to the desktop.
-#ifndef kDownloadsFolderType
-#define kDownloadsFolderType 'down'
-#endif
-
-    rv = GetOSXFolderType(kUserDomain, kDownloadsFolderType,
-                          getter_AddRefs(localFile));
-    if (NS_FAILED(rv)) {
-      rv = GetOSXFolderType(kUserDomain, kDesktopFolderType,
-                            getter_AddRefs(localFile));
-    }
-  } else if (inAtom == nsDirectoryService::sUserDesktopDirectory ||
-             inAtom == nsDirectoryService::sOS_DesktopDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kDesktopFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalDesktopDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kDesktopFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserApplicationsDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kApplicationsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalApplicationsDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kApplicationsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserDocumentsDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalDocumentsDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserInternetPlugInDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kInternetPlugInFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalInternetPlugInDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kInternetPlugInFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserFrameworksDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kFrameworksFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalFrameworksDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kFrameworksFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sUserPreferencesDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kPreferencesFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sLocalPreferencesDirectory) {
-    rv = GetOSXFolderType(kLocalDomain, kPreferencesFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sPictureDocumentsDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kPictureDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sMovieDocumentsDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kMovieDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sMusicDocumentsDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kMusicDocumentsFolderType, getter_AddRefs(localFile));
-  } else if (inAtom == nsDirectoryService::sInternetSitesDirectory) {
-    rv = GetOSXFolderType(kUserDomain, kInternetSitesFolderType, getter_AddRefs(localFile));
-  }
-#elif defined (XP_WIN)
+#if defined (XP_WIN)
   else if (inAtom == nsDirectoryService::sSystemDirectory) {
     rv = GetSpecialSystemDirectory(Win_SystemDirectory, getter_AddRefs(localFile));
   } else if (inAtom == nsDirectoryService::sWindowsDirectory) {

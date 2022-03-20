@@ -50,7 +50,7 @@ if CONFIG['_MSC_VER']:
 
 LOCAL_INCLUDES += [
     '!/xpcom',
-    '/memory/build',
+    '../build',
 ]
 
 DIST_INSTALL = True

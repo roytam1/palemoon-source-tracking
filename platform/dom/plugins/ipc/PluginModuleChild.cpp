@@ -43,11 +43,6 @@
 #include <shlobj.h>
 #endif
 
-#ifdef MOZ_WIDGET_COCOA
-#include "PluginInterposeOSX.h"
-#include "PluginUtilsOSX.h"
-#endif
-
 #include "GeckoProfiler.h"
 
 using namespace mozilla;
@@ -1689,49 +1684,8 @@ _popupcontextmenu(NPP instance, NPMenu* menu)
     PLUGIN_LOG_DEBUG_FUNCTION;
     AssertPluginThread();
 
-#ifdef MOZ_WIDGET_COCOA
-    double pluginX, pluginY; 
-    double screenX, screenY;
-
-    const NPCocoaEvent* currentEvent = InstCast(instance)->getCurrentEvent();
-    if (!currentEvent) {
-        return NPERR_GENERIC_ERROR;
-    }
-
-    // Ensure that the events has an x/y value.
-    if (currentEvent->type != NPCocoaEventMouseDown    &&
-        currentEvent->type != NPCocoaEventMouseUp      &&
-        currentEvent->type != NPCocoaEventMouseMoved   &&
-        currentEvent->type != NPCocoaEventMouseEntered &&
-        currentEvent->type != NPCocoaEventMouseExited  &&
-        currentEvent->type != NPCocoaEventMouseDragged) {
-        return NPERR_GENERIC_ERROR;
-    }
-
-    pluginX = currentEvent->data.mouse.pluginX;
-    pluginY = currentEvent->data.mouse.pluginY;
-
-    if ((pluginX < 0.0) || (pluginY < 0.0))
-        return NPERR_GENERIC_ERROR;
-
-    NPBool success = _convertpoint(instance, 
-                                  pluginX,  pluginY, NPCoordinateSpacePlugin, 
-                                 &screenX, &screenY, NPCoordinateSpaceScreen);
-
-    if (success) {
-        return mozilla::plugins::PluginUtilsOSX::ShowCocoaContextMenu(menu,
-                                    screenX, screenY,
-                                    InstCast(instance)->Manager(),
-                                    ProcessBrowserEvents);
-    } else {
-        NS_WARNING("Convertpoint failed, could not created contextmenu.");
-        return NPERR_GENERIC_ERROR;
-    }
-
-#else
     NS_WARNING("Not supported on this platform!");
     return NPERR_GENERIC_ERROR;
-#endif
 }
 
 NPBool
@@ -2528,13 +2482,6 @@ PluginModuleChild::RecvProcessNativeEventsInInterruptCall()
     return false;
 #endif
 }
-
-#ifdef MOZ_WIDGET_COCOA
-void
-PluginModuleChild::ProcessNativeEvents() {
-    CallProcessSomeEvents();    
-}
-#endif
 
 NPError
 PluginModuleChild::PluginRequiresAudioDeviceChanges(

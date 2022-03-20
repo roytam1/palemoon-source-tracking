@@ -3,6 +3,61 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-DIRS += ['base', 'util', 'datasource', 'build']
-TEST_DIRS += ['tests']
+DIRS += ['util']
+
+XPIDL_SOURCES += [
+  'public/nsIRDFCompositeDataSource.idl',
+  'public/nsIRDFContainer.idl',
+  'public/nsIRDFContainerUtils.idl',
+  'public/nsIRDFDataSource.idl',
+  'public/nsIRDFDelegateFactory.idl',
+  'public/nsIRDFInferDataSource.idl',
+  'public/nsIRDFInMemoryDataSource.idl',
+  'public/nsIRDFLiteral.idl',
+  'public/nsIRDFNode.idl',
+  'public/nsIRDFObserver.idl',
+  'public/nsIRDFPropagatableDataSource.idl',
+  'public/nsIRDFPurgeableDataSource.idl',
+  'public/nsIRDFRemoteDataSource.idl',
+  'public/nsIRDFResource.idl',
+  'public/nsIRDFService.idl',
+  'public/nsIRDFXMLParser.idl',
+  'public/nsIRDFXMLSerializer.idl',
+  'public/nsIRDFXMLSink.idl',
+  'public/nsIRDFXMLSource.idl',
+  'public/rdfIDataSource.idl',
+  'public/rdfISerializer.idl',
+  'public/rdfITripleVisitor.idl',
+]
+
+EXPORTS += [
+  'src/nsILocalStore.h',
+  'src/nsIRDFContentSink.h',
+  'src/rdf.h',
+]
+
+UNIFIED_SOURCES += [
+  'src/nsCompositeDataSource.cpp',
+  'src/nsContainerEnumerator.cpp',
+  'src/nsDefaultResourceFactory.cpp',
+  'src/nsFileSystemDataSource.cpp',
+  'src/nsInMemoryDataSource.cpp',
+  'src/nsLocalStore.cpp',
+  'src/nsNameSpaceMap.cpp',
+  'src/nsRDFContainer.cpp',
+  'src/nsRDFContainerUtils.cpp',
+  'src/nsRDFContentSink.cpp',
+  'src/nsRDFService.cpp',
+  'src/nsRDFXMLDataSource.cpp',
+  'src/nsRDFXMLParser.cpp',
+  'src/nsRDFXMLSerializer.cpp',
+  'src/rdfTriplesSerializer.cpp',
+  'src/rdfutil.cpp',
+]
+
+if CONFIG['GNU_CXX']:
+  CXXFLAGS += ['-Wno-error=shadow']
+
+XPIDL_MODULE = 'rdf'
+FINAL_LIBRARY = 'xul'
 

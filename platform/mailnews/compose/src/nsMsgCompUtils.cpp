@@ -118,7 +118,11 @@ nsMsgCreateTempFileName(const char *tFileName)
     return nullptr;
 
   nsCString tempString;
+#ifdef XP_WIN
+  rv = tmpFile->GetPersistentDescriptor(tempString);
+#else
   rv = tmpFile->GetNativePath(tempString);
+#endif
   if (NS_FAILED(rv))
     return nullptr;
 

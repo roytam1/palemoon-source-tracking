@@ -45,7 +45,6 @@ if CONFIG['MOZ_FAULTY'] == '1':
     SOURCES += ['Faulty.cpp']
 
 if CONFIG['OS_ARCH'] == 'WINNT':
-    DEFINES['WEBRTC_WIN'] = True
     EXPORTS.mozilla.ipc += [
         'Transport_win.h',
     ]
@@ -55,7 +54,6 @@ if CONFIG['OS_ARCH'] == 'WINNT':
         'WindowsMessageLoop.cpp',
     ]
 else:
-    DEFINES['WEBRTC_POSIX'] = True
     EXPORTS.mozilla.ipc += [
         'Transport_posix.h',
     ]
@@ -140,11 +138,10 @@ if CONFIG['_MSC_VER']:
     SOURCES['BackgroundParentImpl.cpp'].flags += ['-wd4312']
 
 LOCAL_INCLUDES += [
-    '/caps',
     '/dom/broadcastchannel',
     '/dom/indexedDB',
     '/dom/workers',
-    '/media/webrtc/trunk',
+    '/system/security/script',
     '/xpcom/build',
 ]
 
@@ -162,7 +159,7 @@ IPDL_SOURCES = [
 
 LOCAL_INCLUDES += [
     '/dom/ipc',
-    '/toolkit/xre',
+    '/system/runtime',
     '/xpcom/threads',
 ]
 

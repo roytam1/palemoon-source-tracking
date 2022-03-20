@@ -40,8 +40,8 @@ endif
 endif
 
 include $(topsrcdir)/config/rules.mk
-include $(topsrcdir)/toolkit/mozapps/installer/signing.mk
-include $(topsrcdir)/toolkit/mozapps/installer/packager.mk
+include $(topsrcdir)/system/installer/signing.mk
+include $(topsrcdir)/system/installer/packager.mk
 
 ifdef MOZ_EXTERNAL_SIGNING_FORMAT
 # We can't use sha2signcode on mar files

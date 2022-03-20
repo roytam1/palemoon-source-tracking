@@ -88,7 +88,6 @@
 #include "nsIContentPolicy.h"
 #include "nsContentPolicyUtils.h"
 #include "mozilla/TimeStamp.h"
-#include "mozilla/Telemetry.h"
 #include "nsIImageLoadingContent.h"
 #include "mozilla/Preferences.h"
 #include "nsVersionComparator.h"
@@ -2023,10 +2022,14 @@ nsresult nsPluginHost::ScanPluginsDirectory(nsIFile *pluginsDir,
 
 #ifdef PLUGIN_LOGGING
   nsAutoCString dirPath;
+#ifdef XP_WIN
+  pluginsDir->GetPersistentDescriptor(dirPath);
+#else
   pluginsDir->GetNativePath(dirPath);
+#endif
   PLUGIN_LOG(PLUGIN_LOG_BASIC,
   ("nsPluginHost::ScanPluginsDirectory dir=%s\n", dirPath.get()));
-#endif
+#endif // PLUGIN_LOGGING
 
   nsCOMPtr<nsISimpleEnumerator> iter;
   rv = pluginsDir->GetDirectoryEntries(getter_AddRefs(iter));
@@ -3204,7 +3207,7 @@ nsresult nsPluginHost::NewPluginURLStream(const nsString& aURL,
                      nsIContentPolicy::TYPE_OBJECT_SUBREQUEST,
                      nullptr,  // aLoadGroup
                      listenerPeer,
-                     nsIRequest::LOAD_NORMAL | nsIChannel::LOAD_CLASSIFY_URI |
+                     nsIRequest::LOAD_NORMAL |
                      nsIChannel::LOAD_BYPASS_SERVICE_WORKER);
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -3601,7 +3604,11 @@ nsPluginHost::CreateTempFileToPost(const char *aPostDataURL, nsIFile **aTmpFile)
   }
   rv = inFile->GetFileSize(&fileSize);
   if (NS_FAILED(rv)) return rv;
+#ifdef XP_WIN
+  rv = inFile->GetPersistentDescriptor(filename);
+#else
   rv = inFile->GetNativePath(filename);
+#endif
   if (NS_FAILED(rv)) return rv;
 
   if (fileSize != 0) {

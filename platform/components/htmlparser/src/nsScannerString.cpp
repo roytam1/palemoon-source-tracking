@@ -500,7 +500,7 @@ AppendUnicodeTo( const nsScannerIterator& aSrcStart,
   {
     nsAString::iterator writer;
     const nsAString::size_type oldLength = aDest.Length();
-    CheckedInt<nsAString::size_type> newLen(Distance(aSrcStart, aSrcEnd));
+    mozilla::CheckedInt<nsAString::size_type> newLen(Distance(aSrcStart, aSrcEnd));
     newLen += oldLength;
     if (!newLen.isValid()) {
       return false; // overflow detected

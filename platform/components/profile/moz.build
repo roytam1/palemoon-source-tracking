@@ -4,23 +4,29 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIProfileMigrator.idl',
-    'nsIProfileUnlocker.idl',
-    'nsIToolkitProfile.idl',
-    'nsIToolkitProfileService.idl',
+    'public/nsIProfileMigrator.idl',
+    'public/nsIProfileUnlocker.idl',
+    'public/nsIToolkitProfile.idl',
+    'public/nsIToolkitProfileService.idl',
+]
+
+SOURCES += [
+    'src/nsProfileLock.cpp',
+    'src/nsToolkitProfileService.cpp'
+]
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+    SOURCES += ['src/ProfileUnlockerWin.cpp']
+
+LOCAL_INCLUDES += ['/system/runtime']
+
+FINAL_TARGET_FILES.defaults.profile += ['mimeTypes.rdf']
+
+FINAL_TARGET_FILES.defaults.profile.chrome += [
+  'userChrome-example.css',
+  'userContent-example.css',
 ]
 
 XPIDL_MODULE = 'toolkitprofile'
-
-UNIFIED_SOURCES += ['nsProfileLock.cpp']
-
-if CONFIG['OS_ARCH'] == 'WINNT':
-    UNIFIED_SOURCES += ['ProfileUnlockerWin.cpp']
-
-UNIFIED_SOURCES += ['nsToolkitProfileService.cpp']
-
-LOCAL_INCLUDES += ['../xre']
-
 FINAL_LIBRARY = 'xul'
-
 JAR_MANIFESTS += ['jar.mn']

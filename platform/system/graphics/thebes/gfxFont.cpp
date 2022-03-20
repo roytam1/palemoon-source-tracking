@@ -180,7 +180,7 @@ gfxFontCache::gfxFontCache()
         obs->AddObserver(new Observer, "memory-pressure", false);
     }
 
-#ifndef RELEASE_OR_BETA
+#if 0
     // Currently disabled for release builds, due to unexplained crashes
     // during expiration; see bug 717175 & 894798.
     mWordCacheExpirationTimer = do_CreateInstance("@mozilla.org/timer;1");
@@ -591,11 +591,8 @@ gfxFontShaper::GetRoundOffsetsToPixels(DrawTarget* aDrawTarget,
     }
 
     // Sometimes hint metrics gets set for us, most notably for printing.
-    cairo_font_options_t *font_options = cairo_font_options_create();
-    cairo_scaled_font_get_font_options(scaled_font, font_options);
     cairo_hint_metrics_t hint_metrics =
-        cairo_font_options_get_hint_metrics(font_options);
-    cairo_font_options_destroy(font_options);
+        cairo_scaled_font_get_hint_metrics(scaled_font);
 
     switch (hint_metrics) {
     case CAIRO_HINT_METRICS_OFF:
@@ -2789,7 +2786,7 @@ gfxFont::ShapeTextWithoutWordCache(DrawTarget *aDrawTarget,
     return ok;
 }
 
-#ifndef RELEASE_OR_BETA
+#ifdef DEBUG
 #define TEXT_PERF_INCR(tp, m) (tp ? (tp)->current.m++ : 0)
 #else
 #define TEXT_PERF_INCR(tp, m)
@@ -2829,7 +2826,7 @@ gfxFont::SplitAndInitTextRun(DrawTarget *aDrawTarget,
 
     gfxTextPerfMetrics *tp = nullptr;
 
-#ifndef RELEASE_OR_BETA
+#ifdef DEBUG
     tp = aTextRun->GetFontGroup()->GetTextPerfMetrics();
     if (tp) {
         if (mStyle.systemFont) {

@@ -144,15 +144,8 @@ ifeq (.,$(DEPTH))
 js/xpconnect/src/export: dom/bindings/export xpcom/xpidl/export
 accessible/xpcom/export: xpcom/xpidl/export
 
-# The widget binding generator code is part of the annotationProcessors.
-widget/android/bindings/export: build/annotationProcessors/export
-
 # .xpt generation needs the xpidl lex/yacc files
 xpcom/xpidl/export: xpcom/idl-parser/xpidl/export
-
-# The roboextender addon includes a classes.dex containing a test Java addon.
-# The test addon must be built first.
-mobile/android/tests/browser/robocop/roboextender/tools: mobile/android/tests/javaaddons/tools
 
 ifdef ENABLE_CLANG_PLUGIN
 $(filter-out config/host build/unix/stdc++compat/% build/clang-plugin/%,$(compile_targets)): build/clang-plugin/target build/clang-plugin/tests/target
@@ -162,18 +155,18 @@ endif
 # Interdependencies that moz.build world don't know about yet for compilation.
 # Note some others are hardcoded or "guessed" in recursivemake.py and emitter.py
 ifeq ($(MOZ_WIDGET_TOOLKIT),gtk3)
-toolkit/library/target: widget/gtk/mozgtk/gtk3/target
+system/evil/target: system/interface/gtk/mozgtk/gtk3/target
 endif
 ifdef MOZ_LDAP_XPCOM
-ldap/target: config/external/nss/target mozglue/build/target
-toolkit/library/target: ldap/target
+modules/ldap/target: libs/nss/target system/utils/build/target
+system/evil/target: modules/ldap/target
 endif
 ifeq ($(MOZ_REPLACE_MALLOC_LINKAGE),dummy library)
-mozglue/build/target memory/replace/logalloc/replay/target: memory/replace/dummy/target
+system/utils/build/target system/memory/replace/logalloc/replay/target: system/memory/replace/dummy/target
 endif
 endif
 ifeq (,$(MOZ_FOLD_LIBS))
-config/external/nss/target: config/external/nspr/pr/target config/external/nspr/ds/target config/external/nspr/libc/target
+libs/nss/target: libs/nspr/build/pr/target libs/nspr/build/ds/target libs/nspr/build/libc/target
 endif
 # Most things are built during compile (target/host), but some things happen during export
 # Those need to depend on config/export for system wrappers.

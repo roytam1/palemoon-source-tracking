@@ -1,0 +1,32 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+XPIDL_SOURCES += [
+  'public/nsIMozSAXXMLDeclarationHandler.idl',
+  'public/nsISAXAttributes.idl',
+  'public/nsISAXContentHandler.idl',
+  'public/nsISAXDTDHandler.idl',
+  'public/nsISAXErrorHandler.idl',
+  'public/nsISAXLexicalHandler.idl',
+  'public/nsISAXLocator.idl',
+  'public/nsISAXMutableAttributes.idl',
+  'public/nsISAXXMLFilter.idl',
+  'public/nsISAXXMLReader.idl',
+]
+
+EXPORTS += [
+  'src/nsSAXAttributes.h',
+  'src/nsSAXLocator.h',
+  'src/nsSAXXMLReader.h',
+]
+
+SOURCES += [
+  'src/nsSAXAttributes.cpp',
+  'src/nsSAXLocator.cpp',
+  'src/nsSAXXMLReader.cpp',
+]
+
+XPIDL_MODULE = 'saxparser'
+FINAL_LIBRARY = 'xul'

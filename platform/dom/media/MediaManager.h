@@ -35,10 +35,6 @@
 #include "mozilla/UniquePtr.h"
 #include "DOMMediaStream.h"
 
-#ifdef MOZ_WEBRTC
-#include "mtransport/runnable_utils.h"
-#endif
-
 // Note, these suck in Windows headers, unfortunately.
 #include "base/thread.h"
 #include "base/task.h"

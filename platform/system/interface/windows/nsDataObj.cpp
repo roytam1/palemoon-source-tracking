@@ -1294,7 +1294,7 @@ nsDataObj :: GetFileContentsInternetShortcut ( FORMATETC& aFE, STGMEDIUM& aSTG )
 
     rv = mozilla::widget::FaviconHelper::GetOutputIconPath(aUri, icoFile, true);
     NS_ENSURE_SUCCESS(rv, E_FAIL);
-    rv = icoFile->GetNativePath(path);
+    rv = icoFile->GetPersistentDescriptor(path);
     NS_ENSURE_SUCCESS(rv, E_FAIL);
 
     shortcutFormatStr = "[InternetShortcut]\r\nURL=%s\r\n"

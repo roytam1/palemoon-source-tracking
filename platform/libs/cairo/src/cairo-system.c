@@ -37,25 +37,25 @@
 /* declare to avoid "no previous prototype for 'DllMain'" warning */
 BOOL WINAPI
 DllMain (HINSTANCE hinstDLL,
-         DWORD     fdwReason,
-         LPVOID    lpvReserved);
+     DWORD   fdwReason,
+     LPVOID  lpvReserved);
 
 BOOL WINAPI
 DllMain (HINSTANCE hinstDLL,
-         DWORD     fdwReason,
-         LPVOID    lpvReserved)
+     DWORD   fdwReason,
+     LPVOID  lpvReserved)
 {
-    switch (fdwReason) {
-        case DLL_PROCESS_ATTACH:
-            CAIRO_MUTEX_INITIALIZE ();
-            break;
+  switch (fdwReason) {
+    case DLL_PROCESS_ATTACH:
+      CAIRO_MUTEX_INITIALIZE ();
+      break;
 
-        case DLL_PROCESS_DETACH:
-            CAIRO_MUTEX_FINALIZE ();
-            break;
-    }
+    case DLL_PROCESS_DETACH:
+      CAIRO_MUTEX_FINALIZE ();
+      break;
+  }
 
-    return TRUE;
+  return TRUE;
 }
 
 #endif

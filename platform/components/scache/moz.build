@@ -3,24 +3,18 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-TEST_DIRS += ['test']
+XPIDL_SOURCES += ['public/nsIStartupCache.idl']
 
-XPIDL_SOURCES += [
-    'nsIStartupCache.idl',
+EXPORTS.mozilla.scache += [
+  'src/StartupCache.h',
+  'src/StartupCacheUtils.h',
+]
+
+SOURCES += [
+  'src/StartupCache.cpp',
+  'src/StartupCacheModule.cpp',
+  'src/StartupCacheUtils.cpp',
 ]
 
 XPIDL_MODULE = 'startupcache'
-
-EXPORTS.mozilla.scache += [
-    'StartupCache.h',
-    'StartupCacheUtils.h',
-]
-
-# These files cannot be built in unified mode because they rely on plarena.h.
-SOURCES += [
-    'StartupCache.cpp',
-    'StartupCacheModule.cpp',
-    'StartupCacheUtils.cpp',
-]
-
 FINAL_LIBRARY = 'xul'

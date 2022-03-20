@@ -3203,7 +3203,7 @@ NS_IMETHODIMP nsImapMailFolder::BeginCopy(nsIMsgDBHdr *message)
     if (NS_FAILED(rv))
     {
       nsCString nativePath;
-      m_copyState->m_tmpFile->GetNativePath(nativePath);
+      m_copyState->m_tmpFile->GetPersistentDescriptor(nativePath);
       MOZ_LOG(IMAP, mozilla::LogLevel::Info, ("couldn't remove prev temp file %s: %lx\n", nativePath.get(), rv));
     }
     m_copyState->m_tmpFile = nullptr;
@@ -8883,7 +8883,11 @@ NS_IMETHODIMP nsImapMailFolder::RenameSubFolders(nsIMsgWindow *msgWindow, nsIMsg
     newParentPathFile->AppendNative(oldLeafName);
 
     nsCString newPathStr;
+#ifdef XP_WIN
+    newParentPathFile->GetPersistentDescriptor(newPathStr);
+#else
     newParentPathFile->GetNativePath(newPathStr);
+#endif
 
     nsCOMPtr<nsIFile> newPathFile = do_CreateInstance(NS_LOCAL_FILE_CONTRACTID, &rv);
     NS_ENSURE_SUCCESS(rv, rv);

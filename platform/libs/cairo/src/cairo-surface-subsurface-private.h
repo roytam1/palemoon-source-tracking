@@ -8,11 +8,11 @@
 #include "cairo-surface-private.h"
 
 struct _cairo_surface_subsurface {
-    cairo_surface_t base;
+  cairo_surface_t base;
 
-    cairo_rectangle_int_t extents;
+  cairo_rectangle_int_t extents;
 
-    cairo_surface_t *target;
+  cairo_surface_t *target;
 };
 
 #endif /* CAIRO_SURFACE_SUBSURFACE_PRIVATE_H */

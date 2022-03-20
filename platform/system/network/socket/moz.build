@@ -14,7 +14,7 @@ XPIDL_SOURCES += [
 XPIDL_MODULE = 'necko_socket'
 
 LOCAL_INCLUDES += [
-    '/netwerk/base',
+    '/system/network/base',
 ]
 
 SOURCES += [

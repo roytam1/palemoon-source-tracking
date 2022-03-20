@@ -53,6 +53,10 @@ using namespace mozilla::gfx;
 #undef compress
 #include "mozilla/Compression.h"
 
+// Define if we should use a temp surface to prescale repeated patterns.
+// Performance <-> memory tradeoff
+#define PRESCALE_TEMP_SURFACE
+
 using namespace mozilla::Compression;
 extern "C" {
 
@@ -456,13 +460,13 @@ static SamplingFilter ReduceResamplingFilter(SamplingFilter aSamplingFilter,
     return aSamplingFilter;
 }
 
-#ifdef MOZ_WIDGET_COCOA
+#ifdef PRESCALE_TEMP_SURFACE
 // Only prescale a temporary surface if we're going to repeat it often.
-// Scaling is expensive on OS X and without prescaling, we'd scale
-// every tile of the repeated rect. However, using a temp surface also potentially uses
-// more memory if the scaled image is large. So only prescale on a temp
-// surface if we know we're going to repeat the image in either the X or Y axis
-// multiple times.
+// Without prescaling, we'd scale every tile of the repeated rect.
+// However, using a temp surface also potentially uses more memory if the scaled
+// image is large.
+// So, only prescale on a temp surface if we know we're going to repeat the image
+// in either the X or Y axis multiple times (>= 5 times).
 static bool
 ShouldUseTempSurface(Rect aImageRect, Rect aNeededRect)
 {
@@ -483,7 +487,7 @@ PrescaleAndTileDrawable(gfxDrawable* aDrawable,
 {
   gfxSize scaleFactor = aContext->CurrentMatrix().ScaleFactors(true);
   gfxMatrix scaleMatrix = gfxMatrix::Scaling(scaleFactor.width, scaleFactor.height);
-  const float fuzzFactor = 0.01;
+  const float fuzzFactor = 0.01f;
 
   // If we aren't scaling or translating, don't go down this path
   if ((FuzzyEqual(scaleFactor.width, 1.0, fuzzFactor) &&
@@ -554,7 +558,7 @@ PrescaleAndTileDrawable(gfxDrawable* aDrawable,
   }
   return true;
 }
-#endif // MOZ_WIDGET_COCOA
+#endif // PRESCALE_TEMP_SURFACE
 
 /* static */ void
 gfxUtils::DrawPixelSnapped(gfxContext*         aContext,
@@ -598,7 +602,7 @@ gfxUtils::DrawPixelSnapped(gfxContext*         aContext,
               return;
             }
 
-#ifdef MOZ_WIDGET_COCOA
+#ifdef PRESCALE_TEMP_SURFACE
             if (PrescaleAndTileDrawable(aDrawable, aContext, aRegion,
                                         ToRect(imageRect), aSamplingFilter,
                                         aFormat, aOpacity, extendMode)) {

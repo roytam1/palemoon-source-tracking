@@ -43,13 +43,13 @@ SOURCES += [
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '../../editor/txmgr',
     '../base',
     '../generic',
     '../style',
     '../xul',
     '/dom/base',
     '/dom/html',
+    '/system/editor/txmgr',
 ]
 
 if CONFIG['GNU_CXX']:

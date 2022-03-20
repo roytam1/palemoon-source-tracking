@@ -4518,7 +4518,11 @@ nsMsgCompose::ProcessSignature(nsIMsgIdentity *identity, bool aQuoted, nsString 
     {
       rv = identity->GetSignature(getter_AddRefs(sigFile));
       if (NS_SUCCEEDED(rv) && sigFile) {
+#ifdef XP_WIN
+        rv = sigFile->GetPersistentDescriptor(sigNativePath);
+#else
         rv = sigFile->GetNativePath(sigNativePath);
+#endif
         if (NS_SUCCEEDED(rv) && !sigNativePath.IsEmpty()) {
           bool exists = false;
           sigFile->Exists(&exists);

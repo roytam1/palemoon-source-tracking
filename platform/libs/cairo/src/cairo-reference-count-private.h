@@ -9,7 +9,7 @@
 
 /* Encapsulate operations on the object's reference count */
 typedef struct {
-    cairo_atomic_int_t ref_count;
+  cairo_atomic_int_t ref_count;
 } cairo_reference_count_t;
 
 #define _cairo_reference_count_inc(RC) _cairo_atomic_int_inc (&(RC)->ref_count)

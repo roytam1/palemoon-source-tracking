@@ -1014,7 +1014,7 @@ var gViewController = {
     cmd_showItemPreferences: {
       isEnabled: function cmd_showItemPreferences_isEnabled(aAddon) {
         if (!aAddon ||
-            (!aAddon.isActive && !aAddon.isGMPlugin) ||
+            !aAddon.isActive ||
             !aAddon.optionsURL) {
           return false;
         }
@@ -2753,15 +2753,7 @@ var gDetailView = {
 
     var fullDesc = document.getElementById("detail-fulldesc");
     if (aAddon.fullDescription) {
-      // The following is part of an awful hack to include the licenses for GMP
-      // plugins without having bug 624602 fixed yet, and intentionally ignores
-      // localisation.
-      if (aAddon.isGMPlugin) {
-        fullDesc.innerHTML = aAddon.fullDescription;
-      } else {
-        fullDesc.textContent = aAddon.fullDescription;
-      }
-
+      fullDesc.textContent = aAddon.fullDescription;
       fullDesc.hidden = false;
     } else {
       fullDesc.hidden = true;
@@ -3036,13 +3028,6 @@ var gDetailView = {
         errorLink.value = gStrings.ext.GetStringFromName("details.notification.vulnerableNoUpdate.link");
         errorLink.href = this._addon.blocklistURL;
         errorLink.hidden = false;
-      } else if (this._addon.isGMPlugin && !this._addon.isInstalled &&
-                 this._addon.isActive) {
-        this.node.setAttribute("notification", "warning");
-        let warning = document.getElementById("detail-warning");
-        warning.textContent =
-          gStrings.ext.formatStringFromName("details.notification.gmpPending",
-                                            [this._addon.name], 1);
       } else {
         this.node.removeAttribute("notification");
       }

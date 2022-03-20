@@ -78,7 +78,7 @@ this.UpdateUtils = {
       [/%WIDGET_TOOLKIT%/g,         "@MOZ_WIDGET_TOOLKIT@"],
       [/%CHANNEL%/g,                this.UpdateChannel],
       [/%CUSTOM%/g,                 custom],
-      [/%PLATFORM_VERSION%/g,       Services.appinfo.platformVersion],
+      [/%PLATFORM_VERSION%/g,       Services.appinfo.greVersion],
       [/%DISTRIBUTION%/g,           distribution],
       [/%DISTRIBUTION_VERSION%/g,   distributionVersion],
       [/%LOCALE%/g,                 this.Locale]     

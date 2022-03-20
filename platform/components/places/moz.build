@@ -3,85 +3,80 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += [
-    'nsINavHistoryService.idl',
-]
-
-XPIDL_MODULE = 'places'
+XPIDL_SOURCES += ['public/nsINavHistoryService.idl']
 
 if CONFIG['MOZ_PLACES']:
     XPIDL_SOURCES += [
-        'mozIAsyncFavicons.idl',
-        'mozIAsyncHistory.idl',
-        'mozIAsyncLivemarks.idl',
-        'mozIColorAnalyzer.idl',
-        'mozIPlacesAutoComplete.idl',
-        'mozIPlacesPendingOperation.idl',
-        'nsIAnnotationService.idl',
-        'nsIBrowserHistory.idl',
-        'nsIFaviconService.idl',
-        'nsINavBookmarksService.idl',
-        'nsITaggingService.idl',
-        'nsPIPlacesDatabase.idl',
+        'public/mozIAsyncFavicons.idl',
+        'public/mozIAsyncHistory.idl',
+        'public/mozIAsyncLivemarks.idl',
+        'public/mozIColorAnalyzer.idl',
+        'public/mozIPlacesAutoComplete.idl',
+        'public/mozIPlacesPendingOperation.idl',
+        'public/nsIAnnotationService.idl',
+        'public/nsIBrowserHistory.idl',
+        'public/nsIDownloadHistory.idl',
+        'public/nsIFaviconService.idl',
+        'public/nsINavBookmarksService.idl',
+        'public/nsITaggingService.idl',
+        'public/nsPIPlacesDatabase.idl',
     ]
 
     EXPORTS.mozilla.places = [
-        'Database.h',
-        'History.h',
+        'src/Database.h',
+        'src/History.h',
     ]
 
     UNIFIED_SOURCES += [
-        'Database.cpp',
-        'FaviconHelpers.cpp',
-        'Helpers.cpp',
-        'History.cpp',
-        'nsAnnoProtocolHandler.cpp',
-        'nsAnnotationService.cpp',
-        'nsFaviconService.cpp',
-        'nsNavBookmarks.cpp',
-        'nsNavHistory.cpp',
-        'nsNavHistoryQuery.cpp',
-        'nsNavHistoryResult.cpp',
-        'nsPlacesModule.cpp',
-        'PlaceInfo.cpp',
-        'Shutdown.cpp',
-        'SQLFunctions.cpp',
-        'VisitInfo.cpp',
+        'src/Database.cpp',
+        'src/FaviconHelpers.cpp',
+        'src/Helpers.cpp',
+        'src/History.cpp',
+        'src/nsAnnoProtocolHandler.cpp',
+        'src/nsAnnotationService.cpp',
+        'src/nsFaviconService.cpp',
+        'src/nsNavBookmarks.cpp',
+        'src/nsNavHistory.cpp',
+        'src/nsNavHistoryQuery.cpp',
+        'src/nsNavHistoryResult.cpp',
+        'src/nsPlacesModule.cpp',
+        'src/PlaceInfo.cpp',
+        'src/Shutdown.cpp',
+        'src/SQLFunctions.cpp',
+        'src/VisitInfo.cpp',
     ]
 
-    LOCAL_INCLUDES += [
-        '../build',
+    LOCAL_INCLUDES += ['../build']
+
+    EXTRA_COMPONENTS += [
+        'nsPlacesAutoComplete.manifest',
+        'src/ColorAnalyzer.js',
+        'src/nsLivemarkService.js',
+        'src/nsPlacesAutoComplete.js',
+        'src/nsPlacesExpiration.js',
+        'src/nsTaggingService.js',
+        'src/PageIconProtocolHandler.js',
+        'src/PlacesCategoriesStarter.js',
+        'src/UnifiedComplete.js',
+        'toolkitplaces.manifest',
     ]
 
     EXTRA_JS_MODULES += [
-        'BookmarkHTMLUtils.jsm',
-        'BookmarkJSONUtils.jsm',
-        'Bookmarks.jsm',
-        'ClusterLib.js',
-        'ColorAnalyzer_worker.js',
-        'ColorConversion.js',
-        'ExtensionSearchHandler.jsm',
-        'History.jsm',
-        'PlacesBackups.jsm',
-        'PlacesDBUtils.jsm',
-        'PlacesRemoteTabsAutocompleteProvider.jsm',
-        'PlacesSearchAutocompleteProvider.jsm',
-        'PlacesSyncUtils.jsm',
-        'PlacesTransactions.jsm',
-        'PlacesUtils.jsm',
-    ]
-
-    EXTRA_COMPONENTS += [
-        'ColorAnalyzer.js',
-        'nsLivemarkService.js',
-        'nsPlacesAutoComplete.js',
-        'nsPlacesAutoComplete.manifest',
-        'nsPlacesExpiration.js',
-        'nsTaggingService.js',
-        'PageIconProtocolHandler.js',
-        'PlacesCategoriesStarter.js',
-        'toolkitplaces.manifest',
-        'UnifiedComplete.js',
+        'src/BookmarkHTMLUtils.jsm',
+        'src/BookmarkJSONUtils.jsm',
+        'src/Bookmarks.jsm',
+        'src/ClusterLib.js',
+        'src/ColorAnalyzer_worker.js',
+        'src/ColorConversion.js',
+        'src/ExtensionSearchHandler.jsm',
+        'src/History.jsm',
+        'src/PlacesBackups.jsm',
+        'src/PlacesDBUtils.jsm',
+        'src/PlacesRemoteTabsAutocompleteProvider.jsm',
+        'src/PlacesSearchAutocompleteProvider.jsm',
+        'src/PlacesSyncUtils.jsm',
+        'src/PlacesTransactions.jsm',
+        'src/PlacesUtils.jsm',
     ]
 
     FINAL_LIBRARY = 'xul'
@@ -90,3 +85,5 @@ include('/ipc/chromium/chromium-config.mozbuild')
 
 if CONFIG['GNU_CXX']:
     CXXFLAGS += ['-Wno-error=shadow']
+
+XPIDL_MODULE = 'places'

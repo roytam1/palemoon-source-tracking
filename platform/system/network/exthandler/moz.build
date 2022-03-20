@@ -21,8 +21,6 @@ XPIDL_MODULE = 'exthandler'
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     osdir = 'win'
     LOCAL_INCLUDES += ['win']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'uikit':
-    osdir = 'uikit'
 else:
     osdir = 'unix'
 
@@ -51,19 +49,12 @@ UNIFIED_SOURCES += [
     'nsMIMEInfoImpl.cpp',
 ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'uikit':
-    UNIFIED_SOURCES += [
-        'uikit/nsLocalHandlerAppUIKit.mm',
-        'uikit/nsMIMEInfoUIKit.mm',
-        'uikit/nsOSHelperAppService.mm',
-    ]
-else:
-    # These files can't be built in unified mode because they redefine LOG.
-    SOURCES += [
-        osdir + '/nsOSHelperAppService.cpp',
-    ]
-    if CONFIG['GNU_CXX']:
-        CXXFLAGS += ['-Wno-error=shadow']
+# These files can't be built in unified mode because they redefine LOG.
+SOURCES += [
+    osdir + '/nsOSHelperAppService.cpp',
+]
+if CONFIG['GNU_CXX']:
+    CXXFLAGS += ['-Wno-error=shadow']
 
 if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     UNIFIED_SOURCES += [
@@ -104,8 +95,8 @@ FINAL_LIBRARY = 'xul'
 LOCAL_INCLUDES += [
     '/dom/base',
     '/dom/ipc',
-    '/netwerk/base',
-    '/netwerk/protocol/http',
+    '/system/network/base',
+    '/system/network/protocol/http',
 ]
 
 if CONFIG['MOZ_ENABLE_DBUS']:

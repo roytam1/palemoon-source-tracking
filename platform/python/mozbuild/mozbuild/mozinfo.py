@@ -36,8 +36,7 @@ def build_dict(config, env=os.environ):
     o = substs["OS_TARGET"]
     known_os = {"Linux": "linux",
                 "WINNT": "win",
-                "Darwin": "mac",
-                "Android": "android"}
+                "Darwin": "mac"}
     if o in known_os:
         d["os"] = known_os[o]
     else:
@@ -80,12 +79,9 @@ def build_dict(config, env=os.environ):
     d['nightly_build'] = substs.get('NIGHTLY_BUILD') == '1'
     d['release_or_beta'] = substs.get('RELEASE_OR_BETA') == '1'
     d['pgo'] = substs.get('MOZ_PGO') == '1'
-    d['datareporting'] = bool(substs.get('MOZ_DATA_REPORTING'))
-    d['healthreport'] = substs.get('MOZ_SERVICES_HEALTHREPORT') == '1'
     d['sync'] = substs.get('MOZ_SERVICES_SYNC') == '1'
     d['asan'] = substs.get('MOZ_ASAN') == '1'
     d['tsan'] = substs.get('MOZ_TSAN') == '1'
-    d['telemetry'] = substs.get('MOZ_TELEMETRY_REPORTING') == '1'
     d['tests_enabled'] = substs.get('ENABLE_TESTS') == "1"
     d['bin_suffix'] = substs.get('BIN_SUFFIX', '')
     d['official'] = bool(substs.get('MC_OFFICIAL'))
@@ -107,11 +103,6 @@ def build_dict(config, env=os.environ):
                 p = '{}-asan'.format(p)
 
             return p
-
-        if d['buildapp'] == 'mobile/android':
-            if d['processor'] == 'x86':
-                return 'android-x86'
-            return 'android-arm'
 
     def guess_buildtype():
         if d['debug']:

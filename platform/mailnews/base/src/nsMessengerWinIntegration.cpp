@@ -406,55 +406,6 @@ nsresult nsMessengerWinIntegration::GetStringBundle(nsIStringBundle **aBundle)
   return NS_OK;
 }
 
-#ifndef MOZ_THUNDERBIRD
-nsresult nsMessengerWinIntegration::ShowAlertMessage(const nsString& aAlertTitle,
-                                                     const nsString& aAlertText,
-                                                     const nsACString& aFolderURI)
-{
-  nsresult rv;
-
-  // if we are already in the process of showing an alert, don't try to show another....
-  if (mAlertInProgress)
-    return NS_OK;
-
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS(rv, rv);
-
-  bool showBalloon = false;
-  prefBranch->GetBoolPref(SHOW_BALLOON_PREF, &showBalloon);
-  sBiffIconData.szInfo[0] = '\0';
-  if (showBalloon) {
-    ::wcsncpy( sBiffIconData.szInfoTitle, aAlertTitle.get(), kMaxBalloonTitle);
-    ::wcsncpy( sBiffIconData.szInfo, aAlertText.get(), kMaxBalloonSize);
-  }
-
-  bool showAlert = true;
-  prefBranch->GetBoolPref(SHOW_ALERT_PREF, &showAlert);
-
-  if (showAlert)
-  {
-    nsCOMPtr<nsIAlertsService> alertsService (do_GetService(NS_ALERTSERVICE_CONTRACTID, &rv));
-    if (NS_SUCCEEDED(rv))
-    {
-      rv = alertsService->ShowAlertNotification(NS_LITERAL_STRING(NEW_MAIL_ALERT_ICON), aAlertTitle,
-                                                aAlertText, true,
-                                                NS_ConvertASCIItoUTF16(aFolderURI), this,
-                                                EmptyString(),
-                                                NS_LITERAL_STRING("auto"),
-                                                EmptyString(), EmptyString(),
-                                                nullptr,
-                                                false,
-                                                false);
-      mAlertInProgress = true;
-    }
-  }
-
-  if (!showAlert || NS_FAILED(rv)) // go straight to showing the system tray icon.
-    AlertFinished();
-
-  return rv;
-}
-#endif
 // Opening Thunderbird's new mail alert notification window
 // aUserInitiated --> true if we are opening the alert notification in response to a user action
 //                    like clicking on the biff icon
@@ -756,17 +707,6 @@ void nsMessengerWinIntegration::FillToolTipInfo()
 
   if (!mBiffIconVisible)
   {
-#ifndef MOZ_THUNDERBIRD
-  nsresult rv;
-  bool showNewAlert = false;
-  nsCOMPtr<nsIPrefBranch> prefBranch(do_GetService(NS_PREFSERVICE_CONTRACTID, &rv));
-  NS_ENSURE_SUCCESS_VOID(rv);
-
-  prefBranch->GetBoolPref(SHOW_NEW_ALERT_PREF, &showNewAlert);
-  if (!showNewAlert)
-    ShowAlertMessage(accountName, animatedAlertText, EmptyCString());
-  else
-#endif
     ShowNewAlertNotification(false, accountName, animatedAlertText);
   }
   else

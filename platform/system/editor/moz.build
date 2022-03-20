@@ -10,6 +10,9 @@ DIRS += [
     'composer',
 ]
 
+if CONFIG['MOZ_COMPOSER']:
+  DIRS += ['ui']
+
 XPIDL_SOURCES += [
     'nsIContentFilter.idl',
     'nsIDocumentStateListener.idl',
@@ -32,12 +35,6 @@ XPIDL_SOURCES += [
     'nsPIEditorTransaction.idl',
 ]
 
+EXPORTS += ['nsEditorCID.h']
+EXTRA_JS_MODULES += ['AsyncSpellCheckTestHelper.jsm']
 XPIDL_MODULE = 'editor'
-
-EXPORTS += [
-    'nsEditorCID.h',
-]
-
-EXTRA_JS_MODULES += [
-    'AsyncSpellCheckTestHelper.jsm',
-]

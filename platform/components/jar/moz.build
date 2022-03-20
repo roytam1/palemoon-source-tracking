@@ -3,44 +3,37 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-if CONFIG['MOZ_ZIPWRITER']:
-    DIRS += ['zipwriter']
-
-MOCHITEST_CHROME_MANIFESTS += ['test/chrome/chrome.ini']
-
-MOCHITEST_MANIFESTS += ['test/mochitest/mochitest.ini']
-
-XPCSHELL_TESTS_MANIFESTS += ['test/unit/xpcshell.ini']
+include('/ipc/chromium/chromium-config.mozbuild')
 
 XPIDL_SOURCES += [
-    'nsIJARChannel.idl',
-    'nsIJARProtocolHandler.idl',
-    'nsIJARURI.idl',
-    'nsIZipReader.idl',
+  'public/nsIJARChannel.idl',
+  'public/nsIJARProtocolHandler.idl',
+  'public/nsIJARURI.idl',
+  'public/nsIZipReader.idl',
+  'public/nsIZipWriter.idl',
+]
+
+EXPORTS += [
+  'src/nsJARURI.h',
+  'src/nsZipArchive.h',
+  'src/zipstruct.h',
+]
+
+SOURCES += [
+  'src/nsDeflateConverter.cpp',
+  'src/nsJAR.cpp',
+  'src/nsJARChannel.cpp',
+  'src/nsJARFactory.cpp',
+  'src/nsJARInputStream.cpp',
+  'src/nsJARProtocolHandler.cpp',
+  'src/nsJARURI.cpp',
+  'src/nsZipArchive.cpp',
+  'src/nsZipDataStream.cpp',
+  'src/nsZipHeader.cpp',
+  'src/nsZipWriter.cpp',
+  'src/StreamFunctions.cpp',
+  'src/ZipWriterModule.cpp',
 ]
 
 XPIDL_MODULE = 'jar'
-
-EXPORTS += [
-    'nsJARURI.h',
-    'nsZipArchive.h',
-    'zipstruct.h',
-]
-
-UNIFIED_SOURCES += [
-    'nsJARProtocolHandler.cpp',
-    'nsJARURI.cpp',
-]
-
-# These files cannot be built in unified mode because they rely on plarena.h.
-SOURCES += [
-    'nsJAR.cpp',
-    'nsJARChannel.cpp',
-    'nsJARFactory.cpp',
-    'nsJARInputStream.cpp',
-    'nsZipArchive.cpp',
-]
-
-include('/ipc/chromium/chromium-config.mozbuild')
-
 FINAL_LIBRARY = 'xul'

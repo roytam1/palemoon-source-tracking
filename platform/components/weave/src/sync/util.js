@@ -10,7 +10,7 @@ Cu.import("resource://gre/modules/Log.jsm");
 Cu.import("resource://services-common/observers.js");
 Cu.import("resource://services-common/stringbundle.js");
 Cu.import("resource://services-common/utils.js");
-Cu.import("resource://services-common/async.js", this);
+Cu.import("resource://gre/modules/Async.jsm", this);
 Cu.import("resource://services-crypto/utils.js");
 Cu.import("resource://services-sync/constants.js");
 Cu.import("resource://gre/modules/Preferences.jsm");
@@ -196,7 +196,7 @@ this.Utils = {
   },
 
   lazyStrings: function Weave_lazyStrings(name) {
-    let bundle = "chrome://weave/locale/services/" + name + ".properties";
+    let bundle = "chrome://weave/locale/" + name + ".properties";
     return () => new StringBundle(bundle);
   },
 
@@ -628,7 +628,7 @@ this.Utils = {
 
     let appName;
     try {
-      let syncStrings = new StringBundle("chrome://browser/locale/sync.properties");
+      let syncStrings = new StringBundle("chrome://weave/locale/sync.properties");
       appName = syncStrings.getFormattedString("sync.defaultAccountApplication", [brandName]);
     } catch (ex) {}
     appName = appName || brandName;

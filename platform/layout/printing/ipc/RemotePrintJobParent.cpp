@@ -117,7 +117,11 @@ RemotePrintJobParent::PrintPage(const nsCString& aPageFileName)
   }
 
   nsAutoCString recordingPath;
+#ifdef XP_WIN
+  rv = recordingFile->GetPersistentDescriptor(recordingPath);
+#else
   rv = recordingFile->GetNativePath(recordingPath);
+#endif
   if (NS_WARN_IF(NS_FAILED(rv))) {
     return rv;
   }

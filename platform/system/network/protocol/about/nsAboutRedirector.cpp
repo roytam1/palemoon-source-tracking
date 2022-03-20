@@ -10,6 +10,8 @@
 #include "nsIChannel.h"
 #include "nsIProtocolHandler.h"
 
+#define NS_NO_ABOUT_MODULE_FLAGS 0
+
 NS_IMPL_ISUPPORTS(nsAboutRedirector, nsIAboutModule)
 
 struct RedirEntry
@@ -31,121 +33,150 @@ struct RedirEntry
  */
 static RedirEntry kRedirMap[] = {
   {
-    "", "chrome://global/content/about.xhtml",
-    nsIAboutModule::ALLOW_SCRIPT
-  },
-  { "about", "chrome://global/content/aboutAbout.xhtml", 0 },
-  {
-    "addons", "chrome://mozapps/content/extensions/extensions.xul",
+    "",
+    "chrome://global/content/about.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "buildconfig", "chrome://global/content/buildconfig.html",
-    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
-    nsIAboutModule::MAKE_LINKABLE
+    "about", "chrome://global/content/aboutAbout.xhtml",
+    NS_NO_ABOUT_MODULE_FLAGS
   },
   {
-    "checkerboard", "chrome://global/content/aboutCheckerboard.xhtml",
-    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
+    "addons",
+    "chrome://mozapps/content/extensions/extensions.xul",
     nsIAboutModule::ALLOW_SCRIPT
   },
-  { "config", "chrome://global/content/config.xul", 0 },
-  { "console", "chrome://global/content/console.xul", 0 },
   {
-    "credits", "http://www.palemoon.org/Contributors.shtml",
-    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
-    nsIAboutModule::MAKE_LINKABLE
+    "buildconfig",
+    "chrome://global/content/buildconfig.html",
+    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT | nsIAboutModule::MAKE_LINKABLE
+  },
+  {
+    "checkerboard",
+    "chrome://global/content/aboutCheckerboard.xhtml",
+    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT | nsIAboutModule::ALLOW_SCRIPT
+  },
+  {
+    "config",
+    "chrome://global/content/config.xul",
+    NS_NO_ABOUT_MODULE_FLAGS
+  },
+  {
+    "console",
+    "chrome://global/content/console.xul",
+    NS_NO_ABOUT_MODULE_FLAGS
+  },
+  {
+    "credits",
+    "http://www.palemoon.org/Contributors.shtml",
+    nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT | nsIAboutModule::MAKE_LINKABLE
   },
 #ifdef MOZ_DEVTOOLS
   {
-    "debugging", "chrome://devtools/content/aboutdebugging/aboutdebugging.xhtml",
+    "debugging",
+    "chrome://devtools/content/aboutdebugging/aboutdebugging.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
 #endif
   {
-    "license", "chrome://global/content/license.html",
+    "license",
+    "chrome://global/content/license.html",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
     nsIAboutModule::MAKE_LINKABLE
   },
   {
-    "logo", "chrome://branding/content/about.png",
+    "logo",
+    "chrome://branding/content/about.png",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
-    // Linkable for testing reasons.
     nsIAboutModule::MAKE_LINKABLE
   },
-#ifdef MOZ_PHOENIX
+#if defined(MC_PALEMOON) || defined(BINOC_MAIL)
   {
-    "logopage", "chrome://global/content/logopage.xhtml",
+    "logopage",
+    "chrome://global/content/logopage.xhtml",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
     nsIAboutModule::HIDE_FROM_ABOUTABOUT
   },
 #endif
   {
-    "memory", "chrome://global/content/aboutMemory.xhtml",
+    "memory",
+    "chrome://global/content/aboutMemory.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "mozilla", "chrome://global/content/mozilla.xhtml",
+    "mozilla",
+    "chrome://global/content/mozilla.xhtml",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT
   },
   {
-    "neterror", "chrome://global/content/netError.xhtml",
+    "neterror",
+    "chrome://global/content/netError.xhtml",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
     nsIAboutModule::URI_CAN_LOAD_IN_CHILD |
     nsIAboutModule::ALLOW_SCRIPT |
     nsIAboutModule::HIDE_FROM_ABOUTABOUT
   },
   {
-    "networking", "chrome://global/content/aboutNetworking.xhtml",
+    "networking",
+    "chrome://global/content/aboutNetworking.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "newaddon", "chrome://mozapps/content/extensions/newaddon.xul",
+    "newaddon",
+    "chrome://mozapps/content/extensions/newaddon.xul",
     nsIAboutModule::ALLOW_SCRIPT |
     nsIAboutModule::HIDE_FROM_ABOUTABOUT
   },
   {
-    "performance", "chrome://global/content/aboutPerformance.xhtml",
+    "performance",
+    "chrome://global/content/aboutPerformance.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "plugins", "chrome://global/content/plugins.html",
+    "plugins",
+    "chrome://global/content/plugins.html",
     nsIAboutModule::URI_MUST_LOAD_IN_CHILD
   },
   {
-    "serviceworkers", "chrome://global/content/aboutServiceWorkers.xhtml",
+    "serviceworkers",
+    "chrome://global/content/aboutServiceWorkers.xhtml",
     nsIAboutModule::URI_CAN_LOAD_IN_CHILD |
     nsIAboutModule::URI_MUST_LOAD_IN_CHILD |
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "profiles", "chrome://global/content/aboutProfiles.xhtml",
+    "profiles",
+    "chrome://global/content/aboutProfiles.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   // about:srcdoc is unresolvable by specification.  It is included here
   // because the security manager would disallow srcdoc iframes otherwise.
+  // it to be linkable so content can touch its own srcdoc frames
   {
-    "srcdoc", "about:blank",
+    "srcdoc",
+    "about:blank",
     nsIAboutModule::URI_SAFE_FOR_UNTRUSTED_CONTENT |
-    nsIAboutModule::HIDE_FROM_ABOUTABOUT |
-    // Needs to be linkable so content can touch its own srcdoc frames
+    nsIAboutModule::HIDE_FROM_ABOUTABOUT |  
     nsIAboutModule::MAKE_LINKABLE |
     nsIAboutModule::URI_CAN_LOAD_IN_CHILD
   },
   {
-    "support", "chrome://global/content/aboutSupport.xhtml",
+    "support",
+    "chrome://global/content/aboutSupport.xhtml",
+    nsIAboutModule::ALLOW_SCRIPT
+  },
+#ifdef MOZ_SERVICES_SYNC
+  {
+    "sync-progress",
+    "chrome://weave/content/progress.xhtml",
     nsIAboutModule::ALLOW_SCRIPT
   },
   {
-    "telemetry", "chrome://global/content/aboutTelemetry.xhtml",
+    "sync-tabs",
+    "chrome://weave/content/aboutSyncTabs.xul",
     nsIAboutModule::ALLOW_SCRIPT
-#ifdef MOZ_WEBRTC
   },
-  {
-    "webrtc", "chrome://global/content/aboutwebrtc/aboutWebrtc.html",
-    nsIAboutModule::ALLOW_SCRIPT
 #endif
-  }
 };
 static const int kRedirTotal = mozilla::ArrayLength(kRedirMap);
 

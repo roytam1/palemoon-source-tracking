@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -8,10 +7,6 @@
 #define MediaDecoder_h_
 
 #include "mozilla/Atomics.h"
-
-#ifdef MOZ_EME
-#include "mozilla/CDMProxy.h"
-#endif
 
 #include "mozilla/MozPromise.h"
 #include "mozilla/ReentrantMonitor.h"
@@ -247,8 +242,6 @@ public:
   // Must be called before Shutdown().
   bool OwnerHasError() const;
 
-  already_AddRefed<GMPCrashHelper> GetCrashHelper() override;
-
 protected:
   // Updates the media duration. This is called while the media is being
   // played, calls before the media has reached loaded metadata are ignored.
@@ -436,16 +429,6 @@ private:
 
   MediaDecoderOwner* GetOwner() const override;
 
-#ifdef MOZ_EME
-  typedef MozPromise<RefPtr<CDMProxy>, bool /* aIgnored */, /* IsExclusive = */ true> CDMProxyPromise;
-
-  // Resolved when a CDMProxy is available and the capabilities are known or
-  // rejected when this decoder is about to shut down.
-  RefPtr<CDMProxyPromise> RequestCDMProxy() const;
-
-  void SetCDMProxy(CDMProxy* aProxy);
-#endif
-
   static bool IsOggEnabled();
   static bool IsOpusEnabled();
   static bool IsWaveEnabled();
@@ -594,11 +577,6 @@ private:
   RefPtr<MediaDecoderStateMachine> mDecoderStateMachine;
 
   RefPtr<ResourceCallback> mResourceCallback;
-
-#ifdef MOZ_EME
-  MozPromiseHolder<CDMProxyPromise> mCDMProxyPromiseHolder;
-  RefPtr<CDMProxyPromise> mCDMProxyPromise;
-#endif
 
 protected:
   // The promise resolving/rejection is queued as a "micro-task" which will be

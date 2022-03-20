@@ -15,17 +15,17 @@ cairo_public cairo_device_t *
 cairo_xml_create (const char *filename);
 
 cairo_public cairo_device_t *
-cairo_xml_create_for_stream (cairo_write_func_t	 write_func,
-			     void		*closure);
+cairo_xml_create_for_stream (cairo_write_func_t     write_func,
+               void        *closure);
 
 cairo_public cairo_surface_t *
 cairo_xml_surface_create (cairo_device_t *xml,
-			  cairo_content_t content,
-			  double width, double height);
+              cairo_content_t content,
+              double width, double height);
 
 cairo_public cairo_status_t
 cairo_xml_for_recording_surface (cairo_device_t *xml,
-				 cairo_surface_t *surface);
+                 cairo_surface_t *surface);
 
 CAIRO_END_DECLS
 

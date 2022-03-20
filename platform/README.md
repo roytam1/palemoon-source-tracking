@@ -1,15 +1,15 @@
-# Unified XUL Platform (UXP)
+# Goanna Run-time Environment (GRE)
 
-This repository holds the code for a unified application platform for XUL-based
-applications. It is a hard fork from the Mozilla code repository (mozilla-central)
-with an ESR-52 fork point.
+This repository holds the code for [Goanna](http://www.moonchildproductions.info/goanna.shtml)-based platform code for XUL-based
+applications. It is a hard fork from the Mozilla code repository (mozilla-central).
 
-In addition to further development based on the Mozilla upstream code, and
+In addition to further development based on the Mozilla sourced code, and
 selective cherry-picking of directly-applicable patches, this repository has its
 own development and holds the base for a maintained platform to be used by XUL
 applications.
 
-For a list of active projects making use of the Unified XUL Platform, checkout http://thereisonlyxul.org/.
+For a list of active projects making use of the Unified XUL Platform, check out
+http://thereisonlyxul.org/.
 
 ## Additional documentation
 
@@ -34,6 +34,3 @@ and other community members.
 If you fork this repository to perform your own work on it, please consider offering
 improvement patches upstream to its origin to mutually improve the platform and build
 a future for XUL.
-
-## Looking for Pale Moon and Basilisk?
-As of [`Issue #969`](https://repo.palemoon.org/MoonchildProductions/UXP/issues/969), release versions `28.9.0` and `2020.03.04` respectively, they have been split off into their own dedicated repositories located at [`MoonchildProductions/Pale-Moon`](https://repo.palemoon.org/MoonchildProductions/Pale-Moon) and [`MoonchildProductions/Basilisk`](https://repo.palemoon.org/MoonchildProductions/Basilisk).

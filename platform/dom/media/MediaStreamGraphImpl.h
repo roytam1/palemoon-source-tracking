@@ -28,9 +28,6 @@ namespace mozilla {
 
 template <typename T>
 class LinkedList;
-#ifdef MOZ_WEBRTC
-class AudioOutputObserver;
-#endif
 
 /**
  * A per-stream update message passed from the media graph thread to the
@@ -815,9 +812,6 @@ public:
    */
   RefPtr<AsyncLatencyLogger> mLatencyLog;
   AudioMixer mMixer;
-#ifdef MOZ_WEBRTC
-  RefPtr<AudioOutputObserver> mFarendObserverRef;
-#endif
 
   dom::AudioChannel AudioChannel() const { return mAudioChannel; }
 

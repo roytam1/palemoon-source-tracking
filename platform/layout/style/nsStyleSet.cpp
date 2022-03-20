@@ -1311,8 +1311,9 @@ nsStyleSet::WalkRuleProcessors(nsIStyleRuleProcessor::EnumFunc aFunc,
   if (mBindingManager) {
     // We can supply additional document-level sheets that should be walked.
     if (aWalkAllXBLStylesheets) {
-      mBindingManager->WalkAllRules(aFunc, aData);
+      mBindingManager->WalkAllRules(aFunc, aData, false);
     } else {
+      mBindingManager->WalkAllShadowRootHostRules(aFunc, aData);	    
       mBindingManager->WalkRules(aFunc, aData, &cutOffInheritance);
     }
   }
@@ -1969,11 +1970,8 @@ nsStyleSet::ResolveAnonymousBoxStyle(nsIAtom* aPseudoTag,
   NS_ENSURE_FALSE(mInShutdown, nullptr);
 
 #ifdef DEBUG
-    bool isAnonBox = nsCSSAnonBoxes::IsAnonBox(aPseudoTag)
-#ifdef MOZ_XUL
-                 && !nsCSSAnonBoxes::IsTreePseudoElement(aPseudoTag)
-#endif
-      ;
+    bool isAnonBox = nsCSSAnonBoxes::IsAnonBox(aPseudoTag) &&
+                     !nsCSSAnonBoxes::IsTreePseudoElement(aPseudoTag);
     NS_PRECONDITION(isAnonBox, "Unexpected pseudo");
 #endif
 
@@ -2007,7 +2005,6 @@ nsStyleSet::ResolveAnonymousBoxStyle(nsIAtom* aPseudoTag,
                     nullptr, aFlags);
 }
 
-#ifdef MOZ_XUL
 already_AddRefed<nsStyleContext>
 nsStyleSet::ResolveXULTreePseudoStyle(Element* aParentElement,
                                       nsIAtom* aPseudoTag,
@@ -2046,7 +2043,6 @@ nsStyleSet::ResolveXULTreePseudoStyle(Element* aParentElement,
                     aPseudoTag, CSSPseudoElementType::XULTree,
                     nullptr, eNoFlags);
 }
-#endif
 
 bool
 nsStyleSet::AppendFontFaceRules(nsTArray<nsFontFaceRuleContainer>& aArray)

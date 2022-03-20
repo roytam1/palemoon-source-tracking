@@ -29,7 +29,6 @@
 #include "mozilla/dom/VideoTrack.h"
 #include "mozilla/dom/VideoTrackList.h"
 #include "nsPrintfCString.h"
-#include "GMPService.h"
 #include "Layers.h"
 #include "mozilla/layers/ShadowLayers.h"
 
@@ -386,9 +385,6 @@ MediaDecoder::MediaDecoder(MediaDecoderOwner* aOwner)
   , mLogicalPosition(0.0)
   , mDuration(std::numeric_limits<double>::quiet_NaN())
   , mResourceCallback(new ResourceCallback())
-#ifdef MOZ_EME
-  , mCDMProxyPromise(mCDMProxyPromiseHolder.Ensure(__func__))
-#endif
   , mIgnoreProgressData(false)
   , mInfiniteStream(false)
   , mOwner(aOwner)
@@ -472,10 +468,6 @@ MediaDecoder::Shutdown()
   mWatchManager.Shutdown();
 
   mResourceCallback->Disconnect();
-
-#ifdef MOZ_EME
-  mCDMProxyPromiseHolder.RejectIfExists(true, __func__);
-#endif
 
   DiscardOngoingSeekIfExists();
 
@@ -931,34 +923,6 @@ MediaDecoder::OwnerHasError() const
   MOZ_ASSERT(NS_IsMainThread());
   MOZ_ASSERT(!IsShutdown());
   return mOwner->HasError();
-}
-
-class MediaElementGMPCrashHelper : public GMPCrashHelper
-{
-public:
-  explicit MediaElementGMPCrashHelper(HTMLMediaElement* aElement)
-    : mElement(aElement)
-  {
-    MOZ_ASSERT(NS_IsMainThread()); // WeakPtr isn't thread safe.
-  }
-  already_AddRefed<nsPIDOMWindowInner> GetPluginCrashedEventTarget() override
-  {
-    MOZ_ASSERT(NS_IsMainThread()); // WeakPtr isn't thread safe.
-    if (!mElement) {
-      return nullptr;
-    }
-    return do_AddRef(mElement->OwnerDoc()->GetInnerWindow());
-  }
-private:
-  WeakPtr<HTMLMediaElement> mElement;
-};
-
-already_AddRefed<GMPCrashHelper>
-MediaDecoder::GetCrashHelper()
-{
-  MOZ_ASSERT(NS_IsMainThread());
-  return mOwner->GetMediaElement() ?
-    MakeAndAddRef<MediaElementGMPCrashHelper>(mOwner->GetMediaElement()) : nullptr;
 }
 
 bool
@@ -1546,23 +1510,6 @@ MediaDecoder::CanPlayThrough()
   NS_ENSURE_TRUE(mDecoderStateMachine, false);
   return GetStatistics().CanPlayThrough();
 }
-
-#ifdef MOZ_EME
-RefPtr<MediaDecoder::CDMProxyPromise>
-MediaDecoder::RequestCDMProxy() const
-{
-  return mCDMProxyPromise;
-}
-
-void
-MediaDecoder::SetCDMProxy(CDMProxy* aProxy)
-{
-  MOZ_ASSERT(NS_IsMainThread());
-  MOZ_ASSERT(aProxy);
-
-  mCDMProxyPromiseHolder.ResolveIfExists(aProxy, __func__);
-}
-#endif
 
 bool
 MediaDecoder::IsOpusEnabled()

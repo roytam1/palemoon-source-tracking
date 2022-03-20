@@ -4,14 +4,19 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 DIRS += [
-    'hyphenation/hyphen',
-    'hyphenation/glue',
+    'chardet',
+    'hyphenation',
     'locale',
-    'locales',
     'lwbrk',
     'strres',
     'unicharutil',
 ]
+
+if CONFIG['MOZ_SPELLCHECK']:
+  DIRS += ['spellcheck']
+
+if CONFIG['MOZ_UNIVERSALCHARDET']:
+    DIRS += ['universalchardet']
 
 DIRS += [
     'uconv',

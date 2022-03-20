@@ -83,12 +83,6 @@ if test -n "$gonkdir" ; then
     LDFLAGS="-L$gonkdir/out/target/product/$GONK_PRODUCT/obj/lib -Wl,-rpath-link=$gonkdir/out/target/product/$GONK_PRODUCT/obj/lib --sysroot=$gonkdir/out/target/product/$GONK_PRODUCT/obj/ -llog $LDFLAGS"
 fi
 
-case "$target" in
-*-apple-darwin*)
-    MOZ_IOS_SDK
-    ;;
-esac
-
 dnl ========================================================
 dnl Checks for compilers.
 dnl ========================================================
@@ -988,7 +982,7 @@ AC_LANG_CPLUSPLUS
 MOZ_CXX11
 
 case "${OS_TARGET}" in
-WINNT|Darwin|Android)
+WINNT|Darwin)
   ;;
 *)
   STL_FLAGS="-I${DIST}/stl_wrappers"
@@ -1605,11 +1599,11 @@ dnl = Enable jemalloc
 dnl ========================================================
 
 case "${OS_TARGET}" in
-Android|WINNT|Darwin)
+WINNT|Darwin)
   MOZ_GLUE_IN_PROGRAM=
   ;;
 *)
-  dnl On !Android !Windows !OSX, we only want to link executables against mozglue
+  dnl On !Windows, we only want to link executables against mozglue
   MOZ_GLUE_IN_PROGRAM=1
   AC_DEFINE(MOZ_GLUE_IN_PROGRAM)
   ;;
@@ -2193,7 +2187,6 @@ AC_SUBST(BIN_SUFFIX)
 AC_SUBST(IMPORT_LIB_SUFFIX)
 AC_SUBST(USE_N32)
 AC_SUBST(CC_VERSION)
-AC_SUBST(MOZ_LINKER)
 AC_SUBST(WIN32_CONSOLE_EXE_LDFLAGS)
 AC_SUBST(WIN32_GUI_EXE_LDFLAGS)
 

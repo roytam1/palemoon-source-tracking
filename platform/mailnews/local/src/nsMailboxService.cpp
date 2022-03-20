@@ -52,7 +52,11 @@ nsresult nsMailboxService::ParseMailbox(nsIMsgWindow *aMsgWindow, nsIFile *aMail
     // okay now generate the url string
     nsCString mailboxPath;
 
+#ifdef XP_WIN
+    aMailboxPath->GetPersistentDescriptor(mailboxPath);
+#else
     aMailboxPath->GetNativePath(mailboxPath);
+#endif
     nsAutoCString buf;
     MsgEscapeURL(mailboxPath,
                  nsINetUtil::ESCAPE_URL_MINIMAL | nsINetUtil::ESCAPE_URL_FORCED, buf);

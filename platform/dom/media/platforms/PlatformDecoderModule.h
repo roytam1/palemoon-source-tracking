@@ -16,7 +16,6 @@
 #include "mozilla/layers/KnowsCompositor.h"
 #include "nsTArray.h"
 #include "mozilla/RefPtr.h"
-#include "GMPService.h"
 #include <queue>
 #include "MediaResult.h"
 
@@ -38,7 +37,6 @@ class RemoteDecoderModule;
 class MediaDataDecoder;
 class MediaDataDecoderCallback;
 class TaskQueue;
-class CDMProxy;
 
 static LazyLogModule sPDMLog("PlatformDecoderModule");
 
@@ -81,7 +79,6 @@ struct MOZ_STACK_CLASS CreateDecoderParams final {
   layers::ImageContainer* mImageContainer = nullptr;
   MediaResult* mError = nullptr;
   RefPtr<layers::KnowsCompositor> mKnowsCompositor;
-  RefPtr<GMPCrashHelper> mCrashHelper;
   bool mUseBlankDecoder = false;
 
 private:
@@ -90,7 +87,6 @@ private:
   void Set(DecoderDoctorDiagnostics* aDiagnostics) { mDiagnostics = aDiagnostics; }
   void Set(layers::ImageContainer* aImageContainer) { mImageContainer = aImageContainer; }
   void Set(MediaResult* aError) { mError = aError; }
-  void Set(GMPCrashHelper* aCrashHelper) { mCrashHelper = aCrashHelper; }
   void Set(bool aUseBlankDecoder) { mUseBlankDecoder = aUseBlankDecoder; }
   void Set(layers::KnowsCompositor* aKnowsCompositor) { mKnowsCompositor = aKnowsCompositor; }
   template <typename T1, typename T2, typename... Ts>

@@ -8,7 +8,7 @@
 if CONFIG['FFVPX_ASFLAGS']:
     DIRS += ['x86']
 
-SharedLibrary('mozavcodec')
+SharedLibrary('ffvpxcodec')
 SOURCES += [
     'allcodecs.c',
     'avpacket.c',
@@ -72,7 +72,7 @@ if CONFIG['GNU_CC'] and CONFIG['CC_VERSION'] >= '10.0.0':
     CFLAGS += ['-fcommon']
 
 USE_LIBS += [
-     'mozavutil'
+     'ffvpxutil'
 ]
 
 include("../ffvpxcommon.mozbuild")

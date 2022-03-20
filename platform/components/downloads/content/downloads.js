@@ -477,11 +477,9 @@ var gDownloadObserver = {
         removeFromView(dl);
         break;
       case "browser-lastwindow-close-granted":
-#ifndef XP_MACOSX
         if (gDownloadManager.activeDownloadCount == 0) {
           setTimeout(gCloseDownloadManager, 0);
         }
-#endif
         break;
     }
   }

@@ -3,20 +3,19 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_MODULE = 'update'
-
 DIRS += [
-    'common',
-    'updater',
+  'lib',
+  'app',
 ]
 
-XPIDL_SOURCES += ['nsIUpdateService.idl']
+XPIDL_SOURCES += ['public/nsIUpdateService.idl']
 
 EXTRA_COMPONENTS += [
-    'nsUpdateService.manifest',
-    'nsUpdateServiceStub.js',
+  'nsUpdateService.manifest',
+  'src/nsUpdateServiceStub.js',
 ]
 
-EXTRA_PP_COMPONENTS += ['nsUpdateService.js']
+EXTRA_PP_COMPONENTS += ['src/nsUpdateService.js']
 
+XPIDL_MODULE = 'update'
 JAR_MANIFESTS += ['jar.mn']

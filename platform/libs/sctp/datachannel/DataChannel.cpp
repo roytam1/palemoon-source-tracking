@@ -44,9 +44,6 @@
 #include "nsNetCID.h"
 #include "mozilla/StaticPtr.h"
 #include "mozilla/Unused.h"
-#ifdef MOZ_PEERCONNECTION
-#include "mtransport/runnable_utils.h"
-#endif
 
 #define DATACHANNEL_LOG(args) LOG(args)
 #include "DataChannel.h"
@@ -55,8 +52,6 @@
 // Let us turn on and off important assertions in non-debug builds
 #ifdef DEBUG
 #define ASSERT_WEBRTC(x) MOZ_ASSERT((x))
-#elif defined(MOZ_WEBRTC_ASSERT_ALWAYS)
-#define ASSERT_WEBRTC(x) do { if (!(x)) { MOZ_CRASH(); } } while (0)
 #endif
 
 static bool sctp_initialized;
@@ -329,14 +324,7 @@ DataChannelConnection::Init(unsigned short aPort, uint16_t aNumStreams, bool aUs
     if (!sctp_initialized) {
       if (aUsingDtls) {
         LOG(("sctp_init(DTLS)"));
-#ifdef MOZ_PEERCONNECTION
-        usrsctp_init(0,
-                     DataChannelConnection::SctpDtlsOutput,
-                     debug_printf
-                    );
-#else
         NS_ASSERTION(!aUsingDtls, "Trying to use SCTP/DTLS without mtransport");
-#endif
       } else {
         LOG(("sctp_init(%u)", aPort));
         usrsctp_init(aPort,
@@ -487,231 +475,6 @@ error_cleanup:
   mUsingDtls = false;
   return false;
 }
-
-#ifdef MOZ_PEERCONNECTION
-void
-DataChannelConnection::SetEvenOdd()
-{
-  ASSERT_WEBRTC(IsSTSThread());
-
-  TransportLayerDtls *dtls = static_cast<TransportLayerDtls *>(
-      mTransportFlow->GetLayer(TransportLayerDtls::ID()));
-  MOZ_ASSERT(dtls);  // DTLS is mandatory
-  mAllocateEven = (dtls->role() == TransportLayerDtls::CLIENT);
-}
-
-bool
-DataChannelConnection::ConnectViaTransportFlow(TransportFlow *aFlow, uint16_t localport, uint16_t remoteport)
-{
-  LOG(("Connect DTLS local %u, remote %u", localport, remoteport));
-
-  NS_PRECONDITION(mMasterSocket, "SCTP wasn't initialized before ConnectViaTransportFlow!");
-  NS_ENSURE_TRUE(aFlow, false);
-
-  mTransportFlow = aFlow;
-  mLocalPort = localport;
-  mRemotePort = remoteport;
-  mState = CONNECTING;
-
-  RUN_ON_THREAD(mSTS, WrapRunnable(RefPtr<DataChannelConnection>(this),
-                                   &DataChannelConnection::SetSignals),
-                NS_DISPATCH_NORMAL);
-  return true;
-}
-
-void
-DataChannelConnection::SetSignals()
-{
-  ASSERT_WEBRTC(IsSTSThread());
-  ASSERT_WEBRTC(mTransportFlow);
-  LOG(("Setting transport signals, state: %d", mTransportFlow->state()));
-  mTransportFlow->SignalPacketReceived.connect(this, &DataChannelConnection::SctpDtlsInput);
-  // SignalStateChange() doesn't call you with the initial state
-  mTransportFlow->SignalStateChange.connect(this, &DataChannelConnection::CompleteConnect);
-  CompleteConnect(mTransportFlow, mTransportFlow->state());
-}
-
-void
-DataChannelConnection::CompleteConnect(TransportFlow *flow, TransportLayer::State state)
-{
-  LOG(("Data transport state: %d", state));
-  MutexAutoLock lock(mLock);
-  ASSERT_WEBRTC(IsSTSThread());
-  // We should abort connection on TS_ERROR.
-  // Note however that the association will also fail (perhaps with a delay) and
-  // notify us in that way
-  if (state != TransportLayer::TS_OPEN || !mMasterSocket)
-    return;
-
-  struct sockaddr_conn addr;
-  memset(&addr, 0, sizeof(addr));
-  addr.sconn_family = AF_CONN;
-#if defined(__Userspace_os_Darwin)
-  addr.sconn_len = sizeof(addr);
-#endif
-  addr.sconn_port = htons(mLocalPort);
-  addr.sconn_addr = static_cast<void *>(this);
-
-  LOG(("Calling usrsctp_bind"));
-  int r = usrsctp_bind(mMasterSocket, reinterpret_cast<struct sockaddr *>(&addr),
-                       sizeof(addr));
-  if (r < 0) {
-    LOG(("usrsctp_bind failed: %d", r));
-  } else {
-    // This is the remote addr
-    addr.sconn_port = htons(mRemotePort);
-    LOG(("Calling usrsctp_connect"));
-    r = usrsctp_connect(mMasterSocket, reinterpret_cast<struct sockaddr *>(&addr),
-                        sizeof(addr));
-    if (r >= 0 || errno == EINPROGRESS) {
-      struct sctp_paddrparams paddrparams;
-      socklen_t opt_len;
-
-      memset(&paddrparams, 0, sizeof(struct sctp_paddrparams));
-      memcpy(&paddrparams.spp_address, &addr, sizeof(struct sockaddr_conn));
-      opt_len = (socklen_t)sizeof(struct sctp_paddrparams);
-      r = usrsctp_getsockopt(mMasterSocket, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS,
-                             &paddrparams, &opt_len);
-      if (r < 0) {
-        LOG(("usrsctp_getsockopt failed: %d", r));
-      } else {
-        // draft-ietf-rtcweb-data-channel-13 section 5: max initial MTU IPV4 1200, IPV6 1280
-        paddrparams.spp_pathmtu = 1200; // safe for either
-        paddrparams.spp_flags &= ~SPP_PMTUD_ENABLE;
-        paddrparams.spp_flags |= SPP_PMTUD_DISABLE;
-        opt_len = (socklen_t)sizeof(struct sctp_paddrparams);
-        r = usrsctp_setsockopt(mMasterSocket, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS,
-                               &paddrparams, opt_len);
-        if (r < 0) {
-          LOG(("usrsctp_getsockopt failed: %d", r));
-        } else {
-          LOG(("usrsctp: PMTUD disabled, MTU set to %u", paddrparams.spp_pathmtu));
-        }
-      }
-    }
-    if (r < 0) {
-      if (errno == EINPROGRESS) {
-        // non-blocking
-        return;
-      } else {
-        LOG(("usrsctp_connect failed: %d", errno));
-        mState = CLOSED;
-      }
-    } else {
-      // We set Even/Odd and fire ON_CONNECTION via SCTP_COMM_UP when we get that
-      // This also avoids issues with calling TransportFlow stuff on Mainthread
-      return;
-    }
-  }
-  // Note: currently this doesn't actually notify the application
-  NS_DispatchToMainThread(do_AddRef(new DataChannelOnMessageAvailable(
-                                      DataChannelOnMessageAvailable::ON_CONNECTION,
-                                      this)));
-  return;
-}
-
-// Process any pending Opens
-void
-DataChannelConnection::ProcessQueuedOpens()
-{
-  // The nsDeque holds channels with an AddRef applied.  Another reference
-  // (may) be held by the DOMDataChannel, unless it's been GC'd.  No other
-  // references should exist.
-
-  // Can't copy nsDeque's.  Move into temp array since any that fail will
-  // go back to mPending
-  nsDeque temp;
-  DataChannel *temp_channel; // really already_AddRefed<>
-  while (nullptr != (temp_channel = static_cast<DataChannel *>(mPending.PopFront()))) {
-    temp.Push(static_cast<void *>(temp_channel));
-  }
-
-  RefPtr<DataChannel> channel;
-  // All these entries have an AddRef(); make that explicit now via the dont_AddRef()
-  while (nullptr != (channel = dont_AddRef(static_cast<DataChannel *>(temp.PopFront())))) {
-    if (channel->mFlags & DATA_CHANNEL_FLAGS_FINISH_OPEN) {
-      LOG(("Processing queued open for %p (%u)", channel.get(), channel->mStream));
-      channel->mFlags &= ~DATA_CHANNEL_FLAGS_FINISH_OPEN;
-      // OpenFinish returns a reference itself, so we need to take it can Release it
-      channel = OpenFinish(channel.forget()); // may reset the flag and re-push
-    } else {
-      NS_ASSERTION(false, "How did a DataChannel get queued without the FINISH_OPEN flag?");
-    }
-  }
-
-}
-void
-DataChannelConnection::SctpDtlsInput(TransportFlow *flow,
-                                     const unsigned char *data, size_t len)
-{
-  if (MOZ_LOG_TEST(gSCTPLog, LogLevel::Debug)) {
-    char *buf;
-
-    if ((buf = usrsctp_dumppacket((void *)data, len, SCTP_DUMP_INBOUND)) != nullptr) {
-      PR_LogPrint("%s", buf);
-      usrsctp_freedumpbuffer(buf);
-    }
-  }
-  // Pass the data to SCTP
-  MutexAutoLock lock(mLock);
-  usrsctp_conninput(static_cast<void *>(this), data, len, 0);
-}
-
-int
-DataChannelConnection::SendPacket(unsigned char data[], size_t len, bool release)
-{
-  //LOG(("%p: SCTP/DTLS sent %ld bytes", this, len));
-  int res = 0;
-  if (mTransportFlow) {
-    res = mTransportFlow->SendPacket(data, len) < 0 ? 1 : 0;
-  }
-  if (release)
-    delete [] data;
-  return res;
-}
-
-/* static */
-int
-DataChannelConnection::SctpDtlsOutput(void *addr, void *buffer, size_t length,
-                                      uint8_t tos, uint8_t set_df)
-{
-  DataChannelConnection *peer = static_cast<DataChannelConnection *>(addr);
-  int res;
-
-  if (MOZ_LOG_TEST(gSCTPLog, LogLevel::Debug)) {
-    char *buf;
-
-    if ((buf = usrsctp_dumppacket(buffer, length, SCTP_DUMP_OUTBOUND)) != nullptr) {
-      PR_LogPrint("%s", buf);
-      usrsctp_freedumpbuffer(buf);
-    }
-  }
-  // We're async proxying even if on the STSThread because this is called
-  // with internal SCTP locks held in some cases (such as in usrsctp_connect()).
-  // SCTP has an option for Apple, on IP connections only, to release at least
-  // one of the locks before calling a packet output routine; with changes to
-  // the underlying SCTP stack this might remove the need to use an async proxy.
-  if ((false /*peer->IsSTSThread()*/)) {
-    res = peer->SendPacket(static_cast<unsigned char *>(buffer), length, false);
-  } else {
-    auto *data = new unsigned char[length];
-    memcpy(data, buffer, length);
-    // Commented out since we have to Dispatch SendPacket to avoid deadlock"
-    // res = -1;
-
-    // XXX It might be worthwhile to add an assertion against the thread
-    // somehow getting into the DataChannel/SCTP code again, as
-    // DISPATCH_SYNC is not fully blocking.  This may be tricky, as it
-    // needs to be a per-thread check, not a global.
-    peer->mSTS->Dispatch(WrapRunnable(
-                           RefPtr<DataChannelConnection>(peer),
-                           &DataChannelConnection::SendPacket, data, length, true),
-                                   NS_DISPATCH_NORMAL);
-    res = 0; // cheat!  Packets can always be dropped later anyways
-  }
-  return res;
-}
-#endif
 
 #ifdef ALLOW_DIRECT_SCTP_LISTEN_CONNECT
 // listen for incoming associations

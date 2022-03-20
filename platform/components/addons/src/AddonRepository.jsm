@@ -64,6 +64,11 @@ const BLANK_DB = function() {
 }
 
 const TOOLKIT_ID     = "toolkit@mozilla.org";
+
+#ifdef MC_APP_ID
+#expand const ALT_APP_ID                      = "__MC_APP_ID__";
+#endif
+
 Cu.import("resource://gre/modules/Log.jsm");
 const LOGGER_ID = "addons.repository";
 
@@ -1251,7 +1256,11 @@ this.AddonRepository = {
     let results = [];
 
     function isSameApplication(aAppNode) {
+#ifdef MC_APP_ID
+      if (self._getTextContent(aAppNode) == ALT_APP_ID || self._getTextContent(aAppNode) == Services.appinfo.ID) {
+#else
       if (self._getTextContent(aAppNode) == Services.appinfo.ID) {
+#endif
         return true;
       }
       return false;
@@ -1545,7 +1554,7 @@ this.AddonRepository = {
 
       let appVersion = null;
       if (override.appID == TOOLKIT_ID)
-        appVersion = aPlatformVersion || Services.appinfo.platformVersion;
+        appVersion = aPlatformVersion || Services.appinfo.greVersion;
       else
         appVersion = aAppVersion || Services.appinfo.version;
 

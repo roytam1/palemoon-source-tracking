@@ -59,8 +59,6 @@ static const int32_t kMaxTCPKeepCount   = 127;
 static const int32_t kDefaultTCPKeepCount =
 #if defined (XP_WIN)
                                               10; // Hardcoded in Windows.
-#elif defined (XP_MACOSX)
-                                              8;  // Hardcoded in OSX.
 #else
                                               4;  // Specifiable in Linux.
 #endif

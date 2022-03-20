@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest"
+               em:type="4"
+#expand               em:id="default-theme@__MOZ_APP_NAME__"
+               em:version="@MOZ_APP_VERSION@"
+               em:name="Default Application Theme"
+               em:creator="Open Source Contributors"
+               em:strictCompatibility="true"
+               em:internalName="classic/1.0"
+               em:license="MPL-2.0">
+
+    <em:targetApplication>
+      <Description em:id="@MOZ_APP_ID@"
+                   em:minVersion="@MOZ_APP_VERSION@"
+                   em:maxVersion="@MOZ_APP_VERSION@"/>
+    </em:targetApplication>
+  </Description>
+</RDF>

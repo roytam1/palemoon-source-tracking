@@ -291,11 +291,9 @@ protected:
     virtual gfxFontFamily*
     GetDefaultFontForPlatform(const gfxFontStyle* aStyle) override;
 
-#ifdef MOZ_BUNDLED_FONTS
     void ActivateBundledFonts();
     nsCString mBundledFontsPath;
     bool mBundledFontsInitialized;
-#endif
 
     // to avoid enumerating all fonts, maintain a mapping of local font
     // names to family

@@ -9,9 +9,9 @@ SOURCES += [
 
 # Decoders need RasterImage.h
 LOCAL_INCLUDES += [
-    '/image',
-    '/image/encoders/bmp',
-    '/image/encoders/png',
+    '/system/image',
+    '/system/image/encoders/bmp',
+    '/system/image/encoders/png',
 ]
 
 FINAL_LIBRARY = 'xul'

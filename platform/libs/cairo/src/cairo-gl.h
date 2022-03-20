@@ -13,14 +13,14 @@ CAIRO_BEGIN_DECLS
 
 cairo_public cairo_surface_t *
 cairo_gl_surface_create (cairo_device_t *device,
-			 cairo_content_t content,
-			 int width, int height);
+             cairo_content_t content,
+             int width, int height);
 
 cairo_public cairo_surface_t *
 cairo_gl_surface_create_for_texture (cairo_device_t *abstract_device,
-				     cairo_content_t content,
-				     unsigned int tex,
-                                     int width, int height);
+                   cairo_content_t content,
+                   unsigned int tex,
+                   int width, int height);
 cairo_public void
 cairo_gl_surface_set_size (cairo_surface_t *surface, int width, int height);
 
@@ -47,8 +47,8 @@ cairo_glx_device_get_context (cairo_device_t *device);
 
 cairo_public cairo_surface_t *
 cairo_gl_surface_create_for_window (cairo_device_t *device,
-				    Window win,
-				    int width, int height);
+                  Window win,
+                  int width, int height);
 #endif
 
 #if CAIRO_HAS_WGL_FUNCTIONS
@@ -61,10 +61,10 @@ cairo_public HGLRC
 cairo_wgl_device_get_context (cairo_device_t *device);
 
 cairo_public cairo_surface_t *
-cairo_gl_surface_create_for_dc (cairo_device_t		*device,
-				HDC			 dc,
-				int			 width,
-				int			 height);
+cairo_gl_surface_create_for_dc (cairo_device_t        *device,
+                HDC             dc,
+                int             width,
+                int             height);
 #endif
 
 #if CAIRO_HAS_EGL_FUNCTIONS
@@ -74,10 +74,10 @@ cairo_public cairo_device_t *
 cairo_egl_device_create (EGLDisplay dpy, EGLContext egl);
 
 cairo_public cairo_surface_t *
-cairo_gl_surface_create_for_egl (cairo_device_t	*device,
-				 EGLSurface	 egl,
-				 int		 width,
-				 int		 height);
+cairo_gl_surface_create_for_egl (cairo_device_t    *device,
+                 EGLSurface     egl,
+                 int         width,
+                 int         height);
 
 #endif
 

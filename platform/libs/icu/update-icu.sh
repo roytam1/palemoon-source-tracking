@@ -27,7 +27,7 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US
 export LC_ALL=en_US.UTF-8
 
-icu_dir=`dirname $0`/icu
+icu_dir=`dirname $0`
 
 # Remove intl/icu/source, then replace it with a clean export.
 rm -rf ${icu_dir}/source

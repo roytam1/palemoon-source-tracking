@@ -9,9 +9,7 @@
 
 DIRS += ['internal']
 
-EXPORTS += [
-    'nsRDFResource.h',
-]
+EXPORTS += ['nsRDFResource.h']
 
 include('objs.mozbuild')
 

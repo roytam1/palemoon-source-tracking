@@ -40,17 +40,11 @@ public:
   NS_DECL_NSIOBSERVER
 
   nsresult ShowNewAlertNotification(bool aUserInitiated, const nsString& aAlertTitle, const nsString& aAlertText);
-#ifndef MOZ_THUNDERBIRD
-  nsresult ShowAlertMessage(const nsString& aAlertTitle, const nsString& aAlertText, const nsACString& aFolderURI);
-#endif
 
 private:
   virtual ~nsMessengerWinIntegration();
   nsresult AlertFinished();
   nsresult AlertClicked();
-#ifdef MOZ_SUITE
-  nsresult AlertClickedSimple();
-#endif
 
   void InitializeBiffStatusIcon(); 
   void FillToolTipInfo();

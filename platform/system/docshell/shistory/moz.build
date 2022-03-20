@@ -29,9 +29,7 @@ SOURCES += [
     'nsSHTransaction.cpp',
 ]
 
-LOCAL_INCLUDES += [
-    '/docshell/base',
-]
+LOCAL_INCLUDES += ['../base']
 
 FINAL_LIBRARY = 'xul'
 

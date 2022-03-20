@@ -19,11 +19,6 @@ if CONFIG['MOZ_INSTRUMENT_EVENT_LOOP']:
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
     UNIFIED_SOURCES += ['nsNativeAppSupportWin.cpp']
-elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'uikit':
-    UNIFIED_SOURCES += [
-        'nsNativeAppSupportDefault.cpp',
-        'UIKitDirProvider.mm',
-    ]
 elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
     UNIFIED_SOURCES += ['nsNativeAppSupportUnix.cpp']
 else:
@@ -104,7 +99,7 @@ if CONFIG['MOZ_PHOENIX']:
     DEFINES['MOZ_BUILD_APP_IS_BROWSER'] = True
 
 LOCAL_INCLUDES += [
-    '../profile',
+    '/components/profile/src',
     '/config',
     '/dom/base',
     '/dom/ipc',
@@ -114,7 +109,7 @@ LOCAL_INCLUDES += [
 
 if CONFIG['MOZ_ENABLE_XREMOTE']:
     LOCAL_INCLUDES += [
-        '/widget/xremoteclient',
+        '/system/interface/xremoteclient',
     ]
 
 CXXFLAGS += CONFIG['TK_CFLAGS']

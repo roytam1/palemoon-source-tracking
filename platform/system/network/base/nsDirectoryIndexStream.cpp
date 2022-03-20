@@ -1,17 +1,13 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-/* vim:set sw=4 sts=4 et cin: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-
 /*
-
   The converts a filesystem directory into an "HTTP index" stream per
   Lou Montulli's original spec:
 
   http://www.mozilla.org/projects/netlib/dirindexformat.html
-
  */
 
 #include "nsEscape.h"
@@ -92,7 +88,7 @@ nsDirectoryIndexStream::Init(nsIFile* aDir)
 
     if (MOZ_LOG_TEST(gLog, LogLevel::Debug)) {
         nsAutoCString path;
-        aDir->GetNativePath(path);
+        aDir->GetPersistentDescriptor(path);
         MOZ_LOG(gLog, LogLevel::Debug,
                ("nsDirectoryIndexStream[%p]: initialized on %s",
                 this, path.get()));
@@ -239,7 +235,7 @@ nsDirectoryIndexStream::Read(char* aBuf, uint32_t aCount, uint32_t* aReadCount)
 
             if (MOZ_LOG_TEST(gLog, LogLevel::Debug)) {
                 nsAutoCString path;
-                current->GetNativePath(path);
+                current->GetPersistentDescriptor(path);
                 MOZ_LOG(gLog, LogLevel::Debug,
                        ("nsDirectoryIndexStream[%p]: iterated %s",
                         this, path.get()));

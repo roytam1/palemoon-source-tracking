@@ -1608,8 +1608,7 @@ PluginOfflineObserver::Observe(nsISupports *aSubject,
 }
 
 static const char* kSettingsPrefs[] =
-    {"javascript.enabled",
-     "dom.ipc.plugins.nativeCursorSupport"};
+    {"javascript.enabled"};
 
 void
 PluginModuleChromeParent::RegisterSettingsCallbacks()

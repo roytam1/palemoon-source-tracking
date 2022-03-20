@@ -13,11 +13,5 @@ mozglue.def: mozglue.def.in $(GLOBAL_DEPS)
 GARBAGE += mozglue.def
 endif
 
-include $(topsrcdir)/mozglue/build/replace_malloc.mk
+include $(topsrcdir)/system/utils/build/replace_malloc.mk
 
-ifdef MOZ_LINKER
-ifeq (arm, $(TARGET_CPU))
-OS_LDFLAGS += -Wl,-version-script,$(srcdir)/arm-eabi-filter
-endif
-
-endif

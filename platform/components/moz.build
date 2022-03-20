@@ -1,0 +1,123 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DIRS += [
+  'aboutcache',
+  'aboutcheckerboard',
+  'aboutmemory',
+  'aboutperformance',
+  'addoncompat',
+  'addons',
+  'alerts',
+  'apppicker',
+  'appshell',
+  'asyncshutdown',
+  'autocomplete',
+  'blocklist',
+  'bindings',
+  'captivedetect',
+  'commandlines',
+  'console',
+  'contentprefs',
+  'permissions',
+  'crashmonitor',
+  'downloads',
+  'directory',
+  'exthelper',
+  'filewatcher',
+  'finalizationwitness',
+  'formautofill',
+  'find',
+  'htmlfive',
+  'htmlparser',
+  'gfx',
+  'global',
+  'handling',
+  'jar',
+  'jsdebugger',
+  'jsdownloads',
+  'jsinspector',
+  'lz4',
+  'mediasniffer',
+  'microformats',
+  'mozintl',
+  'mozprotocol',
+  'narrate',
+  'osfile',
+  'parentalcontrols',
+  'passwordmgr',
+  'perf',
+  'perfmonitoring',
+  'places',
+  'pluginproblem',
+  'preferences',
+  'printing',
+  'privatebrowsing',
+  'processsingleton',
+  'profile',
+  'promiseworker',
+  'prompts',
+  'proxy',
+  'rdf',
+  'reader',
+  'remotebrowserutils',
+  'reflect',
+  'satchel',
+  'scache',
+  'startup',
+  'statusfilter',
+  'storage',
+  'terminator',
+  'thumbnails',
+  'timermanager',
+  'tooltiptext',
+  'typeaheadfind',
+  'uriloader',
+  'utils',
+  'urlformatter',
+  'viewconfig',
+  'viewsource',
+  'webbrowser',
+  'windowcreator',
+  'windowds',
+  'windowwatcher',
+  'workerloader',
+  'xmlparser',
+  'xulstore'
+]
+
+if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+  DIRS += ['filepicker', 'gservice']
+
+if CONFIG['MOZ_PREF_EXTENSIONS']:
+  DIRS += ['autoconfig']
+
+if CONFIG['BUILD_CTYPES']:
+  DIRS += ['ctypes']
+
+if CONFIG['MOZ_FEEDS']:
+  DIRS += ['feeds']
+
+if CONFIG['MOZ_JETPACK']:
+  DIRS += ['jetpack']
+
+if CONFIG['MOZ_MAILNEWS']:
+  DIRS += ['mork']
+
+if CONFIG['MOZ_ENABLE_XREMOTE']:
+  DIRS += ['remote']
+
+if CONFIG['MOZ_TOOLKIT_SEARCH']:
+  DIRS += ['search']
+
+if CONFIG['MOZ_SERVICES_SYNC']:
+  DIRS += ['weave']
+
+DIRS += ['build']
+
+EXTRA_COMPONENTS += [
+  'nsDefaultCLH.js',
+  'nsDefaultCLH.manifest',
+]

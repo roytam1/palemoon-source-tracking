@@ -4,8 +4,8 @@
 
 toolkit.jar:
 % content mozapps %content/mozapps/
-  content/mozapps/preferences/fontbuilder.js
-  content/mozapps/preferences/changemp.js
-  content/mozapps/preferences/changemp.xul
-  content/mozapps/preferences/removemp.js
-  content/mozapps/preferences/removemp.xul
+  content/mozapps/preferences/fontbuilder.js    (content/fontbuilder.js)
+  content/mozapps/preferences/changemp.js       (content/changemp.js)
+  content/mozapps/preferences/changemp.xul      (content/changemp.xul)
+  content/mozapps/preferences/removemp.js       (content/removemp.js)
+  content/mozapps/preferences/removemp.xul      (content/removemp.xul)

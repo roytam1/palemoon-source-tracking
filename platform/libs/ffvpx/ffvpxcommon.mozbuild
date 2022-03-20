@@ -5,7 +5,7 @@
 
 # Add assembler flags and includes
 ASFLAGS += CONFIG['FFVPX_ASFLAGS']
-ASFLAGS += ['-I%s/media/ffvpx' % TOPSRCDIR]
+ASFLAGS += ['-I%s/libs/ffvpx' % TOPSRCDIR]
 
 if CONFIG['FFVPX_ASFLAGS']:
     USE_YASM = True
@@ -19,19 +19,13 @@ if CONFIG['FFVPX_ASFLAGS']:
             ASFLAGS += ['-Pconfig_win32.asm']
         else:
             ASFLAGS += ['-Pconfig_win64.asm']
-    elif CONFIG['OS_ARCH'] == 'Darwin':
-        # 64-bit macosx assemblers need to prefix symbols with an underscore.
-        ASFLAGS += [
-            '-Pconfig_darwin64.asm',
-            '-DPREFIX'
-        ]
     else:
         # Default to unix, similar to how ASFLAGS setup works in configure.in
         ASFLAGS += ['-Pconfig_unix64.asm']
     # default disabled components
     ASFLAGS += ['-Pdefaults_disabled.asm']
 
-LOCAL_INCLUDES += ['/media/ffvpx']
+LOCAL_INCLUDES += ['/libs/ffvpx']
 
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True
@@ -90,16 +84,13 @@ elif CONFIG['_MSC_VER']:
         '-wd4057', '-wd4204', '-wd4706', '-wd4305', '-wd4152', '-wd4324',
         '-we4013', '-wd4100', '-wd4214', '-wd4307', '-wd4273', '-wd4554',
     ]
-    LOCAL_INCLUDES += ['/media/ffvpx/compat/atomics/win32']
+    LOCAL_INCLUDES += ['/libs/ffvpx/compat/atomics/win32']
 
 DEFINES['HAVE_AV_CONFIG_H'] = True
 
 if CONFIG['MOZ_DEBUG']:
     # Enable all assertions in debug builds.
     DEFINES['ASSERT_LEVEL'] = 2
-elif not CONFIG['RELEASE_OR_BETA']:
-    # Enable fast assertions in opt builds of Nightly and Aurora.
-    DEFINES['ASSERT_LEVEL'] = 1
 
 # clang-cl's <intrin.h> doesn't work the same as MSVC's.  For details, see:
 #
@@ -112,6 +103,6 @@ if CONFIG['CLANG_CL']:
         '-Xclang',
         '-fmodules',
         '-Xclang',
-        '-fmodules-cache-path=' + TOPOBJDIR + '/media/ffpvx',
+        '-fmodules-cache-path=' + TOPOBJDIR + '/libs/ffpvx',
         '-fbuiltin-module-map',
     ]

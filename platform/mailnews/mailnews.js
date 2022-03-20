@@ -158,15 +158,6 @@ pref("mail.addr_book.mapit_url.4.name", "chrome://messenger-region/locale/region
 pref("mail.addr_book.mapit_url.4.format", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.5.name", "chrome://messenger-region/locale/region.properties");
 pref("mail.addr_book.mapit_url.5.format", "chrome://messenger-region/locale/region.properties");
-#ifdef MOZ_SUITE
-pref("mailnews.start_page.url", "chrome://messenger-region/locale/region.properties");
-pref("messenger.throbber.url", "chrome://messenger-region/locale/region.properties");
-pref("compose.throbber.url", "chrome://messenger-region/locale/region.properties");
-pref("addressbook.throbber.url", "chrome://messenger-region/locale/region.properties");
-pref("mail.accountwizard.deferstorage", false);
-// |false|: Show both name and address, even for people in my addressbook.
-pref("mail.showCondensedAddresses", false);
-#endif
 
 // mail.addr_book.quicksearchquery.format is the model query used for:
 // * TB: AB Quick Search and composition's Contact Side Bar
@@ -358,10 +349,6 @@ pref("mailnews.customDBHeaders", "");
 // close standalone message window when deleting the displayed message
 pref("mail.close_message_window.on_delete", false);
 
-#ifdef MOZ_SUITE
-pref("mailnews.reuse_message_window", true);
-#endif
-
 pref("mailnews.open_window_warning", 10); // warn user if they attempt to open more than this many messages at once
 pref("mailnews.open_tab_warning", 20); // warn user if they attempt to open more than this many messages at once
 
@@ -419,10 +406,6 @@ pref("mail.identity.default.headers", "");
 
 // by default, only collect addresses the user sends to (outgoing)
 // incoming is all spam anyways
-#ifdef MOZ_SUITE
-pref("mail.collect_email_address_incoming", false);
-pref("mail.collect_email_address_newsgroup", false);
-#endif
 pref("mail.collect_email_address_outgoing", true);
 // by default, use the Collected Addressbook for collection
 pref("mail.collect_addressbook", "moz-abmdbdirectory://history.mab");
@@ -713,11 +696,6 @@ pref("mail.biff.use_system_alert", false);
 // add jitter to biff interval
 pref("mail.biff.add_interval_jitter", true);
 
-#ifdef MOZ_SUITE
-// if true, check for new mail even when opening non-mail windows
-pref("mail.biff.on_new_window", true);
-#endif
-
 // For feed account serverType=rss sound on biff; if true, mail.biff.play_sound.* settings are used.
 pref("mail.feed.play_sound", false);
 
@@ -823,17 +801,6 @@ pref("mail.password_protect_local_cache", false);
 // import option to skip the first record, recorded so that we can save
 // the users last used preference.
 pref("mailnews.import.text.skipfirstrecord", true);
-
-#ifdef MOZ_SUITE
-// automatically scale attached images that are displayed inline
-pref("mail.enable_automatic_image_resizing", true);
-
-#ifdef XP_WIN
-pref("ldap_2.servers.oe.uri", "moz-aboutlookdirectory://oe/");
-pref("ldap_2.servers.oe.description", "chrome://messenger/locale/addressbook/addressBook.properties");
-pref("ldap_2.servers.oe.dirType", 3);
-#endif
-#endif
 
 // gtk2 (*nix) lacks transparent/translucent drag support (bug 376238), so we
 // want to disable it so people can see where they are dragging things.

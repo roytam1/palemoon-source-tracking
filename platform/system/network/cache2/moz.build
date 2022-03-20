@@ -44,8 +44,8 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    '/netwerk/base',
-    '/netwerk/cache',
+    '/system/network/base',
+    '/system/network/cache',
 ]
 
 FINAL_LIBRARY = 'xul'

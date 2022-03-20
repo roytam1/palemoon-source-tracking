@@ -4,9 +4,14 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(ab6650cf-0806-4aea-b8f2-40fdae74f1cc)]
+[scriptable, uuid(2d4202b9-4d2f-46f1-bb6a-e9a117dff66c)]
 interface nsIPlatformInfo : nsISupports
 {
+  /**
+   * The /true/ version of the Goanna Runtime Environment.
+   */
+  readonly attribute ACString greVersion;
+
   /**
    * The version of the XULRunner platform.
    */

@@ -10,6 +10,7 @@
 #include "nsIAutoConfig.h"
 #include "nsIComponentManager.h"
 #include "nsIFile.h"
+#include "nsIFileStreams.h"
 #include "nsIObserverService.h"
 #include "nsIPrefBranch.h"
 #include "nsIPrefService.h"
@@ -25,6 +26,10 @@
 #include "nspr.h"
 #include "nsXULAppAPI.h"
 #include "nsContentUtils.h"
+
+#include "mozilla/Logging.h"
+
+using mozilla::LogLevel;
 
 extern mozilla::LazyLogModule MCD;
 

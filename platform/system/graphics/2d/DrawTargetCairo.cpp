@@ -23,13 +23,6 @@
 #include "Logging.h"
 #include "Tools.h"
 
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-#include "cairo-quartz.h"
-#ifdef MOZ_WIDGET_COCOA
-#include <ApplicationServices/ApplicationServices.h>
-#endif
-#endif
-
 #ifdef CAIRO_HAS_XLIB_SURFACE
 #include "cairo-xlib.h"
 #include "cairo-xlib-xrender.h"
@@ -166,10 +159,6 @@ SupportsSelfCopy(cairo_surface_t* surface)
 {
   switch (cairo_surface_get_type(surface))
   {
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-    case CAIRO_SURFACE_TYPE_QUARTZ:
-      return true;
-#endif
 #ifdef CAIRO_HAS_WIN32_SURFACE
     case CAIRO_SURFACE_TYPE_WIN32:
     case CAIRO_SURFACE_TYPE_WIN32_PRINTING:
@@ -1849,12 +1838,6 @@ DrawTargetCairo::CreateSimilarDrawTarget(const IntSize &aSize, SurfaceFormat aFo
     case CAIRO_SURFACE_TYPE_WIN32:
       similar = cairo_win32_surface_create_with_dib(
         GfxFormatToCairoFormat(aFormat), aSize.width, aSize.height);
-      break;
-#endif
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-    case CAIRO_SURFACE_TYPE_QUARTZ:
-      similar = cairo_quartz_surface_create_cg_layer(
-        mSurface, GfxFormatToCairoContent(aFormat), aSize.width, aSize.height);
       break;
 #endif
     default:

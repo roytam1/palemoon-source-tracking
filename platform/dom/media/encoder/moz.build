@@ -28,7 +28,7 @@ if CONFIG['MOZ_WEBM_ENCODER']:
     SOURCES += ['VP8TrackEncoder.cpp',
     ]
 
-    LOCAL_INCLUDES += ['/media/libyuv/include']
+    LOCAL_INCLUDES += ['/libs/libyuv/include']
 
 FINAL_LIBRARY = 'xul'
 

@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Script to update the mozilla in-tree copy of the woff2 library.
-# Run this within the /modules/woff2 directory of the source tree.
+# Run this within the /libs/woff2 directory of the source tree.
 
 MY_TEMP_DIR=`mktemp -d -t woff2_update.XXXXXX` || exit 1
 

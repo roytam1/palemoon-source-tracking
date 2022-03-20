@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-toolkit.jar:
+classic.jar:
 #include ../../shared/mozapps.inc.mn
   skin/classic/mozapps/downloads/downloadIcon.png            (downloads/downloadIcon.png)
   skin/classic/mozapps/downloads/downloads.css               (downloads/downloads.css)
@@ -30,7 +30,6 @@ toolkit.jar:
   skin/classic/mozapps/extensions/themeGeneric-16.png        (extensions/themeGeneric-16.png)
   skin/classic/mozapps/extensions/dictionaryGeneric.png      (extensions/dictionaryGeneric.png)
   skin/classic/mozapps/extensions/dictionaryGeneric-16.png   (extensions/dictionaryGeneric-16.png)
-  skin/classic/mozapps/extensions/experimentGeneric.png      (extensions/experimentGeneric.png)
   skin/classic/mozapps/extensions/localeGeneric.png          (extensions/localeGeneric.png)
   skin/classic/mozapps/extensions/rating-won.png             (extensions/rating-won.png)
   skin/classic/mozapps/extensions/rating-not-won.png         (extensions/rating-not-won.png)
@@ -62,7 +61,7 @@ toolkit.jar:
   skin/classic/mozapps/update/updates.css                    (update/updates.css)
   skin/classic/mozapps/viewsource/viewsource.css             (viewsource/viewsource.css)
 
-#ifdef MOZ_PHOENIX
+#if defined(MOZ_PHOENIX) && !defined(MC_PALEMOON)
 [browser/extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:
 #elif MOZ_SEPARATE_MANIFEST_FOR_THEME_OVERRIDES
 [extensions/{972ce4c6-7e08-4474-a285-3208198ce6fd}] chrome.jar:

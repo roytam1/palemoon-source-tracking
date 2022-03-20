@@ -111,7 +111,7 @@ gfxPrefs::Pref::SetChangeCallback(ChangeCallback aCallback)
   FireChangeCallback();
 }
 
-// On lightweight processes such as for GMP and GPU, XPCOM is not initialized,
+// On lightweight processes such as for GPU, XPCOM is not initialized,
 // and therefore we don't have access to Preferences. When XPCOM is not
 // available we rely on manual synchronization of gfxPrefs values over IPC.
 /* static */ bool

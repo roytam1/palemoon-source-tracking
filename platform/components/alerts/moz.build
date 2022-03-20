@@ -3,28 +3,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += [
-    'nsIAlertsService.idl',
-]
+XPIDL_SOURCES += ['public/nsIAlertsService.idl']
 
-XPIDL_MODULE = 'alerts'
-
-EXPORTS += ['nsAlertsUtils.h']
+EXPORTS += ['src/nsAlertsUtils.h']
 
 EXPORTS.mozilla += [
-    'AlertNotification.h',
-    'AlertNotificationIPCSerializer.h',
+    'src/AlertNotification.h',
+    'src/AlertNotificationIPCSerializer.h',
 ]
 
 UNIFIED_SOURCES += [
-    'AlertNotification.cpp',
-    'nsAlertsService.cpp',
-    'nsAlertsUtils.cpp',
-    'nsXULAlerts.cpp',
+    'src/AlertNotification.cpp',
+    'src/nsAlertsService.cpp',
+    'src/nsAlertsUtils.cpp',
+    'src/nsXULAlerts.cpp',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')
 
+XPIDL_MODULE = 'alerts'
 FINAL_LIBRARY = 'xul'
-
 JAR_MANIFESTS += ['jar.mn']

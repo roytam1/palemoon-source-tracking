@@ -24,14 +24,14 @@ cairo_win32_printing_surface_create (HDC hdc);
 
 cairo_public cairo_surface_t *
 cairo_win32_surface_create_with_ddb (HDC hdc,
-                                     cairo_format_t format,
-                                     int width,
-                                     int height);
+                   cairo_format_t format,
+                   int width,
+                   int height);
 
 cairo_public cairo_surface_t *
 cairo_win32_surface_create_with_dib (cairo_format_t format,
-                                     int width,
-                                     int height);
+                   int width,
+                   int height);
 cairo_public HDC
 cairo_win32_surface_get_dc (cairo_surface_t *surface);
 
@@ -72,7 +72,7 @@ cairo_win32_font_face_create_for_logfontw_hfont (LOGFONTW *logfont, HFONT font);
 
 cairo_public cairo_status_t
 cairo_win32_scaled_font_select_font (cairo_scaled_font_t *scaled_font,
-				     HDC                  hdc);
+                   HDC          hdc);
 
 cairo_public void
 cairo_win32_scaled_font_done_font (cairo_scaled_font_t *scaled_font);
@@ -82,11 +82,11 @@ cairo_win32_scaled_font_get_metrics_factor (cairo_scaled_font_t *scaled_font);
 
 cairo_public void
 cairo_win32_scaled_font_get_logical_to_device (cairo_scaled_font_t *scaled_font,
-					       cairo_matrix_t *logical_to_device);
+                         cairo_matrix_t *logical_to_device);
 
 cairo_public void
 cairo_win32_scaled_font_get_device_to_logical (cairo_scaled_font_t *scaled_font,
-					       cairo_matrix_t *device_to_logical);
+                         cairo_matrix_t *device_to_logical);
 
 #endif /* CAIRO_HAS_WIN32_FONT */
 
@@ -124,8 +124,8 @@ cairo_win32_surface_create_with_d3dsurface9 (struct IDirect3DSurface9 *surface);
 
 struct _cairo_device
 {
-    int type;
-    int refcount;
+  int type;
+  int refcount;
 };
 
 /**
@@ -193,9 +193,9 @@ cairo_d2d_surface_create_for_hwnd(cairo_device_t *device, HWND wnd, cairo_conten
  */
 cairo_public cairo_surface_t *
 cairo_d2d_surface_create(cairo_device_t *device,
-			 cairo_format_t format,
-                         int width,
-                         int height);
+             cairo_format_t format,
+             int width,
+             int height);
 
 /**
  * Create a D3D surface from a Texture SharedHandle, this is obtained from a
@@ -224,8 +224,8 @@ cairo_d2d_surface_create_for_handle(cairo_device_t *device, HANDLE handle, cairo
  */
 cairo_public cairo_surface_t *
 cairo_d2d_surface_create_for_texture(cairo_device_t *device,
-				     struct ID3D10Texture2D *texture,
-				     cairo_content_t content);
+                   struct ID3D10Texture2D *texture,
+                   cairo_content_t content);
 
 /**
  * Get the ID3D10Texture2D used for a surface.

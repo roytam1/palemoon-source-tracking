@@ -32,7 +32,7 @@ NS_ShutdownLocalFile()
   nsLocalFile::GlobalShutdown();
 }
 
-#if !defined(MOZ_WIDGET_COCOA) && !defined(XP_WIN)
+#if !defined(XP_WIN)
 NS_IMETHODIMP
 nsLocalFile::InitWithFile(nsIFile* aFile)
 {

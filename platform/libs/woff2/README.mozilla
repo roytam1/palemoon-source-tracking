@@ -9,7 +9,7 @@ and cloned by
 
 The in-tree copy is updated by running
   sh update.sh
-from within the modules/woff2 directory.
+from within the libs/woff2 directory.
 
 Currently no patching is needed. (Let's keep it that way if we can!)
 

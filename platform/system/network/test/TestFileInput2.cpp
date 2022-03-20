@@ -323,8 +323,8 @@ Test(CreateFun create, uint32_t count,
 
     nsAutoCString inDir;
     nsAutoCString outDir;
-    (void)inDirSpec->GetNativePath(inDir);
-    (void)outDirSpec->GetNativePath(outDir);
+    (void)inDirSpec->GetPersistentDescriptor(inDir);
+    (void)outDirSpec->GetPersistentDescriptor(outDir);
     printf("###########\nTest: from %s to %s, bufSize = %d\n",
            inDir.get(), outDir.get(), bufSize);
     gTimeSampler.Reset();

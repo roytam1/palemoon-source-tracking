@@ -5,120 +5,15 @@
 
 SPHINX_TREES['toolkit_modules'] = 'docs'
 
-EXTRA_JS_MODULES += [
-    'addons/MatchPattern.jsm',
-    'addons/WebNavigation.jsm',
-    'addons/WebNavigationContent.js',
-    'addons/WebNavigationFrames.jsm',
-    'addons/WebRequestCommon.jsm',
-    'addons/WebRequestContent.js',
-    'addons/WebRequestUpload.jsm',
-    'AsyncPrefs.jsm',
-    'Battery.jsm',
-    'BinarySearch.jsm',
-    'BrowserUtils.jsm',
-    'CanonicalJSON.jsm',
-    'CertUtils.jsm',
-    'CharsetMenu.jsm',
-    'ClientID.jsm',
-    'Color.jsm',
-    'Console.jsm',
-    'DateTimePickerHelper.jsm',
-    'debug.js',
-    'DeferredTask.jsm',
-    'Deprecated.jsm',
-    'ExtensionStorage.jsm',
-    'FileUtils.jsm',
-    'Finder.jsm',
-    'FinderHighlighter.jsm',
-    'FinderIterator.jsm',
-    'FormLikeFactory.jsm',
-    'Geometry.jsm',
-    'Http.jsm',
-    'InlineSpellChecker.jsm',
-    'InlineSpellCheckerContent.jsm',
-    'Integration.jsm',
-    'JSONFile.jsm',
-    'LoadContextInfo.jsm',
-    'Locale.jsm',
-    'Log.jsm',
-    'Memory.jsm',
-    'NewTabUtils.jsm',
-    'NLP.jsm',
-    'ObjectUtils.jsm',
-    'PageMenu.jsm',
-    'PageMetadata.jsm',
-    'PermissionsUtils.jsm',
-    'PopupNotifications.jsm',
-    'Preferences.jsm',
-    'PrivateBrowsingUtils.jsm',
-    'ProfileAge.jsm',
-    'Promise-backend.js',
-    'Promise.jsm',
-    'PromiseMessage.jsm',
-    'PromiseUtils.jsm',
-    'PropertyListUtils.jsm',
-    'RemoteController.jsm',
-    'RemoteFinder.jsm',
-    'RemotePageManager.jsm',
-    'RemoteSecurityUI.jsm',
-    'RemoteWebProgress.jsm',
-    'ResponsivenessMonitor.jsm',
-    'SelectContentHelper.jsm',
-    'SelectParentHelper.jsm',
-    'ServiceRequest.jsm',
-    'SessionRecorder.jsm',
-    'sessionstore/FormData.jsm',
-    'sessionstore/ScrollPosition.jsm',
-    'sessionstore/XPathGenerator.jsm',
-    'ShortcutUtils.jsm',
-    'Sntp.jsm',
-    'SpatialNavigation.jsm',
-    'Sqlite.jsm',
-    'Task.jsm',
-    'Timer.jsm',
-    'WebChannel.jsm',
-    'ZipUtils.jsm',
-]
-EXTRA_JS_MODULES.third_party.jsesc += ['third_party/jsesc/jsesc.js']
-EXTRA_JS_MODULES.sessionstore += ['sessionstore/Utils.jsm']
-
-EXTRA_PP_JS_MODULES += [
-    'addons/WebRequest.jsm',
-    'ResetProfile.jsm',
-    'Troubleshoot.jsm',
-    'UpdateUtils.jsm',
-    'WindowDraggingUtils.jsm',
-]
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
-    DEFINES['MENUBAR_CAN_AUTOHIDE'] = 1
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
-    DEFINES['HAVE_SHELL_SERVICE'] = 1
-
-EXTRA_PP_JS_MODULES += [
-    'AppConstants.jsm',
-    'Services.jsm',
-]
-
-
-EXTRA_JS_MODULES += [
-    'LightweightThemeConsumer.jsm',
-]
-
 DIRS += [
-    'subprocess',
+  'libmar',
+  'subprocess',
 ]
 
+if CONFIG['MOZ_MAILNEWS']:
+  DIRS += ['ldap']
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    EXTRA_JS_MODULES += [
-        'WindowsRegistry.jsm',
-    ]
-
-for var in ('ANDROID_PACKAGE_NAME',
-            'MOZ_APP_NAME',
+for var in ('MOZ_APP_NAME',
             'MOZ_APP_VERSION',
             'MOZ_APP_VERSION_DISPLAY',
             'MOZ_MACBUNDLE_NAME',
@@ -127,12 +22,109 @@ for var in ('ANDROID_PACKAGE_NAME',
             'DLL_PREFIX',
             'DLL_SUFFIX',
             'DEBUG_JS_MODULES'):
-            DEFINES[var] = CONFIG[var]
+  DEFINES[var] = CONFIG[var]
 
-for var in ('MOZ_TOOLKIT_SEARCH',
-            'MOZ_UPDATER',
-            'MOZ_SWITCHBOARD'):
-    if CONFIG[var]:
-        DEFINES[var] = True
+for var in ('MOZ_TOOLKIT_SEARCH', 'MOZ_UPDATER', 'MOZ_SWITCHBOARD'):
+  if CONFIG[var]:
+    DEFINES[var] = True
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
+  DEFINES['MENUBAR_CAN_AUTOHIDE'] = 1
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('windows', 'gtk2', 'gtk3'):
+  DEFINES['HAVE_SHELL_SERVICE'] = 1
 
 DEFINES['TOPOBJDIR'] = TOPOBJDIR
+
+EXTRA_JS_MODULES += [
+  'Async.jsm',
+  'AsyncPrefs.jsm',
+  'Battery.jsm',
+  'BinarySearch.jsm',
+  'BrowserUtils.jsm',
+  'CanonicalJSON.jsm',
+  'CertUtils.jsm',
+  'CharsetMenu.jsm',
+  'ClientID.jsm',
+  'Color.jsm',
+  'Console.jsm',
+  'DateTimePickerHelper.jsm',
+  'debug.js',
+  'DeferredTask.jsm',
+  'Deprecated.jsm',
+  'ExtensionStorage.jsm',
+  'FileUtils.jsm',
+  'Finder.jsm',
+  'FinderHighlighter.jsm',
+  'FinderIterator.jsm',
+  'ForgetAboutSite.jsm',
+  'FormLikeFactory.jsm',
+  'Geometry.jsm',
+  'Http.jsm',
+  'InlineSpellChecker.jsm',
+  'InlineSpellCheckerContent.jsm',
+  'Integration.jsm',
+  'JSONFile.jsm',
+  'LoadContextInfo.jsm',
+  'Locale.jsm',
+  'Log.jsm',
+  'Memory.jsm',
+  'NewTabUtils.jsm',
+  'NLP.jsm',
+  'ObjectUtils.jsm',
+  'PageMenu.jsm',
+  'PageMetadata.jsm',
+  'PermissionsUtils.jsm',
+  'PopupNotifications.jsm',
+  'Preferences.jsm',
+  'PrivateBrowsingUtils.jsm',
+  'ProfileAge.jsm',
+  'Promise-backend.js',
+  'Promise.jsm',
+  'PromiseMessage.jsm',
+  'PromiseUtils.jsm',
+  'PropertyListUtils.jsm',
+  'RemoteController.jsm',
+  'RemoteFinder.jsm',
+  'RemotePageManager.jsm',
+  'RemoteSecurityUI.jsm',
+  'RemoteWebProgress.jsm',
+  'ResponsivenessMonitor.jsm',
+  'SelectContentHelper.jsm',
+  'SelectParentHelper.jsm',
+  'ServiceRequest.jsm',
+  'SessionRecorder.jsm',
+  'sessionstore/FormData.jsm',
+  'sessionstore/ScrollPosition.jsm',
+  'sessionstore/XPathGenerator.jsm',
+  'ShortcutUtils.jsm',
+  'Sntp.jsm',
+  'SpatialNavigation.jsm',
+  'Sqlite.jsm',
+  'Task.jsm',
+  'Timer.jsm',
+  'WebChannel.jsm',
+  'webrequest/MatchPattern.jsm',
+  'webrequest/WebNavigation.jsm',
+  'webrequest/WebNavigationContent.js',
+  'webrequest/WebNavigationFrames.jsm',
+  'webrequest/WebRequestCommon.jsm',
+  'webrequest/WebRequestContent.js',
+  'webrequest/WebRequestUpload.jsm',
+  'ZipUtils.jsm',
+]
+
+if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+    EXTRA_JS_MODULES += ['WindowsRegistry.jsm']
+
+EXTRA_PP_JS_MODULES += [
+  'AppConstants.jsm',
+  'ResetProfile.jsm',
+  'Services.jsm',
+  'Troubleshoot.jsm',
+  'UpdateUtils.jsm',
+  'webrequest/WebRequest.jsm',
+  'WindowDraggingUtils.jsm',
+]
+
+EXTRA_JS_MODULES.sessionstore += ['sessionstore/Utils.jsm']

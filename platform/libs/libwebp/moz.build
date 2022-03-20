@@ -21,7 +21,7 @@ DIRS += [
     'utils',
 ]
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True

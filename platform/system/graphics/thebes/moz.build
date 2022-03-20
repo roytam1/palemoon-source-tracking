@@ -105,6 +105,9 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
         'PrintTargetWindows.h',
     ]
     SOURCES += [
+        'gfxDWriteCommon.cpp',
+        'gfxDWriteFontList.cpp',
+        'gfxDWriteFonts.cpp',
         'gfxGDIFont.cpp',
         'gfxGDIFontList.cpp',
         'gfxWindowsNativeDrawing.cpp',
@@ -113,12 +116,6 @@ elif CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
         'PrintTargetPDF.cpp',
         'PrintTargetWindows.cpp',
     ]
-    if CONFIG['MOZ_ENABLE_DWRITE_FONT']:
-        SOURCES += [
-            'gfxDWriteCommon.cpp',
-            'gfxDWriteFontList.cpp',
-            'gfxDWriteFonts.cpp',
-        ]
 
 # Are we targeting x86 or x64?  If so, build gfxAlphaRecoverySSE2.cpp.
 if CONFIG['INTEL_ARCHITECTURE']:
@@ -197,7 +194,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'gtk3'):
     DEFINES['MOZ_ENABLE_FREETYPE'] = True
 
 if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
-    for var in ('MOZ_ENABLE_D3D9_LAYER', 'MOZ_ENABLE_D3D10_LAYER'):
+    for var in ('MOZ_ENABLE_D3D10_LAYER'):
         if CONFIG[var]:
             DEFINES[var] = True
 
@@ -210,7 +207,7 @@ if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'gtk3'):
     CXXFLAGS += CONFIG['MOZ_PANGO_CFLAGS']
 
 LOCAL_INCLUDES += CONFIG['SKIA_INCLUDES']
-LOCAL_INCLUDES += ['/media/libyuv/include']
+LOCAL_INCLUDES += ['/libs/libyuv/include']
 
 DEFINES['GRAPHITE2_STATIC'] = True
 

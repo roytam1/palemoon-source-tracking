@@ -9,6 +9,6 @@ and cloned by
 
 The in-tree copy is updated by running
   sh update.sh
-from within the modules/brotli directory.
+from within the libs/brotli directory.
 
 Current version: 1.0.9 Re-release [commit e61745a6b7add50d380cfd7d3883dd6c62fc2c71].

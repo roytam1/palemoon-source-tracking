@@ -12,9 +12,6 @@
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/MathAlgorithms.h"
 #include "mozilla/AsyncEventDispatcher.h"
-#ifdef MOZ_EME
-#include "mozilla/dom/MediaEncryptedEvent.h"
-#endif
 
 #include "base/basictypes.h"
 #include "nsIDOMHTMLMediaElement.h"
@@ -516,15 +513,6 @@ HTMLMediaElement::MediaLoadListener::OnStartRequest(nsIRequest* aRequest,
   NS_ENSURE_SUCCESS(rv, rv);
   if (NS_FAILED(status)) {
     if (element) {
-      // Handle media not loading error because source was a tracking URL.
-      // We make a note of this media node by including it in a dedicated
-      // array of blocked tracking nodes under its parent document.
-      if (status == NS_ERROR_TRACKING_URI) {
-        nsIDocument* ownerDoc = element->OwnerDoc();
-        if (ownerDoc) {
-          ownerDoc->AddBlockedTrackingNode(element);
-        }
-      }
       element->NotifyLoadError();
     }
     return status;
@@ -664,7 +652,6 @@ public:
                                 nullptr,   // aCallbacks
                                 nsICachingChannel::LOAD_BYPASS_LOCAL_CACHE_IF_BUSY |
                                 nsIChannel::LOAD_MEDIA_SNIFFER_OVERRIDES_CONTENT_TYPE |
-                                nsIChannel::LOAD_CLASSIFY_URI |
                                 nsIChannel::LOAD_CALL_CONTENT_SNIFFERS);
 
     if (NS_FAILED(rv)) {
@@ -887,9 +874,6 @@ NS_IMPL_CYCLE_COLLECTION_TRAVERSE_BEGIN_INHERITED(HTMLMediaElement, nsGenericHTM
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mTextTrackManager)
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mAudioTrackList)
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mVideoTrackList)
-#ifdef MOZ_EME
-  NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mMediaKeys)
-#endif
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mSelectedVideoStreamTrack)
   NS_IMPL_CYCLE_COLLECTION_TRAVERSE(mPendingPlayPromises)
 NS_IMPL_CYCLE_COLLECTION_TRAVERSE_END
@@ -915,9 +899,6 @@ NS_IMPL_CYCLE_COLLECTION_UNLINK_BEGIN_INHERITED(HTMLMediaElement, nsGenericHTMLE
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mTextTrackManager)
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mAudioTrackList)
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mVideoTrackList)
-#ifdef MOZ_EME
-  NS_IMPL_CYCLE_COLLECTION_UNLINK(mMediaKeys)
-#endif
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mSelectedVideoStreamTrack)
   NS_IMPL_CYCLE_COLLECTION_UNLINK(mPendingPlayPromises)
 NS_IMPL_CYCLE_COLLECTION_UNLINK_END
@@ -1170,9 +1151,6 @@ void HTMLMediaElement::AbortExistingLoads()
   mDownloadSuspendedByCache = false;
   mMediaInfo = MediaInfo();
   mIsEncrypted = false;
-#ifdef MOZ_EME
-  mPendingEncryptedInitData.mInitDatas.Clear();
-#endif
   mWaitingForKey = NOT_WAITING_FOR_KEY;
   mSourcePointer = nullptr;
 
@@ -1860,20 +1838,6 @@ nsresult HTMLMediaElement::LoadResource()
 
   // Set the media element's CORS mode only when loading a resource
   mCORSMode = AttrValueToCORSMode(GetParsedAttr(nsGkAtoms::crossorigin));
-
-#ifdef MOZ_EME
-  bool isBlob = false;
-  if (mMediaKeys &&
-      Preferences::GetBool("media.eme.mse-only", true) &&
-      // We only want mediaSource URLs, but they are BlobURL, so we have to
-      // check the schema and abort if they are not MediaStream or real Blob.
-      (NS_FAILED(mLoadingSrc->SchemeIs(BLOBURI_SCHEME, &isBlob)) ||
-       !isBlob ||
-       IsMediaStreamURI(mLoadingSrc) ||
-       IsBlobURI(mLoadingSrc))) {
-    return NS_ERROR_DOM_NOT_SUPPORTED_ERR;
-  }
-#endif
 
   HTMLMediaElement* other = LookupMediaElementURITable(mLoadingSrc);
   if (other && other->mDecoder) {
@@ -2790,11 +2754,6 @@ HTMLMediaElement::CaptureStreamInternal(bool aFinishWhenEnded,
   if (!window) {
     return nullptr;
   }
-#ifdef MOZ_EME
-  if (ContainsRestrictedContent()) {
-    return nullptr;
-  }
-#endif
 
   if (!mOutputStreams.IsEmpty() &&
       aGraph != mOutputStreams[0].mStream->GetInputStream()->Graph()) {
@@ -3991,25 +3950,6 @@ nsresult HTMLMediaElement::FinishDecoderSetup(MediaDecoder* aDecoder,
                               ms.mFinishWhenEnded);
   }
 
-#ifdef MOZ_EME
-  if (mMediaKeys) {
-    if (mMediaKeys->GetCDMProxy()) {
-      mDecoder->SetCDMProxy(mMediaKeys->GetCDMProxy());
-    } else {
-      // CDM must have crashed.
-      ShutdownDecoder();
-      return NS_ERROR_FAILURE;
-    }
-  }
-
-  MediaEventSource<void>* waitingForKeyProducer = mDecoder->WaitingForKeyEvent();
-  // Not every decoder will produce waitingForKey events, only add ones that can
-  if (waitingForKeyProducer) {
-    mWaitingForKeyListener = waitingForKeyProducer->Connect(
-      AbstractThread::MainThread(), this, &HTMLMediaElement::CannotDecryptWaitingForKey);
-  }
-#endif
-
   if (mChannelLoader) {
     mChannelLoader->Done();
     mChannelLoader = nullptr;
@@ -4464,11 +4404,7 @@ void HTMLMediaElement::MetadataLoaded(const MediaInfo* aInfo,
 
   SetMediaInfo(*aInfo);
 
-  mIsEncrypted = aInfo->IsEncrypted()
-#ifdef MOZ_EME
-                 || mPendingEncryptedInitData.IsEncrypted()
-#endif
-                 ;
+  mIsEncrypted = aInfo->IsEncrypted();
   mTags = aTags.forget();
   mLoadedDataFired = false;
   ChangeReadyState(nsIDOMHTMLMediaElement::HAVE_METADATA);
@@ -4493,14 +4429,6 @@ void HTMLMediaElement::MetadataLoaded(const MediaInfo* aInfo,
                               "Encrypted content not supported outside of MSE"));
       return;
     }
-
-#ifdef MOZ_EME
-    // Dispatch a distinct 'encrypted' event for each initData we have.
-    for (const auto& initData : mPendingEncryptedInitData.mInitDatas) {
-      DispatchEncrypted(initData.mInitData, initData.mType);
-    }
-    mPendingEncryptedInitData.mInitDatas.Clear();
-#endif
   }
 
   mWatchManager.ManualNotify(&HTMLMediaElement::UpdateReadyStateInternal);
@@ -5434,29 +5362,12 @@ void HTMLMediaElement::SuspendOrResumeElement(bool aPauseElement, bool aSuspendE
     UpdateSrcMediaStreamPlaying();
     UpdateAudioChannelPlayingState();
     if (aPauseElement) {
-#ifdef MOZ_EME
-      // For EME content, we may force destruction of the CDM client (and CDM
-      // instance if this is the last client for that CDM instance) and
-      // the CDM's decoder. This ensures the CDM gets reliable and prompt
-      // shutdown notifications, as it may have book-keeping it needs
-      // to do on shutdown.
-      if (mMediaKeys) {
-        mMediaKeys->Shutdown();
-        mMediaKeys = nullptr;
-        if (mDecoder) {
-          ShutdownDecoder();
-        }
-      }
-#endif
       if (mDecoder) {
         mDecoder->Pause();
         mDecoder->Suspend();
       }
       mEventDeliveryPaused = aSuspendEvents;
     } else {
-#ifdef MOZ_EME
-      MOZ_ASSERT(!mMediaKeys);
-#endif
       if (mDecoder) {
         mDecoder->Resume();
         if (!mPaused && !mDecoder->IsEnded()) {
@@ -5492,17 +5403,6 @@ void HTMLMediaElement::NotifyOwnerDocumentActivityChanged()
 
   bool pauseElement = ShouldElementBePaused();
   SuspendOrResumeElement(pauseElement, !IsActive());
-
-#ifdef MOZ_EME
-  // If the owning document has become inactive we should shutdown the CDM.
-  if (!OwnerDoc()->IsCurrentActiveDocument() && mMediaKeys) {
-      mMediaKeys->Shutdown();
-      mMediaKeys = nullptr;
-      if (mDecoder) {
-        ShutdownDecoder();
-      }
-    }
-#endif
 
   AddRemoveSelfReference();
 }
@@ -6263,236 +6163,6 @@ HTMLMediaElement::OnVisibilityChange(Visibility aNewVisibility)
   }
 
 }
-
-#ifdef MOZ_EME
-MediaKeys*
-HTMLMediaElement::GetMediaKeys() const
-{
-  return mMediaKeys;
-}
-
-bool
-HTMLMediaElement::ContainsRestrictedContent()
-{
-  return GetMediaKeys() != nullptr;
-}
-
-already_AddRefed<Promise>
-HTMLMediaElement::SetMediaKeys(mozilla::dom::MediaKeys* aMediaKeys,
-                               ErrorResult& aRv)
-{
-  LOG(LogLevel::Debug, ("%p SetMediaKeys(%p) mMediaKeys=%p mDecoder=%p",
-    this, aMediaKeys, mMediaKeys.get(), mDecoder.get()));
-
-  if (MozAudioCaptured()) {
-    aRv.Throw(NS_ERROR_DOM_NOT_SUPPORTED_ERR);
-    return nullptr;
-  }
-
-  nsCOMPtr<nsIGlobalObject> global =
-    do_QueryInterface(OwnerDoc()->GetInnerWindow());
-  if (!global) {
-    aRv.Throw(NS_ERROR_UNEXPECTED);
-    return nullptr;
-  }
-  RefPtr<DetailedPromise> promise = DetailedPromise::Create(global, aRv,
-    NS_LITERAL_CSTRING("HTMLMediaElement.setMediaKeys"));
-  if (aRv.Failed()) {
-    return nullptr;
-  }
-
-  // 1. If mediaKeys and the mediaKeys attribute are the same object,
-  // return a resolved promise.
-  if (mMediaKeys == aMediaKeys) {
-    promise->MaybeResolveWithUndefined();
-    return promise.forget();
-  }
-
-  // Note: Our attaching code is synchronous, so we can skip the following steps.
-
-  // 2. If this object's attaching media keys value is true, return a
-  // promise rejected with a new DOMException whose name is InvalidStateError.
-  // 3. Let this object's attaching media keys value be true.
-  // 4. Let promise be a new promise.
-  // 5. Run the following steps in parallel:
-
-  // 5.1 If mediaKeys is not null, CDM instance represented by mediaKeys is
-  // already in use by another media element, and the user agent is unable
-  // to use it with this element, let this object's attaching media keys
-  // value be false and reject promise with a new DOMException whose name
-  // is QuotaExceededError.
-  if (aMediaKeys && aMediaKeys->IsBoundToMediaElement()) {
-    promise->MaybeReject(NS_ERROR_DOM_QUOTA_EXCEEDED_ERR,
-      NS_LITERAL_CSTRING("MediaKeys object is already bound to another HTMLMediaElement"));
-    return promise.forget();
-  }
-
-  // 5.2 If the mediaKeys attribute is not null, run the following steps:
-  if (mMediaKeys) {
-    // 5.2.1 If the user agent or CDM do not support removing the association,
-    // let this object's attaching media keys value be false and reject promise
-    // with a new DOMException whose name is NotSupportedError.
-
-    // 5.2.2 If the association cannot currently be removed, let this object's
-    // attaching media keys value be false and reject promise with a new
-    // DOMException whose name is InvalidStateError.
-    if (mDecoder) {
-      // We don't support swapping out the MediaKeys once we've started to
-      // setup the playback pipeline. Note this also means we don't need to worry
-      // about handling disassociating the MediaKeys from the MediaDecoder.
-      promise->MaybeReject(NS_ERROR_DOM_INVALID_STATE_ERR,
-        NS_LITERAL_CSTRING("Can't change MediaKeys on HTMLMediaElement after load has started"));
-      return promise.forget();
-    }
-
-    // 5.2.3 Stop using the CDM instance represented by the mediaKeys attribute
-    // to decrypt media data and remove the association with the media element.
-    mMediaKeys->Unbind();
-    mMediaKeys = nullptr;
-
-    // 5.2.4 If the preceding step failed, let this object's attaching media
-    // keys value be false and reject promise with a new DOMException whose
-    // name is the appropriate error name.
-  }
-
-  // 5.3. If mediaKeys is not null, run the following steps:
-  if (aMediaKeys) {
-    if (!aMediaKeys->GetCDMProxy()) {
-      promise->MaybeReject(NS_ERROR_DOM_INVALID_STATE_ERR,
-        NS_LITERAL_CSTRING("CDM crashed before binding MediaKeys object to HTMLMediaElement"));
-      return promise.forget();
-    }
-
-    // 5.3.1 Associate the CDM instance represented by mediaKeys with the
-    // media element for decrypting media data.
-    if (NS_FAILED(aMediaKeys->Bind(this))) {
-      // 5.3.2 If the preceding step failed, run the following steps:
-      // 5.3.2.1 Set the mediaKeys attribute to null.
-      mMediaKeys = nullptr;
-      // 5.3.2.2 Let this object's attaching media keys value be false.
-      // 5.3.2.3 Reject promise with a new DOMException whose name is
-      // the appropriate error name.
-      promise->MaybeReject(NS_ERROR_DOM_INVALID_STATE_ERR,
-                           NS_LITERAL_CSTRING("Failed to bind MediaKeys object to HTMLMediaElement"));
-      return promise.forget();
-    }
-    // 5.3.3 Queue a task to run the "Attempt to Resume Playback If Necessary"
-    // algorithm on the media element.
-    // Note: Setting the CDMProxy on the MediaDecoder will unblock playback.
-    if (mDecoder) {
-      mDecoder->SetCDMProxy(aMediaKeys->GetCDMProxy());
-    }
-  }
-
-  // 5.4 Set the mediaKeys attribute to mediaKeys.
-  mMediaKeys = aMediaKeys;
-
-  // 5.5 Let this object's attaching media keys value be false.
-
-  // 5.6 Resolve promise.
-  promise->MaybeResolveWithUndefined();
-
-  // 6. Return promise.
-  return promise.forget();
-}
-
-EventHandlerNonNull*
-HTMLMediaElement::GetOnencrypted()
-{
-  return EventTarget::GetEventHandler(nsGkAtoms::onencrypted, EmptyString());
-}
-
-void
-HTMLMediaElement::SetOnencrypted(EventHandlerNonNull* aCallback)
-{
-  EventTarget::SetEventHandler(nsGkAtoms::onencrypted, EmptyString(), aCallback);
-}
-
-EventHandlerNonNull*
-HTMLMediaElement::GetOnwaitingforkey()
-{
-  return EventTarget::GetEventHandler(nsGkAtoms::onwaitingforkey, EmptyString());
-}
-
-void
-HTMLMediaElement::SetOnwaitingforkey(EventHandlerNonNull* aCallback)
-{
-  EventTarget::SetEventHandler(nsGkAtoms::onwaitingforkey, EmptyString(), aCallback);
-}
-
-void
-HTMLMediaElement::DispatchEncrypted(const nsTArray<uint8_t>& aInitData,
-                                    const nsAString& aInitDataType)
-{
-  LOG(LogLevel::Debug,
-      ("%p DispatchEncrypted initDataType='%s'",
-      this, NS_ConvertUTF16toUTF8(aInitDataType).get()));
-
-  if (mReadyState == nsIDOMHTMLMediaElement::HAVE_NOTHING) {
-    // Ready state not HAVE_METADATA (yet), don't dispatch encrypted now.
-    // Queueing for later dispatch in MetadataLoaded.
-    mPendingEncryptedInitData.AddInitData(aInitDataType, aInitData);
-    return;
-  }
-
-  RefPtr<MediaEncryptedEvent> event;
-  if (IsCORSSameOrigin()) {
-    event = MediaEncryptedEvent::Constructor(this, aInitDataType, aInitData);
-  } else {
-    event = MediaEncryptedEvent::Constructor(this);
-  }
-
-  RefPtr<AsyncEventDispatcher> asyncDispatcher =
-    new AsyncEventDispatcher(this, event);
-  asyncDispatcher->PostDOMEvent();
-}
-
-bool
-HTMLMediaElement::IsEventAttributeName(nsIAtom* aName)
-{
-  return aName == nsGkAtoms::onencrypted ||
-         nsGenericHTMLElement::IsEventAttributeName(aName);
-}
-
-already_AddRefed<nsIPrincipal>
-HTMLMediaElement::GetTopLevelPrincipal()
-{
-  RefPtr<nsIPrincipal> principal;
-  nsCOMPtr<nsPIDOMWindowInner> window = OwnerDoc()->GetInnerWindow();
-  if (!window) {
-    return nullptr;
-  }
-  // XXXkhuey better hope we always have an outer ...
-  nsCOMPtr<nsPIDOMWindowOuter> top = window->GetOuterWindow()->GetTop();
-  if (!top) {
-    return nullptr;
-  }
-  nsIDocument* doc = top->GetExtantDoc();
-  if (!doc) {
-    return nullptr;
-  }
-  principal = doc->NodePrincipal();
-  return principal.forget();
-}
-
-void
-HTMLMediaElement::CannotDecryptWaitingForKey()
-{
-  LOG(LogLevel::Debug, ("%p, CannotDecryptWaitingForKey()", this));
-
-  // http://w3c.github.io/encrypted-media/#wait-for-key
-  // 7.3.4 Queue a "waitingforkey" Event
-  // 1. Let the media element be the specified HTMLMediaElement object.
-  // 2. If the media element's waiting for key value is true, abort these steps.
-  if (mWaitingForKey == NOT_WAITING_FOR_KEY) {
-    // 3. Set the media element's waiting for key value to true.
-    // Note: algorithm continues in UpdateReadyStateInternal() when all decoded
-    // data enqueued in the MDSM is consumed.
-    mWaitingForKey = WAITING_FOR_KEY;
-    UpdateReadyStateInternal();
-  }
-}
-#endif //MOZ_EME
 
 NS_IMETHODIMP HTMLMediaElement::WindowAudioCaptureChanged(bool aCapture)
 {

@@ -3,16 +3,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-# These files cannot be built in unified mode because they include hnjalloc.h.
-SOURCES += [
-    'hyphen.c',
-]
+SOURCES += ['src/hyphen.c']
 
-FINAL_LIBRARY = 'xul'
-
-LOCAL_INCLUDES += [
-    '../glue',
-]
+LOCAL_INCLUDES += ['/system/intl/hyphenation/src']
 
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True
+
+FINAL_LIBRARY = 'xul'

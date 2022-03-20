@@ -78,10 +78,6 @@ LOCAL_INCLUDES += [
     '/layout/generic',
     '/layout/style',
     '/layout/xul/tree',
-    '/media/mtransport',
-    '/media/webrtc/',
-    '/media/webrtc/signaling/src/common/time_profiling',
-    '/media/webrtc/signaling/src/peerconnection',
 ]
 
 SOURCES += [
@@ -115,7 +111,7 @@ FINAL_LIBRARY = 'xul'
 SPHINX_TREES['webidl'] = 'docs'
 SPHINX_PYTHON_PACKAGE_DIRS += ['mozwebidlcodegen']
 
-if CONFIG['MOZ_PHOENIX'] or CONFIG['MOZ_XULRUNNER']:
+if CONFIG['MOZ_PHOENIX']:
     # This is needed for Window.webidl
     DEFINES['HAVE_SIDEBAR'] = True
 

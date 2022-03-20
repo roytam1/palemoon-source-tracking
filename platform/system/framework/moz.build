@@ -103,6 +103,10 @@ EXPORTS.mozilla = [
     'XorShift128PlusRNG.h',
 ]
 
+EXPORTS += [
+    'runnable_utils.h'
+]
+
 if CONFIG['OS_ARCH'] == 'WINNT':
     EXPORTS.mozilla += [
         'WindowsVersion.h',
@@ -126,16 +130,16 @@ DISABLE_STL_WRAPPING = True
 # TODO: Remove these suppressions after bug 993267 is fixed.
 
 if CONFIG['GNU_CXX']:
-    SOURCES['/mfbt/Compression.cpp'].flags += ['-Wno-unused-function']
+    SOURCES['/system/framework/Compression.cpp'].flags += ['-Wno-unused-function']
     CXXFLAGS += ['-Wno-error=shadow']
 
 if CONFIG['CLANG_CXX']:
     # Suppress warnings from third-party V8 Decimal code.
-    SOURCES['/mfbt/decimal/Decimal.cpp'].flags += ['-Wno-implicit-fallthrough']
+    SOURCES['/system/framework/decimal/Decimal.cpp'].flags += ['-Wno-implicit-fallthrough']
 
 if CONFIG['_MSC_VER']:
     # Error 4804 is "'>' : unsafe use of type 'bool' in operation"
-    SOURCES['/mfbt/Compression.cpp'].flags += ['-wd4804']
+    SOURCES['/system/framework/Compression.cpp'].flags += ['-wd4804']
 
 if CONFIG['MOZ_NEEDS_LIBATOMIC']:
     OS_LIBS += ['atomic']

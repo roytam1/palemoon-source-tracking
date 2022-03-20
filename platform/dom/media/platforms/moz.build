@@ -29,12 +29,8 @@ SOURCES += [
 ]
 
 DIRS += [
-    'agnostic/gmp',
     'omx'
 ]
-
-if CONFIG['MOZ_EME']:
-    DIRS += ['agnostic/eme']
 
 if CONFIG['MOZ_WMF']:
     DIRS += [ 'wmf' ];
@@ -62,21 +58,6 @@ if CONFIG['MOZ_AV1']:
     SOURCES += [
         'agnostic/AOMDecoder.cpp',
     ]
-
-if CONFIG['MOZ_APPLEMEDIA']:
-  EXPORTS += [
-      'apple/AppleDecoderModule.h',
-  ]
-  SOURCES += [
-      'apple/AppleATDecoder.cpp',
-      'apple/AppleCMLinker.cpp',
-      'apple/AppleDecoderModule.cpp',
-      'apple/AppleVTDecoder.cpp',
-      'apple/AppleVTLinker.cpp',
-  ]
-  OS_LIBS += [
-      '-framework AudioToolbox',
-  ]
 
 include('/ipc/chromium/chromium-config.mozbuild')
 

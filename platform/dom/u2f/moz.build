@@ -22,8 +22,8 @@ FINAL_LIBRARY = 'xul'
 LOCAL_INCLUDES += [
     '/dom/base',
     '/dom/crypto',
-    '/security/manager/ssl',
-    '/security/pkix/include',
+    '/system/security/manager/ssl',
+    '/system/security/pkix/include',
 ]
 
 MOCHITEST_MANIFESTS += ['tests/mochitest.ini']

@@ -8,10 +8,10 @@
 #include "cairo-surface-private.h"
 
 struct _cairo_surface_snapshot {
-    cairo_surface_t base;
+  cairo_surface_t base;
 
-    cairo_surface_t *target;
-    cairo_surface_t *clone;
+  cairo_surface_t *target;
+  cairo_surface_t *clone;
 };
 
 #endif /* CAIRO_SURFACE_SNAPSHOT_PRIVATE_H */

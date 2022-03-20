@@ -1,0 +1,64 @@
+# -*- Mode: python; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+DIRS += [
+  '/libs',
+  '/config/external/freetype2',
+  '/xpcom',
+]
+
+DIRS += [
+  '/components',
+  '/dom',
+  '/ipc',
+  '/js/ipc',
+  '/js/xpconnect',
+  '/layout',
+  '/modules',
+  '/system',
+]
+
+DIRS += [
+  '/testing/gtest',
+  '/tools/power',
+  '/tools/profiler',
+  '/tools/memory-profiler',
+]
+
+if CONFIG['ACCESSIBILITY']:
+  DIRS += ['/accessible']
+else:
+  DIRS += ['/accessible/ipc']
+
+if CONFIG['MOZ_MAILNEWS']:
+  DIRS += ['/mailnews']
+
+if CONFIG['MOZ_DEVTOOLS_SERVER']:
+    DIRS += ['/devtools']
+
+DIRS += [
+  '/system/evil/StaticXULComponentsEnd',
+  '/system/evil',
+]
+
+if CONFIG['FUZZING']:
+  DIRS += ['/tools/fuzzing']
+
+if CONFIG['ENABLE_TESTS']:
+  DIRS += [
+    '/testing/mochitest',
+    '/testing/xpcshell',
+    '/testing/tools/minidumpwriter',
+    '/testing/tools/screenshot',
+    '/testing/profiles',
+    '/testing/mozbase',
+    '/testing/modules',
+    '/testing/runtimes',
+    '/testing/specialpowers',
+    '/testing/web-platform',
+  ]
+
+  if CONFIG['MOZ_MEMORY']:
+    DIRS += ['/memory/gtest']

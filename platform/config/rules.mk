@@ -348,13 +348,9 @@ ifdef SHARED_LIBRARY
 ifdef IS_COMPONENT
 EXTRA_DSO_LDOPTS	+= -bundle
 else
-ifdef MOZ_IOS
-_LOADER_PATH := @rpath
-else
 _LOADER_PATH := @executable_path
 endif
 EXTRA_DSO_LDOPTS	+= -dynamiclib -install_name $(_LOADER_PATH)/$(SHARED_LIBRARY) -compatibility_version 1 -current_version 1 -single_module
-endif
 endif
 endif
 
@@ -1041,13 +1037,6 @@ normalizepath = $(1)
 endif
 
 ###############################################################################
-# Java rules
-###############################################################################
-ifneq (,$(JAVAFILES)$(ANDROID_RESFILES)$(ANDROID_APKNAME)$(JAVA_JAR_TARGETS))
-  include $(MOZILLA_DIR)/config/makefiles/java-build.mk
-endif
-
-###############################################################################
 # Bunch of things that extend the 'export' rule (in order):
 ###############################################################################
 
@@ -1095,12 +1084,6 @@ ifneq (,$(JAR_MANIFEST))
 ifndef NO_DIST_INSTALL
 
 ifdef XPI_NAME
-# XXX: Figure out why Pale Moon's defs.mk is not being propigated
-ifndef XPI_ROOT_APPID
-ifdef MC_PALEMOON
-XPI_ROOT_APPID=$(MOZ_APP_ID)
-endif
-endif
 ifdef XPI_ROOT_APPID
 # For add-on packaging we may specify that an application
 # sub-dir should be added to the root chrome manifest with

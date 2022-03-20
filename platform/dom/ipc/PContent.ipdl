@@ -21,15 +21,7 @@ include protocol PImageBridge;
 include protocol PMedia;
 include protocol PMemoryReportRequest;
 include protocol PNecko;
-// FIXME This is pretty ridiculous, but we have to keep the order of the
-//       following 4 includes, or the parser is confused about PGMPContent
-//       bridging PContent and PGMP. As soon as it registers the bridge between
-//       PContent and PPluginModule it seems to think that PContent's parent and
-//       child live in the same process!
-include protocol PGMPContent;
-include protocol PGMPService;
 include protocol PPluginModule;
-include protocol PGMP;
 include protocol PPrinting;
 include protocol PSendStream;
 include protocol POfflineCacheUpdate;
@@ -41,7 +33,6 @@ include protocol PTestShell;
 include protocol PJavaScript;
 include protocol PRemoteSpellcheckEngine;
 include protocol PWebBrowserPersistDocument;
-include protocol PWebrtcGlobal;
 include protocol PVideoDecoderManager;
 include DOMTypes;
 include JavaScriptTypes;
@@ -211,25 +202,11 @@ struct BlobURLRegistrationData
     Principal principal;
 };
 
-struct GMPAPITags
-{
-    nsCString api;
-    nsCString[] tags;
-};
-
-struct GMPCapabilityData
-{
-    nsCString name;
-    nsCString version;
-    GMPAPITags[] capabilities;
-};
-
 nested(upto inside_cpow) sync protocol PContent
 {
     parent spawns PPluginModule;
 
     parent opens PProcessHangMonitor;
-    parent opens PGMPService;
     child opens PBackground;
 
     manages PBlob;
@@ -255,7 +232,6 @@ nested(upto inside_cpow) sync protocol PContent
     manages PJavaScript;
     manages PRemoteSpellcheckEngine;
     manages PWebBrowserPersistDocument;
-    manages PWebrtcGlobal;
 
 both:
     // Depending on exactly how the new browser is being created, it might be
@@ -516,9 +492,6 @@ child:
 
     async BlobURLUnregistration(nsCString aURI);
 
-
-    async GMPsChanged(GMPCapabilityData[] capabilities);
-
 parent:
     /**
      * Tell the content process some attributes of itself.  This is
@@ -549,8 +522,6 @@ parent:
                             TabId openerTabId)
         returns (ContentParentId cpId, bool isForApp, bool isForBrowser, TabId tabId);
     sync BridgeToChildProcess(ContentParentId cpId);
-
-    async CreateGMPService();
 
     /**
      * This call connects the content process to a plugin process. While this
@@ -661,8 +632,6 @@ parent:
     nested(inside_cpow) async PStorage();
 
     async PMedia();
-
-    async PWebrtcGlobal();
 
     // Services remoting
 

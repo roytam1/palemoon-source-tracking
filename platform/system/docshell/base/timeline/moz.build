@@ -36,6 +36,4 @@ SOURCES += [
 
 FINAL_LIBRARY = 'xul'
 
-LOCAL_INCLUDES += [
-    '/docshell/base'
-]
+LOCAL_INCLUDES += ['..']

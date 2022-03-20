@@ -13,9 +13,6 @@
 #include "prprf.h"
 #if defined(XP_WIN)
 #include <windows.h>
-#elif defined(MOZ_WIDGET_COCOA)
-#include <CoreServices/CoreServices.h>
-#include "nsCocoaFeatures.h"
 #elif defined(MOZ_WIDGET_GTK)
 #include <gtk/gtk.h>
 #endif
@@ -468,6 +465,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
   NS_NAMED_LITERAL_STRING(kRemoteRequired, "remoterequired");
   NS_NAMED_LITERAL_STRING(kApplication, "application");
   NS_NAMED_LITERAL_STRING(kAppVersion, "appversion");
+  NS_NAMED_LITERAL_STRING(kGoannaVersion, "greversion");
   NS_NAMED_LITERAL_STRING(kGeckoVersion, "platformversion");
   NS_NAMED_LITERAL_STRING(kOs, "os");
   NS_NAMED_LITERAL_STRING(kOsVersion, "osversion");
@@ -482,6 +480,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
 
   nsAutoString appID;
   nsAutoString appVersion;
+  nsAutoString goannaVersion;
   nsAutoString geckoVersion;
   nsAutoString osTarget;
   nsAutoString abi;
@@ -503,6 +502,11 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
     rv = xapp->GetVersion(s);
     if (NS_SUCCEEDED(rv)) {
       CopyUTF8toUTF16(s, appVersion);
+    }
+
+    rv = xapp->GetGreVersion(s);
+    if (NS_SUCCEEDED(rv)) {
+      CopyUTF8toUTF16(s, goannaVersion);
     }
 
     rv = xapp->GetPlatformVersion(s);
@@ -637,6 +641,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
 
     bool ok = true;
     TriState stAppVersion = eUnspecified;
+    TriState stGoannaVersion = eUnspecified;
     TriState stGeckoVersion = eUnspecified;
     TriState stApp = eUnspecified;
     TriState stOsVersion = eUnspecified;
@@ -657,6 +662,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
           CheckStringFlag(kProcess, wtoken, process, stProcess) ||
           CheckVersionFlag(kOsVersion, wtoken, osVersion, stOsVersion) ||
           CheckVersionFlag(kAppVersion, wtoken, appVersion, stAppVersion) ||
+          CheckVersionFlag(kGoannaVersion, wtoken, goannaVersion, stGoannaVersion) ||
           CheckVersionFlag(kGeckoVersion, wtoken, geckoVersion, stGeckoVersion)) {
         continue;
       }
@@ -702,6 +708,7 @@ ParseManifest(NSLocationType aType, FileLocation& aFile, char* aBuf,
     if (!ok ||
         stApp == eBad ||
         stAppVersion == eBad ||
+        stGoannaVersion == eBad ||
         stGeckoVersion == eBad ||
         stOs == eBad ||
         stOsVersion == eBad ||

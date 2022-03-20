@@ -172,13 +172,13 @@ LOCAL_INCLUDES += [
     '/dom/svg',
     '/dom/workers',
     '/dom/xul',
-    '/gfx/gl',
-    '/image',
     '/js/xpconnect/src',
     '/layout/generic',
     '/layout/style',
     '/layout/xul',
-    '/media/libyuv/include',
+    '/libs/libyuv/include',
+    '/system/graphics/gl',
+    '/system/image',
 ]
 
 CXXFLAGS += CONFIG['MOZ_CAIRO_CFLAGS']

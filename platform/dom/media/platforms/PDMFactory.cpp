@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -16,10 +15,6 @@
 #ifdef MOZ_FFMPEG
 #include "FFmpegRuntimeLinker.h"
 #endif
-#ifdef MOZ_APPLEMEDIA
-#include "AppleDecoderModule.h"
-#endif
-#include "GMPDecoderModule.h"
 
 #include "mozilla/ClearOnShutdown.h"
 #include "mozilla/SharedThreadPool.h"
@@ -33,11 +28,6 @@
 #include "H264Converter.h"
 
 #include "AgnosticDecoderModule.h"
-
-#ifdef MOZ_EME
-#include "mozilla/CDMProxy.h"
-#include "EMEDecoderModule.h"
-#endif
 
 #include "DecoderDoctorDiagnostics.h"
 
@@ -57,9 +47,6 @@ public:
   {
 #ifdef XP_WIN
     WMFDecoderModule::Init();
-#endif
-#ifdef MOZ_APPLEMEDIA
-    AppleDecoderModule::Init();
 #endif
 #ifdef MOZ_FFVPX
     FFVPXRuntimeLinker::Init();
@@ -221,9 +208,6 @@ PDMFactory::CreateDecoder(const CreateDecoderParams& aParams)
     if (mFFmpegFailedToLoad) {
       diagnostics->SetFFmpegFailedToLoad();
     }
-    if (mGMPPDMFailedToStartup) {
-      diagnostics->SetGMPPDMFailedToStartup();
-    }
   }
 
   for (auto& current : mCurrentPDMs) {
@@ -376,20 +360,9 @@ PDMFactory::CreatePDMs()
     mFFmpegFailedToLoad = false;
   }
 #endif
-#ifdef MOZ_APPLEMEDIA
-  m = new AppleDecoderModule();
-  StartupPDM(m);
-#endif
 
   m = new AgnosticDecoderModule();
   StartupPDM(m);
-
-  if (MediaPrefs::PDMGMPEnabled()) {
-    m = new GMPDecoderModule();
-    mGMPPDMFailedToStartup = !StartupPDM(m);
-  } else {
-    mGMPPDMFailedToStartup = false;
-  }
 }
 
 void
@@ -422,9 +395,6 @@ PDMFactory::GetDecoder(const TrackInfo& aTrackInfo,
     if (mFFmpegFailedToLoad) {
       aDiagnostics->SetFFmpegFailedToLoad();
     }
-    if (mGMPPDMFailedToStartup) {
-      aDiagnostics->SetGMPPDMFailedToStartup();
-    }
   }
 
   RefPtr<PlatformDecoderModule> pdm;
@@ -436,14 +406,5 @@ PDMFactory::GetDecoder(const TrackInfo& aTrackInfo,
   }
   return pdm.forget();
 }
-
-#ifdef MOZ_EME
-void
-PDMFactory::SetCDMProxy(CDMProxy* aProxy)
-{
-  RefPtr<PDMFactory> m = new PDMFactory();
-  mEMEPDM = new EMEDecoderModule(aProxy, m);
-}
-#endif
 
 }  // namespace mozilla

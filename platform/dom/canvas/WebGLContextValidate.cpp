@@ -30,10 +30,6 @@
 #include "WebGLVertexArray.h"
 #include "WebGLVertexAttribData.h"
 
-#if defined(MOZ_WIDGET_COCOA)
-#include "nsCocoaFeatures.h"
-#endif
-
 namespace mozilla {
 
 bool

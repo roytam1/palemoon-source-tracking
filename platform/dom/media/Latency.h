@@ -81,13 +81,10 @@ private:
   mozilla::Mutex mMutex;
 };
 
-// need uint32_t versions for access from webrtc/trunk code
 // Log without a time delta
 void LogLatency(AsyncLatencyLogger::LatencyLogIndex index, uint64_t aID, int64_t aValue);
-void LogLatency(uint32_t index, uint64_t aID, int64_t aValue);
 // Log TimeStamp::Now() (as delta)
 void LogTime(AsyncLatencyLogger::LatencyLogIndex index, uint64_t aID, int64_t aValue);
-void LogTime(uint32_t index, uint64_t aID, int64_t aValue);
 // Log the specified time (as delta)
 void LogTime(AsyncLatencyLogger::LatencyLogIndex index, uint64_t aID, int64_t aValue,
              mozilla::TimeStamp &aTime);

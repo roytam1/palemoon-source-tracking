@@ -135,6 +135,10 @@ const PREFIX_NS_EM                    = "http://www.mozilla.org/2004/em-rdf#";
 
 const TOOLKIT_ID                      = "toolkit@mozilla.org";
 
+#ifdef MC_APP_ID
+#expand const ALT_APP_ID                      = "__MC_APP_ID__";
+#endif
+
 // The value for this is in Makefile.in
 #expand const DB_SCHEMA                       = __MOZ_EXTENSIONS_DB_SCHEMA__;
 XPCOMUtils.defineConstant(this, "DB_SCHEMA", DB_SCHEMA);
@@ -187,21 +191,22 @@ const BOOTSTRAP_REASONS = {
 
 // Map new string type identifiers to old style nsIUpdateItem types
 const TYPES = {
-  extension: 2,
-  theme: 4,
-  locale: 8,
-  multipackage: 32,
-  dictionary: 64,
-  experiment: 128,
+//app           : 1,
+  extension     : 2,
+  theme         : 4,
+  locale        : 8,
+  multipackage  : 32,
+  dictionary    : 64,
+//experiment    : 128,
+//apiextension  : 256,
 };
 
 const RESTARTLESS_TYPES = new Set([
   "dictionary",
-  "experiment",
   "locale",
 ]);
 
-// Keep track of where we are in startup for telemetry
+// Keep track of where we are in startup.
 // event happened during XPIDatabase.startup()
 const XPI_STARTING = "XPIStarting";
 // event happened after startup() but before the final-ui-startup event
@@ -948,28 +953,12 @@ function loadManifestFromRDF(aUri, aStream) {
     addon.userDisabled = !!LightweightThemeManager.currentTheme ||
                          addon.internalName != XPIProvider.selectedSkin;
   }
-  // Experiments are disabled by default. It is up to the Experiments Manager
-  // to enable them (it drives installation).
-  else if (addon.type == "experiment") {
-    addon.userDisabled = true;
-  }
   else {
     addon.userDisabled = false;
     addon.softDisabled = addon.blocklistState == Blocklist.STATE_SOFTBLOCKED;
   }
 
   addon.applyBackgroundUpdates = AddonManager.AUTOUPDATE_DEFAULT;
-
-  // Experiments are managed and updated through an external "experiments
-  // manager." So disable some built-in mechanisms.
-  if (addon.type == "experiment") {
-    addon.applyBackgroundUpdates = AddonManager.AUTOUPDATE_DISABLE;
-    addon.updateURL = null;
-    addon.updateKey = null;
-
-    addon.targetApplications = [];
-    addon.targetPlatforms = [];
-  }
 
   // Load the storage service before NSS (nsIRandomGenerator),
   // to avoid a SQLite initialization error (bug 717904).
@@ -1828,15 +1817,11 @@ this.XPIProvider = {
   allAppGlobal: true,
   // A string listing the enabled add-ons for annotating crash reports
   enabledAddons: null,
-  // Keep track of startup phases for telemetry
+  // Keep track of startup phases.
   runPhase: XPI_STARTING,
   // Keep track of the newest file in each add-on, in case we want to
-  // report it to telemetry.
+  // report it.
   _mostRecentlyModifiedFile: {},
-  // Per-addon telemetry information
-  _telemetryDetails: {},
-  // Experiments are disabled by default. Track ones that are locally enabled.
-  _enabledExperiments: null,
   // A Map from an add-on install to its ID
   _addonFileMap: new Map(),
 #ifdef MOZ_DEVTOOLS
@@ -2004,8 +1989,6 @@ this.XPIProvider = {
     }
 
     try {
-      AddonManagerPrivate.recordTimestamp("XPI_startup_begin");
-
       logger.debug("startup");
       this.runPhase = XPI_STARTING;
       this.installs = [];
@@ -2013,10 +1996,6 @@ this.XPIProvider = {
       this.installLocationsByName = {};
       // Hook for tests to detect when saving database at shutdown time fails
       this._shutdownError = null;
-      // Clear this at startup for xpcshell test restarts
-      this._telemetryDetails = {};
-      // Clear the set of enabled experiments (experiments disabled by default).
-      this._enabledExperiments = new Set();
 
       let hasRegistry = ("nsIWindowsRegKey" in Ci);
 
@@ -2139,21 +2118,7 @@ this.XPIProvider = {
 
       this.enabledAddons = Preferences.get(PREF_EM_ENABLED_ADDONS, "");
 
-      if ("nsICrashReporter" in Ci &&
-          Services.appinfo instanceof Ci.nsICrashReporter) {
-        // Annotate the crash report with relevant add-on information.
-        try {
-          Services.appinfo.annotateCrashReport("Theme", this.currentSkin);
-        } catch (e) { }
-        try {
-          Services.appinfo.annotateCrashReport("EMCheckCompatibility",
-                                               AddonManager.checkCompatibility);
-        } catch (e) { }
-        this.addAddonsToCrashReporter();
-      }
-
       try {
-        AddonManagerPrivate.recordTimestamp("XPI_bootstrap_addons_begin");
         for (let id in this.bootstrappedAddons) {
           try {
             let file = Cc["@mozilla.org/file/local;1"].createInstance(Ci.nsIFile);
@@ -2172,11 +2137,9 @@ this.XPIProvider = {
                   this.bootstrappedAddons[id].descriptor, e);
           }
         }
-        AddonManagerPrivate.recordTimestamp("XPI_bootstrap_addons_end");
       }
       catch (e) {
         logger.error("bootstrap startup failed", e);
-        AddonManagerPrivate.recordException("XPI-BOOTSTRAP", "startup failed", e);
       }
 
       // Let these shutdown a little earlier when they still have access to most
@@ -2195,23 +2158,11 @@ this.XPIProvider = {
         }
       }, "quit-application-granted", false);
 
-      // Detect final-ui-startup for telemetry reporting
-      Services.obs.addObserver({
-        observe: function uiStartupObserver(aSubject, aTopic, aData) {
-          AddonManagerPrivate.recordTimestamp("XPI_finalUIStartup");
-          XPIProvider.runPhase = XPI_AFTER_UI_STARTUP;
-          Services.obs.removeObserver(this, "final-ui-startup");
-        }
-      }, "final-ui-startup", false);
-
-      AddonManagerPrivate.recordTimestamp("XPI_startup_end");
-
       this.extensionsActive = true;
       this.runPhase = XPI_BEFORE_UI_STARTUP;
     }
     catch (e) {
       logger.error("startup failed", e);
-      AddonManagerPrivate.recordException("XPI", "startup failed", e);
     }
   },
 
@@ -2235,7 +2186,6 @@ this.XPIProvider = {
     // If there are pending operations then we must update the list of active
     // add-ons
     if (Preferences.get(PREF_PENDING_OPERATIONS, false)) {
-      AddonManagerPrivate.recordSimpleMeasure("XPIDB_pending_ops", 1);
       XPIDatabase.updateActiveAddons();
       Services.prefs.setBoolPref(PREF_PENDING_OPERATIONS,
                                  !XPIDatabase.writeAddonsList());
@@ -2302,11 +2252,8 @@ this.XPIProvider = {
    *           to be updated, but the metadata check needs to be performed.
    */
   shouldForceUpdateCheck: function XPI_shouldForceUpdateCheck(aAppChanged) {
-    AddonManagerPrivate.recordSimpleMeasure("XPIDB_metadata_age", AddonRepository.metadataAge());
-
     let startupChanges = AddonManager.getStartupChanges(AddonManager.STARTUP_CHANGE_DISABLED);
     logger.debug("shouldForceUpdateCheck startupChanges: " + startupChanges.toSource());
-    AddonManagerPrivate.recordSimpleMeasure("XPIDB_startup_disabled", startupChanges.length);
 
     let forceUpdate = [];
     if (startupChanges.length > 0) {
@@ -2362,13 +2309,9 @@ this.XPIProvider = {
    * Persists changes to XPIProvider.bootstrappedAddons to its store (a pref).
    */
   persistBootstrappedAddons: function XPI_persistBootstrappedAddons() {
-    // Experiments are disabled upon app load, so don't persist references.
     let filtered = {};
     for (let id in this.bootstrappedAddons) {
       let entry = this.bootstrappedAddons[id];
-      if (entry.type == "experiment") {
-        continue;
-      }
 
       filtered[id] = entry;
     }
@@ -2400,10 +2343,6 @@ this.XPIProvider = {
       Services.appinfo.annotateCrashReport("Add-ons", data);
     }
     catch (e) { }
-
-    let TelemetrySession =
-      Cu.import("resource://gre/modules/TelemetrySession.jsm", {}).TelemetrySession;
-    TelemetrySession.setAddOns(data);
   },
 
   /**
@@ -3549,11 +3488,7 @@ this.XPIProvider = {
       }
     }
 
-    // Telemetry probe added around getInstallState() to check perf
-    let telemetryCaptureTime = Cu.now();
     let installChanged = XPIStates.getInstallState();
-    let telemetry = Services.telemetry;
-    telemetry.getHistogramById("CHECK_ADDONS_MODIFIED_MS").add(Math.round(Cu.now() - telemetryCaptureTime));
     if (installChanged) {
       updateReasons.push("directoryState");
     }
@@ -3605,7 +3540,6 @@ this.XPIProvider = {
       // If the database needs to be updated then open it and then update it
       // from the filesystem
       if (updateReasons.length > 0) {
-        AddonManagerPrivate.recordSimpleMeasure("XPIDB_startup_load_reasons", updateReasons);
         XPIDatabase.syncLoadDB(false);
         try {
           extensionListChanged = this.processFileChanges(manifests,
@@ -4541,15 +4475,11 @@ this.XPIProvider = {
     let appDisabledChanged = aAddon.appDisabled != appDisabled;
 
     // Update the properties in the database.
-    // We never persist this for experiments because the disabled flags
-    // are controlled by the Experiments Manager.
-    if (aAddon.type != "experiment") {
-      XPIDatabase.setAddonProperties(aAddon, {
-        userDisabled: aUserDisabled,
-        appDisabled: appDisabled,
-        softDisabled: aSoftDisabled
-      });
-    }
+    XPIDatabase.setAddonProperties(aAddon, {
+      userDisabled: aUserDisabled,
+      appDisabled: appDisabled,
+      softDisabled: aSoftDisabled
+    });
 
     if (appDisabledChanged) {
       AddonManagerPrivate.callAddonListeners("onPropertyChanged",
@@ -6254,7 +6184,7 @@ UpdateChecker.prototype = {
     if ((this.appVersion &&
          Services.vc.compare(this.appVersion, Services.appinfo.version) != 0) ||
         (this.platformVersion &&
-         Services.vc.compare(this.platformVersion, Services.appinfo.platformVersion) != 0)) {
+         Services.vc.compare(this.platformVersion, Services.appinfo.greVersion) != 0)) {
       compatUpdate = AUC.getCompatibilityUpdate(aUpdates, this.addon.version,
                                                 false, this.appVersion,
                                                 this.platformVersion,
@@ -6421,7 +6351,6 @@ AddonInternal.prototype = {
       let message = "Problem with addon " + this.id + " targetPlatforms "
                     + JSON.stringify(this.targetPlatforms);
       logger.error(message, e);
-      AddonManagerPrivate.recordException("XPI", message, e);
       // don't trust this add-on
       return false;
     }
@@ -6430,17 +6359,6 @@ AddonInternal.prototype = {
   },
 
   isCompatibleWith: function AddonInternal_isCompatibleWith(aAppVersion, aPlatformVersion) {
-    // Experiments are installed through an external mechanism that
-    // limits target audience to compatible clients. We trust it knows what
-    // it's doing and skip compatibility checks.
-    //
-    // This decision does forfeit defense in depth. If the experiments system
-    // is ever wrong about targeting an add-on to a specific application
-    // or platform, the client will likely see errors.
-    if (this.type == "experiment") {
-      return true;
-    }
-
     let app = this.matchingTargetApplication;
     if (!app)
       return false;
@@ -6448,10 +6366,14 @@ AddonInternal.prototype = {
     if (!aAppVersion)
       aAppVersion = Services.appinfo.version;
     if (!aPlatformVersion)
-      aPlatformVersion = Services.appinfo.platformVersion;
+      aPlatformVersion = Services.appinfo.greVersion;
 
     let version;
+#ifdef MC_APP_ID
+    if (app.id == ALT_APP_ID || app.id == Services.appinfo.ID) {
+#else
     if (app.id == Services.appinfo.ID) {
+#endif
       version = aAppVersion;
     }
     else if (app.id == TOOLKIT_ID) {
@@ -6477,7 +6399,11 @@ AddonInternal.prototype = {
 
       // Extremely old extensions should not be compatible by default.
       let minCompatVersion;
-      if (app.id == Services.appinfo.ID)
+#ifdef MC_APP_ID
+    if (app.id == ALT_APP_ID || app.id == Services.appinfo.ID)
+#else
+    if (app.id == Services.appinfo.ID)
+#endif
         minCompatVersion = XPIProvider.minCompatibleAppVersion;
       else if (app.id == TOOLKIT_ID)
         minCompatVersion = XPIProvider.minCompatiblePlatformVersion;
@@ -6495,13 +6421,31 @@ AddonInternal.prototype = {
 
   get matchingTargetApplication() {
     let app = null;
+
+#ifdef MC_APP_ID
+    // We want to prefer the Pale Moon application ID
+    // over any other for the duration of this hack.
     for (let targetApp of this.targetApplications) {
-      if (targetApp.id == Services.appinfo.ID)
+      if (targetApp.id == ALT_APP_ID) {
+        logger.warn("getMatchingTargetApplication: Add-on " + this.defaultLocale.name +
+                    " matches because Alternate Application ID " + ALT_APP_ID +
+                    " is currently preferred over the Application or Toolkit's ID.");
+
         return targetApp;
-      if (targetApp.id == TOOLKIT_ID)
-        app = targetApp;
+      }
     }
-    // Return toolkit ID if toolkit.
+#endif
+
+    for (let targetApp of this.targetApplications) {
+      if (targetApp.id == Services.appinfo.ID) {
+        return targetApp;
+      }
+
+      if (targetApp.id == TOOLKIT_ID) {
+        app = targetApp;
+      }
+    }
+
     return app;
   },
 
@@ -6621,13 +6565,6 @@ AddonInternal.prototype = {
     // Add-ons that aren't installed cannot be modified in any way
     if (!(this.inDatabase))
       return permissions;
-
-    // Experiments can only be uninstalled. An uninstall reflects the user
-    // intent of "disable this experiment." This is partially managed by the
-    // experiments manager.
-    if (this.type == "experiment") {
-      return AddonManager.PERM_CAN_UNINSTALL;
-    }
 
     if (!this.appDisabled) {
       if (this.userDisabled || this.softDisabled) {
@@ -6891,11 +6828,6 @@ function AddonWrapper(aAddon) {
     return aAddon.applyBackgroundUpdates;
   });
   this.__defineSetter__("applyBackgroundUpdates", function AddonWrapper_applyBackgroundUpdatesSetter(val) {
-    if (this.type == "experiment") {
-      logger.warn("Setting applyBackgroundUpdates on an experiment is not supported.");
-      return;
-    }
-
     if (val != AddonManager.AUTOUPDATE_DEFAULT &&
         val != AddonManager.AUTOUPDATE_DISABLE &&
         val != AddonManager.AUTOUPDATE_ENABLE) {
@@ -6963,12 +6895,10 @@ function AddonWrapper(aAddon) {
     // Extensions have an intentional inconsistency between what the DB says is
     // enabled and what we say to the ouside world. so we need to cover up that
     // lie here as well.
-    if (aAddon.type != "experiment") {
-      if (aAddon.active && aAddon.disabled)
-        pending |= AddonManager.PENDING_DISABLE;
-      else if (!aAddon.active && !aAddon.disabled)
-        pending |= AddonManager.PENDING_ENABLE;
-    }
+    if (aAddon.active && aAddon.disabled)
+      pending |= AddonManager.PENDING_DISABLE;
+    else if (!aAddon.active && !aAddon.disabled)
+      pending |= AddonManager.PENDING_ENABLE;
 
     if (aAddon.pendingUpgrade)
       pending |= AddonManager.PENDING_UPGRADE;
@@ -7005,23 +6935,11 @@ function AddonWrapper(aAddon) {
   });
 
   this.__defineGetter__("userDisabled", function AddonWrapper_userDisabledGetter() {
-    if (XPIProvider._enabledExperiments.has(aAddon.id)) {
-      return false;
-    }
-
     return aAddon.softDisabled || aAddon.userDisabled;
   });
   this.__defineSetter__("userDisabled", function AddonWrapper_userDisabledSetter(val) {
     if (val == this.userDisabled) {
       return val;
-    }
-
-    if (aAddon.type == "experiment") {
-      if (val) {
-        XPIProvider._enabledExperiments.delete(aAddon.id);
-      } else {
-        XPIProvider._enabledExperiments.add(aAddon.id);
-      }
     }
 
     if (aAddon.inDatabase) {
@@ -7081,14 +6999,6 @@ function AddonWrapper(aAddon) {
   };
 
   this.findUpdates = function AddonWrapper_findUpdates(aListener, aReason, aAppVersion, aPlatformVersion) {
-    // Short-circuit updates for experiments because updates are handled
-    // through the Experiments Manager.
-    if (this.type == "experiment") {
-      AddonManagerPrivate.callNoUpdateListeners(this, aListener, aReason,
-                                                aAppVersion, aPlatformVersion);
-      return;
-    }
-
     new UpdateChecker(aAddon, aListener, aReason, aAppVersion, aPlatformVersion);
   };
 
@@ -7706,13 +7616,7 @@ WinRegInstallLocation.prototype = {
     let appVendor = Services.appinfo.vendor;
     let appName = Services.appinfo.name;
 
-#ifdef MOZ_THUNDERBIRD
-    // XXX Thunderbird doesn't specify a vendor string
-    if (appVendor == "")
-      appVendor = "Mozilla";
-#endif
-
-    // XULRunner-based apps may intentionally not specify a vendor
+    // .xulapp-based apps may intentionally not specify a vendor
     if (appVendor != "")
       appVendor += "\\";
 
@@ -7824,18 +7728,5 @@ var addonTypes = [
                                     AddonManager.VIEW_TYPE_LIST, 8000,
                                     AddonManager.TYPE_UI_HIDE_EMPTY | AddonManager.TYPE_SUPPORTS_UNDO_RESTARTLESS_UNINSTALL),
 ];
-
-// We only register experiments support if the application supports them.
-// Ideally, we would install an observer to watch the pref. Installing
-// an observer for this pref is not necessary here and may be buggy with
-// regards to registering this XPIProvider twice.
-if (Preferences.get("experiments.supported", false)) {
-  addonTypes.push(
-    new AddonManagerPrivate.AddonType("experiment",
-                                      URI_EXTENSION_STRINGS,
-                                      STRING_TYPE_NAME,
-                                      AddonManager.VIEW_TYPE_LIST, 11000,
-                                      AddonManager.TYPE_UI_HIDE_EMPTY | AddonManager.TYPE_SUPPORTS_UNDO_RESTARTLESS_UNINSTALL));
-}
 
 AddonManagerPrivate.registerProvider(XPIProvider, addonTypes);

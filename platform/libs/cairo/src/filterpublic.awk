@@ -10,12 +10,12 @@
 BEGIN { state = "public"; }
 
 /^cairo_public/ { state = "function"; next; }
-/[a-zA-Z_]+/	{
-			if (state == "function") {
-				print "#define " $1 " _moz_" $1;
-				state = "public";
-			}
-		}
+/[a-zA-Z_]+/    {
+            if (state == "function") {
+                print "#define " $1 " _moz_" $1;
+                state = "public";
+            }
+        }
 
 # catch some one-off things
 END {

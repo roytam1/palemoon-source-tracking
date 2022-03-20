@@ -8,45 +8,45 @@
 #include "cairoint.h"
 
 struct _cairo_paginated_surface_backend {
-    /* Optional. Will be called once for each page.
-     *
-     * Note: With respect to the order of drawing operations as seen
-     * by the target, this call will occur before any drawing
-     * operations for the relevant page. However, with respect to the
-     * function calls as made by the user, this call will be *after*
-     * any drawing operations for the page, (that is, it will occur
-     * during the user's call to cairo_show_page or cairo_copy_page).
-     */
-    cairo_warn cairo_int_status_t
-    (*start_page)		(void			*surface);
+  /* Optional. Will be called once for each page.
+   *
+   * Note: With respect to the order of drawing operations as seen
+   * by the target, this call will occur before any drawing
+   * operations for the relevant page. However, with respect to the
+   * function calls as made by the user, this call will be *after*
+   * any drawing operations for the page, (that is, it will occur
+   * during the user's call to cairo_show_page or cairo_copy_page).
+   */
+  cairo_warn cairo_int_status_t
+  (*start_page)        (void            *surface);
 
-    /* Required. Will be called twice for each page, once with an
-     * argument of CAIRO_PAGINATED_MODE_ANALYZE and once with
-     * CAIRO_PAGINATED_MODE_RENDER. See more details in the
-     * documentation for _cairo_paginated_surface_create below.
-     */
-    void
-    (*set_paginated_mode)	(void			*surface,
-				 cairo_paginated_mode_t	 mode);
+  /* Required. Will be called twice for each page, once with an
+   * argument of CAIRO_PAGINATED_MODE_ANALYZE and once with
+   * CAIRO_PAGINATED_MODE_RENDER. See more details in the
+   * documentation for _cairo_paginated_surface_create below.
+   */
+  void
+  (*set_paginated_mode)    (void            *surface,
+                 cairo_paginated_mode_t     mode);
 
-    /* Optional. Specifies the smallest box that encloses all objects
-     * on the page. Will be called at the end of the ANALYZE phase but
-     * before the mode is changed to RENDER.
-     */
-    cairo_warn cairo_int_status_t
-    (*set_bounding_box)	(void		*surface,
-			 cairo_box_t	*bbox);
+  /* Optional. Specifies the smallest box that encloses all objects
+   * on the page. Will be called at the end of the ANALYZE phase but
+   * before the mode is changed to RENDER.
+   */
+  cairo_warn cairo_int_status_t
+  (*set_bounding_box)    (void        *surface,
+             cairo_box_t    *bbox);
 
-    /* Optional. Indicates whether the page requires fallback images.
-     * Will be called at the end of the ANALYZE phase but before the
-     * mode is changed to RENDER.
-     */
-    cairo_warn cairo_int_status_t
-    (*set_fallback_images_required) (void	    *surface,
-				     cairo_bool_t    fallbacks_required);
+  /* Optional. Indicates whether the page requires fallback images.
+   * Will be called at the end of the ANALYZE phase but before the
+   * mode is changed to RENDER.
+   */
+  cairo_warn cairo_int_status_t
+  (*set_fallback_images_required) (void      *surface,
+                   cairo_bool_t  fallbacks_required);
 
-    cairo_bool_t
-    (*supports_fine_grained_fallbacks) (void		    *surface);
+  cairo_bool_t
+  (*supports_fine_grained_fallbacks) (void          *surface);
 };
 
 /* A #cairo_paginated_surface_t provides a very convenient wrapper that
@@ -73,18 +73,18 @@ struct _cairo_paginated_surface_backend {
  * cairo_paginated_surface_create()):
  *
  * 1. Calls start_page() (if not %NULL). At this point, it is appropriate
- *    for the target to emit any page-specific header information into
- *    its output.
+ *  for the target to emit any page-specific header information into
+ *  its output.
  *
  * 2. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_ANALYZE
  *
  * 3. Replays the recording-surface to the target surface, (with an
- *    analysis surface inserted between which watches the return value
- *    from each operation). This analysis stage is used to decide which
- *    operations will require fallbacks.
+ *  analysis surface inserted between which watches the return value
+ *  from each operation). This analysis stage is used to decide which
+ *  operations will require fallbacks.
  *
  * 4. Calls set_bounding_box() to provide the target surface with the
- *    tight bounding box of the page.
+ *  tight bounding box of the page.
  *
  * 5. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_RENDER
  *
@@ -93,8 +93,8 @@ struct _cairo_paginated_surface_backend {
  * 7. Calls set_paginated_mode() with an argument of %CAIRO_PAGINATED_MODE_FALLBACK
  *
  * 8. Replays the remaining operations to an image surface, sets an
- *    appropriate clip on the target, then paints the resulting image
- *    surface to the target.
+ *  appropriate clip on the target, then paints the resulting image
+ *  surface to the target.
  *
  * So, the target will see drawing operations during three separate
  * stages, (ANALYZE, RENDER and FALLBACK). During the ANALYZE phase
@@ -116,9 +116,9 @@ struct _cairo_paginated_surface_backend {
  * even see these operations.
  */
 cairo_private cairo_surface_t *
-_cairo_paginated_surface_create (cairo_surface_t				*target,
-				 cairo_content_t				 content,
-				 const cairo_paginated_surface_backend_t	*backend);
+_cairo_paginated_surface_create (cairo_surface_t                *target,
+                 cairo_content_t                 content,
+                 const cairo_paginated_surface_backend_t    *backend);
 
 cairo_private cairo_surface_t *
 _cairo_paginated_surface_get_target (cairo_surface_t *surface);
@@ -127,8 +127,8 @@ cairo_private cairo_bool_t
 _cairo_surface_is_paginated (cairo_surface_t *surface);
 
 cairo_private cairo_status_t
-_cairo_paginated_surface_set_size (cairo_surface_t 	*surface,
-				   int			 width,
-				   int			 height);
+_cairo_paginated_surface_set_size (cairo_surface_t     *surface,
+                   int             width,
+                   int             height);
 
 #endif /* CAIRO_PAGINATED_H */

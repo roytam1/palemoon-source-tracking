@@ -5,5 +5,5 @@ length of the FFT. For consistency with other FFT routines used, it does
 multiply the results by two.
 
 The affected files are:
-media/openmax_dl/dl/sp/api/omxSP.h
-media/openmax_dl/dl/sp/src/omxSP_FFTInv_CCSToR_F32_Sfs_unscaled_s.S
+libs/openmax_dl/dl/sp/api/omxSP.h
+libs/openmax_dl/dl/sp/src/omxSP_FFTInv_CCSToR_F32_Sfs_unscaled_s.S

@@ -13,7 +13,7 @@ include('/ipc/chromium/chromium-config.mozbuild')
 
 if CONFIG['OS_ARCH'] == 'WINNT':
     LOCAL_INCLUDES += [
-        '/toolkit/xre',
+        '/system/runtime',
         '/xpcom/base',
     ]
 

@@ -220,14 +220,6 @@ this.BookmarkHTMLUtils = Object.freeze({
       let exporter = new BookmarkExporter(bookmarks);
       yield exporter.exportToFile(aFilePath);
 
-      try {
-        Services.telemetry
-                .getHistogramById("PLACES_EXPORT_TOHTML_MS")
-                .add(Date.now() - startTime);
-      } catch (ex) {
-        Components.utils.reportError("Unable to report telemetry.");
-      }
-
       return count;
     });
   },
@@ -1060,8 +1052,9 @@ BookmarkExporter.prototype = {
     this._writeLine("<!-- This is an automatically generated file.");
     this._writeLine("     It will be read and overwritten.");
     this._writeLine("     DO NOT EDIT! -->");
-    this._writeLine('<META HTTP-EQUIV="Content-Type" CONTENT="text/html; ' +
-                    'charset=UTF-8">');
+    this._writeLine('<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">');
+    this._writeLine(`<META HTTP-EQUIV="Content-Security-Policy"
+    CONTENT="default-src 'self'; script-src 'none'; img-src data: *; object-src 'none'"></META>`);
     this._writeLine("<TITLE>Bookmarks</TITLE>");
   },
 

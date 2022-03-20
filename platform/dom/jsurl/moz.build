@@ -13,7 +13,7 @@ SOURCES += [
 
 LOCAL_INCLUDES += [
     "/dom/base",
-    "/netwerk/base",
+    "/system/network/base",
 ]
 
 FINAL_LIBRARY = 'xul'

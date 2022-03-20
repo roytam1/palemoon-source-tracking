@@ -130,12 +130,6 @@ EXPORTS += [
     'nsXMLNameSpaceMap.h',
 ]
 
-if CONFIG['MOZ_WEBRTC']:
-    EXPORTS += [
-        'nsDOMDataChannel.h',
-        'nsDOMDataChannelDeclarations.h',
-    ]
-
 EXPORTS.mozilla += [
     'CORSMode.h',
     'FeedWriterEnabled.h',
@@ -374,11 +368,6 @@ SOURCES += [
     'WindowOrientationObserver.cpp',
 ]
 
-if CONFIG['MOZ_WEBRTC']:
-    SOURCES += [
-        'nsDOMDataChannel.cpp',
-    ]
-
 # these files couldn't be in UNIFIED_SOURCES for now for reasons given below:
 SOURCES += [
     # Several conflicts with other bindings.
@@ -426,8 +415,6 @@ LOCAL_INCLUDES += [
     '../media',
     '../network',
     '../time',
-    '/caps',
-    '/docshell/base',
     '/dom/base',
     '/dom/geolocation',
     '/dom/html',
@@ -440,8 +427,6 @@ LOCAL_INCLUDES += [
     '/dom/xml',
     '/dom/xslt/xpath',
     '/dom/xul',
-    '/gfx/2d',
-    '/image',
     '/js/xpconnect/src',
     '/js/xpconnect/wrappers',
     '/layout/base',
@@ -450,22 +435,21 @@ LOCAL_INCLUDES += [
     '/layout/style',
     '/layout/svg',
     '/layout/xul',
-    '/netwerk/base',
-    '/security/manager/ssl',
-    '/widget',
+    '/system/docshell/base',
+    '/system/graphics/2d',
+    '/system/image',
+    '/system/interface',
+    '/system/network/base',
+    '/system/security/manager/ssl',
+    '/system/security/script',
     '/xpcom/ds',
 ]
-
-if CONFIG['MOZ_WEBRTC']:
-    LOCAL_INCLUDES += [
-        '/netwerk/sctp/datachannel',
-    ]
 
 include('/ipc/chromium/chromium-config.mozbuild')
 
 FINAL_LIBRARY = 'xul'
 
-if CONFIG['MOZ_PHOENIX'] or CONFIG['MOZ_XULRUNNER']:
+if CONFIG['MOZ_PHOENIX']:
     DEFINES['HAVE_SIDEBAR'] = True
 
 if CONFIG['MOZ_X11']:

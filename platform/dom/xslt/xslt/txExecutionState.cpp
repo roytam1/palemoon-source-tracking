@@ -480,15 +480,18 @@ txExecutionState::getCurrentTemplateRule()
     return &mTemplateRules[mTemplateRules.Length() - 1];
 }
 
-txInstruction*
-txExecutionState::getNextInstruction()
-{
-    txInstruction* instr = mNextInstruction;
-    if (instr) {
-        mNextInstruction = instr->mNext;
-    }
-    
-    return instr;
+nsresult
+txExecutionState::getNextInstruction(txInstruction* aInstruction) {
+  if (mStopProcessing) {
+    return NS_ERROR_FAILURE;
+  }
+
+  aInstruction = mNextInstruction;
+  if (aInstruction) {
+    mNextInstruction = aInstruction->mNext;
+  }
+
+  return NS_OK;
 }
 
 nsresult

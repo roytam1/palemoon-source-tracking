@@ -14,26 +14,26 @@
  */
 #define MAX_FREED_POOL_SIZE 4
 typedef struct {
-    void *pool[MAX_FREED_POOL_SIZE];
-    cairo_atomic_int_t top;
+  void *pool[MAX_FREED_POOL_SIZE];
+  cairo_atomic_int_t top;
 } freed_pool_t;
 
 static cairo_always_inline void *
 _atomic_fetch (void **slot)
 {
-    void *ptr;
+  void *ptr;
 
-    do {
-        ptr = _cairo_atomic_ptr_get (slot);
-    } while (! _cairo_atomic_ptr_cmpxchg (slot, ptr, NULL));
+  do {
+    ptr = _cairo_atomic_ptr_get (slot);
+  } while (! _cairo_atomic_ptr_cmpxchg (slot, ptr, NULL));
 
-    return ptr;
+  return ptr;
 }
 
 static cairo_always_inline cairo_bool_t
 _atomic_store (void **slot, void *ptr)
 {
-    return _cairo_atomic_ptr_cmpxchg (slot, NULL, ptr);
+  return _cairo_atomic_ptr_cmpxchg (slot, NULL, ptr);
 }
 
 cairo_private void *
@@ -42,21 +42,21 @@ _freed_pool_get_search (freed_pool_t *pool);
 static inline void *
 _freed_pool_get (freed_pool_t *pool)
 {
-    void *ptr;
-    int i;
+  void *ptr;
+  int i;
 
-    i = _cairo_atomic_int_get_relaxed (&pool->top) - 1;
-    if (i < 0)
-	i = 0;
+  i = _cairo_atomic_int_get_relaxed (&pool->top) - 1;
+  if (i < 0)
+    i = 0;
 
-    ptr = _atomic_fetch (&pool->pool[i]);
-    if (likely (ptr != NULL)) {
-	_cairo_atomic_int_set_relaxed (&pool->top, i);
-	return ptr;
-    }
+  ptr = _atomic_fetch (&pool->pool[i]);
+  if (likely (ptr != NULL)) {
+    _cairo_atomic_int_set_relaxed (&pool->top, i);
+    return ptr;
+  }
 
-    /* either empty or contended */
-    return _freed_pool_get_search (pool);
+  /* either empty or contended */
+  return _freed_pool_get_search (pool);
 }
 
 cairo_private void
@@ -65,18 +65,18 @@ _freed_pool_put_search (freed_pool_t *pool, void *ptr);
 static inline void
 _freed_pool_put (freed_pool_t *pool, void *ptr)
 {
-    int i;
+  int i;
 
-    i = _cairo_atomic_int_get_relaxed (&pool->top);
-    if (likely (i < ARRAY_LENGTH (pool->pool) &&
-		_atomic_store (&pool->pool[i], ptr)))
-    {
-	_cairo_atomic_int_set_relaxed (&pool->top, i + 1);
-	return;
-    }
+  i = _cairo_atomic_int_get_relaxed (&pool->top);
+  if (likely (i < ARRAY_LENGTH (pool->pool) &&
+        _atomic_store (&pool->pool[i], ptr)))
+  {
+    _cairo_atomic_int_set_relaxed (&pool->top, i + 1);
+    return;
+  }
 
-    /* either full or contended */
-    _freed_pool_put_search (pool, ptr);
+  /* either full or contended */
+  _freed_pool_put_search (pool, ptr);
 }
 
 cairo_private void

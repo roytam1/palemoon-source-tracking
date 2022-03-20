@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*-
- * vim: sw=4 ts=4 et :
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -144,13 +143,6 @@ PluginInstanceParent::~PluginInstanceParent()
 #if defined(OS_WIN)
     NS_ASSERTION(!(mPluginHWND || mPluginWndProc),
         "Subclass was not reset correctly before the dtor was reached!");
-#endif
-#if defined(MOZ_WIDGET_COCOA)
-    if (mShWidth != 0 && mShHeight != 0) {
-        DeallocShmem(mShSurface);
-    }
-    if (mShColorSpace)
-        ::CGColorSpaceRelease(mShColorSpace);
 #endif
 }
 
@@ -769,8 +761,6 @@ PluginInstanceParent::SetCurrentImage(Image* aImage)
     gfx::IntRect rect = aImage->GetPictureRect();
     NPRect nprect = {uint16_t(rect.x), uint16_t(rect.y), uint16_t(rect.width), uint16_t(rect.height)};
     RecvNPN_InvalidateRect(nprect);
-
-    RecordDrawingModel();
 }
 
 bool
@@ -907,7 +897,6 @@ PluginInstanceParent::RecvShow(const NPRect& updatedRect,
     PLUGIN_LOG_DEBUG(("   (RecvShow invalidated for surface %p)",
                       mFrontSurface.get()));
 
-    RecordDrawingModel();
     return true;
 }
 
@@ -1273,7 +1262,6 @@ PluginInstanceParent::NPP_SetWindow(const NPWindow* aWindow)
         return NPERR_GENERIC_ERROR;
     }
 
-    RecordDrawingModel();
     return NPERR_NO_ERROR;
 }
 
@@ -2231,29 +2219,4 @@ PluginInstanceParent::RecvOnWindowedPluginKeyEvent(
     }
     owner->OnWindowedPluginKeyEvent(aKeyEventData);
     return true;
-}
-
-void
-PluginInstanceParent::RecordDrawingModel()
-{
-    int mode = -1;
-    switch (mWindowType) {
-    case NPWindowTypeWindow:
-        // We use 0=windowed since there is no specific NPDrawingModel value.
-        mode = 0;
-        break;
-    case NPWindowTypeDrawable:
-        mode = mDrawingModel + 1;
-        break;
-    default:
-        MOZ_ASSERT_UNREACHABLE("bad window type");
-        return;
-    }
-
-    if (mode == mLastRecordedDrawingModel) {
-        return;
-    }
-    MOZ_ASSERT(mode >= 0);
-
-    mLastRecordedDrawingModel = mode;
 }

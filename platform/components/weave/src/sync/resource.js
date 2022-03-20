@@ -13,7 +13,7 @@ var Cr = Components.results;
 var Cu = Components.utils;
 
 Cu.import("resource://gre/modules/Preferences.jsm");
-Cu.import("resource://services-common/async.js");
+Cu.import("resource://gre/modules/Async.jsm");
 Cu.import("resource://gre/modules/Log.jsm");
 Cu.import("resource://services-common/observers.js");
 Cu.import("resource://services-common/utils.js");

@@ -19,7 +19,6 @@
 #include "mozilla/ScopeExit.h"
 #include "mozilla/Services.h"
 #include "mozilla/ServoBindings.h"
-#include "mozilla/Telemetry.h"
 
 #include "nsAppRunner.h"
 #include "mozilla/AppData.h"
@@ -176,7 +175,8 @@ extern void InstallSignalHandlers(const char *ProgramName);
 int    gArgc;
 char **gArgv;
 
-static const char gToolkitVersion[] = NS_STRINGIFY(GRE_MILESTONE);
+static const char gGoannaVersion[] = NS_STRINGIFY(GRE_MILESTONE);
+static const char gToolkitVersion[] = "52.9.0";
 static const char gToolkitBuildID[] = NS_STRINGIFY(MOZ_BUILDID);
 
 static nsIProfileLock* gProfileLock;
@@ -208,10 +208,6 @@ nsString gAbsoluteArgv0Path;
 // Still include it when MOZ_BUILDID is not set, which can happen with some
 // build backends.
 #include "buildid.h"
-#endif
-
-#ifdef MOZ_LINKER
-extern "C" MFBT_API bool IsSignalHandlingBroken();
 #endif
 
 #ifdef LIBFUZZER
@@ -689,6 +685,14 @@ nsXULAppInfo::GetVersion(nsACString& aResult)
 }
 
 NS_IMETHODIMP
+nsXULAppInfo::GetGreVersion(nsACString& aResult)
+{
+  aResult.Assign(gGoannaVersion);
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
 nsXULAppInfo::GetPlatformVersion(nsACString& aResult)
 {
   aResult.Assign(gToolkitVersion);
@@ -788,7 +792,6 @@ SYNC_ENUMS(DEFAULT, Default)
 SYNC_ENUMS(PLUGIN, Plugin)
 SYNC_ENUMS(CONTENT, Content)
 SYNC_ENUMS(IPDLUNITTEST, IPDLUnitTest)
-SYNC_ENUMS(GMPLUGIN, GMPlugin)
 SYNC_ENUMS(GPU, GPU)
 
 // .. and ensure that that is all of them:
@@ -826,39 +829,12 @@ nsXULAppInfo::GetUniqueProcessID(uint64_t* aResult)
   return NS_OK;
 }
 
-static bool gBrowserTabsRemoteAutostart = false;
-static uint64_t gBrowserTabsRemoteStatus = 0;
-static bool gBrowserTabsRemoteAutostartInitialized = false;
-
-static bool gMultiprocessBlockPolicyInitialized = false;
-static uint32_t gMultiprocessBlockPolicy = 0;
-
 NS_IMETHODIMP
 nsXULAppInfo::Observe(nsISupports *aSubject, const char *aTopic, const char16_t *aData) {
   if (!nsCRT::strcmp(aTopic, "getE10SBlocked")) {
-    nsCOMPtr<nsISupportsPRUint64> ret = do_QueryInterface(aSubject);
-    if (!ret)
-      return NS_ERROR_FAILURE;
-
-    ret->SetData(gBrowserTabsRemoteStatus);
-
     return NS_OK;
   }
   return NS_ERROR_FAILURE;
-}
-
-NS_IMETHODIMP
-nsXULAppInfo::GetBrowserTabsRemoteAutostart(bool* aResult)
-{
-  *aResult = BrowserTabsRemoteAutostart();
-  return NS_OK;
-}
-
-NS_IMETHODIMP
-nsXULAppInfo::GetMultiprocessBlockPolicy(uint32_t* aResult)
-{
-  *aResult = MultiprocessBlockPolicy();
-  return NS_OK;
 }
 
 NS_IMETHODIMP
@@ -949,11 +925,8 @@ nsXULAppInfo::GetLastRunCrashID(nsAString &aLastRunCrashID)
 NS_IMETHODIMP
 nsXULAppInfo::GetIsReleaseOrBeta(bool* aResult)
 {
-#ifdef RELEASE_OR_BETA
+  // Always mark us as release or beta.
   *aResult = true;
-#else
-  *aResult = false;
-#endif
   return NS_OK;
 }
 
@@ -1005,29 +978,16 @@ nsXULAppInfo::GetWindowsDLLBlocklistStatus(bool* aResult)
 }
 
 #ifdef XP_WIN
-// Matches the enum in WinNT.h for the Vista SDK but renamed so that we can
-// safely build with the Vista SDK and without it.
-typedef enum
-{
-  VistaTokenElevationTypeDefault = 1,
-  VistaTokenElevationTypeFull,
-  VistaTokenElevationTypeLimited
-} VISTA_TOKEN_ELEVATION_TYPE;
-
-// avoid collision with TokeElevationType enum in WinNT.h
-// of the Vista SDK
-#define VistaTokenElevationType static_cast< TOKEN_INFORMATION_CLASS >( 18 )
-
 NS_IMETHODIMP
 nsXULAppInfo::GetUserCanElevate(bool *aUserCanElevate)
 {
   HANDLE hToken;
 
-  VISTA_TOKEN_ELEVATION_TYPE elevationType;
+  TOKEN_ELEVATION_TYPE elevationType;
   DWORD dwSize;
 
   if (!OpenProcessToken(GetCurrentProcess(), TOKEN_QUERY, &hToken) ||
-      !GetTokenInformation(hToken, VistaTokenElevationType, &elevationType,
+      !GetTokenInformation(hToken, TokenElevationType, &elevationType,
                            sizeof(elevationType), &dwSize)) {
     *aUserCanElevate = false;
   }
@@ -1041,7 +1001,7 @@ nsXULAppInfo::GetUserCanElevate(bool *aUserCanElevate)
     //   TokenElevationTypeLimited: The token is linked to a limited token
     //     (e.g. UAC is enabled and the user is not elevated, so they can be
     //      elevated)
-    *aUserCanElevate = (elevationType == VistaTokenElevationTypeLimited);
+    *aUserCanElevate = (elevationType == TokenElevationTypeLimited);
   }
 
   if (hToken)
@@ -1313,7 +1273,7 @@ DumpHelp()
          "  -v or --version                              Print %s version.\n"
          "  -P <profile>                                 Start with <profile>.\n"
          "  --profile <path>                             Start with profile at <path>.\n"
-#ifdef MC_BASILISK
+#ifdef MOZ_AUSTRALIS
          "  --migration                                  Start with migration wizard.\n"
 #endif
          "  --ProfileManager                             Start with ProfileManager.\n"
@@ -1573,8 +1533,6 @@ ProfileLockedDialog(nsIFile* aProfileDir, nsIFile* aProfileLocalDir,
   ScopedXPCOMStartup xpcom;
   rv = xpcom.Initialize();
   NS_ENSURE_SUCCESS(rv, rv);
-
-  mozilla::Telemetry::WriteFailedProfileLock(aProfileDir);
 
   rv = xpcom.SetWindowCreator(aNative);
   NS_ENSURE_SUCCESS(rv, NS_ERROR_FAILURE);
@@ -2024,8 +1982,13 @@ SelectProfile(nsIProfileLock* *aResult, nsIToolkitProfileService* aProfileSvc, n
     profile->GetRootDir(getter_AddRefs(prefsJSFile));
     prefsJSFile->AppendNative(NS_LITERAL_CSTRING("prefs.js"));
     nsAutoCString pathStr;
+#ifdef XP_WIN
+    prefsJSFile->GetPersistentDescriptor(pathStr);
+#else
     prefsJSFile->GetNativePath(pathStr);
+#endif
     PR_fprintf(PR_STDERR, "Success: created profile '%s' at '%s'\n", arg, pathStr.get());
+
     bool exists;
     prefsJSFile->Exists(&exists);
     if (!exists) {
@@ -2264,8 +2227,12 @@ CheckCompatibility(nsIFile* aProfileDir, const nsCString& aVersion,
     return false;
 
   nsCOMPtr<nsIFile> lf;
-  rv = NS_NewNativeLocalFile(buf, false,
+  rv = NS_NewNativeLocalFile(EmptyCString(), false,
                              getter_AddRefs(lf));
+  if (NS_FAILED(rv))
+    return false;
+
+  rv = lf->SetPersistentDescriptor(buf);
   if (NS_FAILED(rv))
     return false;
 
@@ -2279,8 +2246,12 @@ CheckCompatibility(nsIFile* aProfileDir, const nsCString& aVersion,
     if (NS_FAILED(rv))
       return false;
 
-    rv = NS_NewNativeLocalFile(buf, false,
+    rv = NS_NewNativeLocalFile(EmptyCString(), false,
                                getter_AddRefs(lf));
+    if (NS_FAILED(rv))
+      return false;
+
+    rv = lf->SetPersistentDescriptor(buf);
     if (NS_FAILED(rv))
       return false;
 
@@ -2323,11 +2294,11 @@ WriteVersion(nsIFile* aProfileDir, const nsCString& aVersion,
   file->AppendNative(FILE_COMPATIBILITY_INFO);
 
   nsAutoCString platformDir;
-  aXULRunnerDir->GetNativePath(platformDir);
+  Unused << aXULRunnerDir->GetPersistentDescriptor(platformDir);
 
   nsAutoCString appDir;
   if (aAppDir)
-    aAppDir->GetNativePath(appDir);
+    Unused << aAppDir->GetPersistentDescriptor(appDir);
 
   PRFileDesc *fd;
   nsresult rv =
@@ -2744,23 +2715,11 @@ XREMain::XRE_mainInit(bool* aExitFlag)
   SetupErrorHandling(gArgv[0]);
 
   // Set up environment for NSS database choice
-#ifndef NSS_DISABLE_DBM
-  // Allow iteration counts in DBM mode
-  SaveToEnv("NSS_ALLOW_LEGACY_DBM_ITERATION_COUNT=1");
-#endif
-
 #ifdef DEBUG
   // Reduce the number of rounds for debug builds for perf/test reasons.
   SaveToEnv("NSS_MAX_MP_PBE_ITERATION_COUNT=15");
 #else
-#ifdef MOZ_SECURITY_SQLSTORE
-  // We're using SQL; NSS's defaults for rounds are fine.
-#else
-  // Set default Master Password rounds to a sane value for DBM which is slower
-  // than SQL for PBKDF. The NSS hard-coded default of 10,000 is too much.
-  // See also Bug 1606992 for perf issues.
-  SaveToEnv("NSS_MAX_MP_PBE_ITERATION_COUNT=500");
-#endif
+  // NSS's defaults for PBKDF rounds are fine.
 #endif
 
 #ifdef CAIRO_HAS_DWRITE_FONT
@@ -2862,11 +2821,11 @@ XREMain::XRE_mainInit(bool* aExitFlag)
       SetAllocatedString(mAppData->maxVersion, "1.*");
     }
 
-    if (mozilla::Version(mAppData->minVersion) > gToolkitVersion ||
-        mozilla::Version(mAppData->maxVersion) < gToolkitVersion) {
+    if (mozilla::Version(mAppData->minVersion) > gGoannaVersion ||
+        mozilla::Version(mAppData->maxVersion) < gGoannaVersion) {
       Output(true, "Error: Platform version '%s' is not compatible with\n"
              "minVersion >= %s\nmaxVersion <= %s\n",
-             gToolkitVersion,
+             gGoannaVersion,
              mAppData->minVersion, mAppData->maxVersion);
       return 1;
     }
@@ -3029,25 +2988,16 @@ namespace mozilla {
 } // namespace mozilla
 
 static void SetShutdownChecks() {
-  // Set default first. On debug builds we crash. On nightly and local
-  // builds we record. Nightlies will then send the info via telemetry,
-  // but it is usefull to have the data in about:telemetry in local builds
-  // too.
+  // Set default first. On debug builds we crash.
 
 #ifdef DEBUG
   gShutdownChecks = SCM_CRASH;
 #else
-  const char* releaseChannel = NS_STRINGIFY(MOZ_UPDATE_CHANNEL);
-  if (strcmp(releaseChannel, "nightly") == 0 ||
-      strcmp(releaseChannel, "default") == 0) {
-    gShutdownChecks = SCM_RECORD;
-  } else {
-    gShutdownChecks = SCM_NOTHING;
-  }
+  gShutdownChecks = SCM_NOTHING;
 #endif
 
   // We let an environment variable override the default so that addons
-  // authors can use it for debugging shutdown with released firefox versions.
+  // authors can use it for debugging shutdown with released application versions.
   const char* mozShutdownChecksEnv = PR_GetEnv("MOZ_SHUTDOWN_CHECKS");
   if (mozShutdownChecksEnv) {
     if (strcmp(mozShutdownChecksEnv, "crash") == 0) {
@@ -3076,19 +3026,6 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
   *aExitFlag = false;
 
   SetShutdownChecks();
-
-  // Enable Telemetry IO Reporting on DEBUG, nightly and local builds
-#ifdef DEBUG
-  mozilla::Telemetry::InitIOReporting(gAppData->xreDirectory);
-#else
-  {
-    const char* releaseChannel = NS_STRINGIFY(MOZ_UPDATE_CHANNEL);
-    if (strcmp(releaseChannel, "nightly") == 0 ||
-        strcmp(releaseChannel, "default") == 0) {
-      mozilla::Telemetry::InitIOReporting(gAppData->xreDirectory);
-    }
-  }
-#endif /* DEBUG */
 
 #if defined(MOZ_WIDGET_GTK) || defined(MOZ_ENABLE_XREMOTE)
   // Stash DESKTOP_STARTUP_ID in malloc'ed memory because gtk_init will clear it.
@@ -3405,8 +3342,6 @@ XREMain::XRE_mainStartup(bool* aExitFlag)
 
   //////////////////////// NOW WE HAVE A PROFILE ////////////////////////
 
-  mozilla::Telemetry::SetProfileDir(mProfD);
-
   nsAutoCString version;
   BuildVersion(version);
 
@@ -3643,6 +3578,16 @@ XREMain::XRE_mainRun()
     }
   }
 
+#ifndef XP_WIN
+  nsCOMPtr<nsIFile> profileDir;
+  nsAutoCString path;
+  rv = mDirProvider.GetProfileStartupDir(getter_AddRefs(profileDir));
+  if (NS_SUCCEEDED(rv) && NS_SUCCEEDED(profileDir->GetNativePath(path)) && !IsUTF8(path)) {
+    PR_fprintf(PR_STDERR, "Error: The profile path is not valid UTF-8. Unable to continue.\n");
+    return NS_ERROR_FAILURE;
+  }
+#endif
+
   mDirProvider.DoStartup();
 
   // As FilePreferences need the profile directory, we must initialize right here.
@@ -3800,15 +3745,6 @@ void XRE_GlibInit()
 }
 #endif
 
-// Separate stub function to let us specifically suppress it in Valgrind
-void
-XRE_CreateStatsObject()
-{
-  // Initialize global variables used by histogram collection
-  // machinery that is used by by Telemetry.  Note: is never de-initialised.
-  Telemetry::CreateStatisticsRecorder();
-}
-
 /*
  * XRE_main - A class based main entry point used by most platforms.
  *            Note that on OSX, aAppData->xreDirectory will point to
@@ -3818,16 +3754,6 @@ int
 XREMain::XRE_main(int argc, char* argv[], const nsXREAppData* aAppData)
 {
   ScopedLogging log;
-
-  // NB: this must happen after the creation of |ScopedLogging log| since
-  // ScopedLogging::ScopedLogging calls NS_LogInit, and
-  // XRE_CreateStatsObject calls Telemetry::CreateStatisticsRecorder,
-  // and NS_LogInit must be called before Telemetry::CreateStatisticsRecorder.
-  // NS_LogInit must be called before Telemetry::CreateStatisticsRecorder
-  // so as to avoid many log messages of the form
-  //   WARNING: XPCOM objects created/destroyed from static ctor/dtor: [..]
-  // See bug 1279614.
-  XRE_CreateStatsObject();
 
   char aLocal;
   GeckoProfilerInitRAII profilerGuard(&aLocal);
@@ -3977,7 +3903,6 @@ XRE_main(int argc, char* argv[], const nsXREAppData* aAppData, uint32_t aFlags)
   XREMain main;
 
   int result = main.XRE_main(argc, argv, aAppData);
-  mozilla::RecordShutdownEndTimeStamp();
   return result;
 }
 
@@ -4100,21 +4025,6 @@ XRE_IsContentProcess()
   return XRE_GetProcessType() == GeckoProcessType_Content;
 }
 
-// If you add anything to this enum, please update about:support to reflect it
-enum {
-  kE10sEnabledByUser = 0,
-  kE10sEnabledByDefault = 1,
-  kE10sDisabledByUser = 2,
-  // kE10sDisabledInSafeMode = 3, was removed in bug 1172491.
-  kE10sDisabledForAccessibility = 4,
-  // kE10sDisabledForMacGfx = 5, was removed in bug 1068674.
-  // kE10sDisabledForBidi = 6, removed in bug 1309599
-  kE10sDisabledForAddons = 7,
-  kE10sForceDisabled = 8,
-  // kE10sDisabledForXPAcceleration = 9, removed in bug 1296353
-  // kE10sDisabledForOperatingSystem = 10, removed due to xp-eol
-};
-
 const char* kAccessibilityLastRunDatePref = "accessibility.lastLoadDate";
 const char* kAccessibilityLoadedLastSessionPref = "accessibility.loadedInLastSession";
 
@@ -4127,63 +4037,19 @@ PRTimeToSeconds(PRTime t_usec)
 }
 #endif
 
-uint32_t
-MultiprocessBlockPolicy() {
-  if (gMultiprocessBlockPolicyInitialized) {
-    return gMultiprocessBlockPolicy;
-  }
-  gMultiprocessBlockPolicyInitialized = true;
-
-  // We do not support E10S, block by policy.
-  gMultiprocessBlockPolicy = kE10sForceDisabled;
-
-  return gMultiprocessBlockPolicy;
-}
-
-bool
-mozilla::BrowserTabsRemoteAutostart()
-{
-  if (gBrowserTabsRemoteAutostartInitialized) {
-    return gBrowserTabsRemoteAutostart;
-  }
-  gBrowserTabsRemoteAutostartInitialized = true;
-
-  bool optInPref = Preferences::GetBool("browser.tabs.remote.autostart", false);
-  bool trialPref = Preferences::GetBool("browser.tabs.remote.autostart.2", false);
-  bool prefEnabled = optInPref || trialPref;
-  int status;
-
-  if (prefEnabled) {
-    uint32_t blockPolicy = MultiprocessBlockPolicy();
-    if (blockPolicy != 0) {
-      status = blockPolicy;
-    } else {
-      MOZ_CRASH("e10s force enabled bypassing policy -- unsupported configuration");
-    }
-  } else {
-    status = kE10sDisabledByUser;
-  }
-
-  gBrowserTabsRemoteStatus = status;
-
-  return gBrowserTabsRemoteAutostart;
-}
-
 void
 SetupErrorHandling(const char* progname)
 {
 #ifdef XP_WIN
-  /* On Windows XPSP3 and Windows Vista if DEP is configured off-by-default
-     we still want DEP protection: enable it explicitly and programmatically.
-
-     This function is not available on WinXPSP2 so we dynamically load it.
-  */
-
   HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
   SetProcessDEPPolicyFunc _SetProcessDEPPolicy =
     (SetProcessDEPPolicyFunc) GetProcAddress(kernel32, "SetProcessDEPPolicy");
-  if (_SetProcessDEPPolicy)
+  if (_SetProcessDEPPolicy) {
     _SetProcessDEPPolicy(PROCESS_DEP_ENABLE);
+  } else {
+    // Running without DEP is unsafe.
+    MOZ_CRASH("DEP unavailable -- unsupported configuration");
+  }
 #endif
 
 #ifdef XP_WIN32

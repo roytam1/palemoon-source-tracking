@@ -40,11 +40,6 @@
 #include "nsIRemoteBlob.h"
 #include "nsQueryObject.h"
 
-#ifdef MOZ_WEBRTC
-#include "mozilla/dom/RTCCertificate.h"
-#include "mozilla/dom/RTCCertificateBinding.h"
-#endif
-
 using namespace mozilla::ipc;
 
 namespace mozilla {
@@ -408,31 +403,6 @@ StructuredCloneHolder::ReadFullySerializableObjects(JSContext* aCx,
     return result.toObjectOrNull();
   }
 
-#ifdef MOZ_WEBRTC
-  if (aTag == SCTAG_DOM_RTC_CERTIFICATE) {
-    if (!NS_IsMainThread()) {
-      return nullptr;
-    }
-
-    nsIGlobalObject *global = xpc::NativeGlobal(JS::CurrentGlobalOrNull(aCx));
-    if (!global) {
-      return nullptr;
-    }
-
-    // Prevent the return value from being trashed by a GC during ~nsRefPtr.
-    JS::Rooted<JSObject*> result(aCx);
-    {
-      RefPtr<RTCCertificate> cert = new RTCCertificate(global);
-      if (!cert->ReadStructuredClone(aReader)) {
-        result = nullptr;
-      } else {
-        result = cert->WrapObject(aCx, nullptr);
-      }
-    }
-    return result;
-  }
-#endif
-
   // Don't know what this is. Bail.
   xpc::Throw(aCx, NS_ERROR_DOM_DATA_CLONE_ERR);
   return nullptr;
@@ -470,18 +440,6 @@ StructuredCloneHolder::WriteFullySerializableObjects(JSContext* aCx,
              key->WriteStructuredClone(aWriter);
     }
   }
-
-#ifdef MOZ_WEBRTC
-  {
-    // Handle WebRTC Certificate cloning
-    RTCCertificate* cert = nullptr;
-    if (NS_SUCCEEDED(UNWRAP_OBJECT(RTCCertificate, &obj, cert))) {
-      MOZ_ASSERT(NS_IsMainThread());
-      return JS_WriteUint32Pair(aWriter, SCTAG_DOM_RTC_CERTIFICATE, 0) &&
-             cert->WriteStructuredClone(aWriter);
-    }
-  }
-#endif
 
   if (NS_IsMainThread() && xpc::IsReflector(obj)) {
     nsCOMPtr<nsISupports> base = xpc::UnwrapReflectorToISupports(obj);

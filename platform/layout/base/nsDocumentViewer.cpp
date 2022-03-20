@@ -64,10 +64,8 @@
 #include "nsCopySupport.h"
 #include "nsIDOMHTMLFrameSetElement.h"
 #include "nsIDOMHTMLImageElement.h"
-#ifdef MOZ_XUL
 #include "nsIXULDocument.h"
 #include "nsXULPopupManager.h"
-#endif
 
 #include "nsIClipboardHelper.h"
 
@@ -124,7 +122,6 @@
 #include <stdio.h>
 
 #include "mozilla/dom/Element.h"
-#include "mozilla/Telemetry.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -1395,11 +1392,9 @@ nsDocumentViewer::PageHide(bool aIsUnload)
     EventDispatcher::Dispatch(window, mPresContext, &event, nullptr, &status);
   }
 
-#ifdef MOZ_XUL
   // look for open menupopups and close them after the unload event, in case
   // the unload event listeners open any new popups
   nsContentUtils::HidePopupsInDocument(mDocument);
-#endif
 
   return NS_OK;
 }
@@ -3581,7 +3576,6 @@ nsDocumentViewer::GetPopupNode(nsIDOMNode** aNode)
 
     // get the popup node
     nsCOMPtr<nsIDOMNode> node = root->GetPopupNode();
-#ifdef MOZ_XUL
     if (!node) {
       nsPIDOMWindowOuter* rootWindow = root->GetWindow();
       if (rootWindow) {
@@ -3594,7 +3588,6 @@ nsDocumentViewer::GetPopupNode(nsIDOMNode** aNode)
         }
       }
     }
-#endif
     node.swap(*aNode);
   }
 
@@ -4324,7 +4317,7 @@ nsDocumentViewer::ShouldAttachToTopLevel()
   if (nsIWidget::UsePuppetWidgets())
     return true;
 
-#if defined(XP_WIN) || defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_UIKIT)
+#if defined(XP_WIN) || defined(MOZ_WIDGET_GTK)
   // On windows, in the parent process we also attach, but just to
   // chrome items
   nsWindowType winType = mParentWidget->WindowType();

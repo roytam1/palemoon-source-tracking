@@ -148,7 +148,8 @@ nsPseudoClassList::nsPseudoClassList(CSSPseudoClassType aType,
   : mType(aType),
     mNext(nullptr)
 {
-  NS_ASSERTION(nsCSSPseudoClasses::HasSelectorListArg(aType),
+  NS_ASSERTION(nsCSSPseudoClasses::HasSelectorListArg(aType) ||
+	       nsCSSPseudoClasses::HasOptionalSelectorListArg(aType),
                "unexpected pseudo-class");
   NS_ASSERTION(aSelectorList, "selector list expected");
   MOZ_COUNT_CTOR(nsPseudoClassList);
@@ -313,6 +314,7 @@ nsCSSSelector::nsCSSSelector(void)
     mPseudoClassList(nullptr),
     mAttrList(nullptr),
     mNegations(nullptr),
+    mExplicitUniversal(false),
     mNext(nullptr),
     mNameSpace(kNameSpaceID_Unknown),
     mOperator(0),
@@ -380,6 +382,17 @@ void nsCSSSelector::Reset(void)
                "mNegations can't have non-null mNext");
   NS_CSS_DELETE_LIST_MEMBER(nsCSSSelector, this, mNegations);
   mOperator = char16_t(0);
+}
+
+bool nsCSSSelector::HasFeatureSelectors()
+{
+  return mExplicitUniversal || mLowercaseTag || mCasedTag ||
+    mIDList || mClassList || mAttrList;
+}
+
+void nsCSSSelector::SetHasExplicitUniversal()
+{
+  mExplicitUniversal = true;
 }
 
 void nsCSSSelector::SetNameSpace(int32_t aNameSpace)
@@ -489,17 +502,11 @@ int32_t nsCSSSelector::CalcWeightWithoutNegations() const
 {
   int32_t weight = 0;
 
-#ifdef MOZ_XUL
   MOZ_ASSERT(!(IsPseudoElement() &&
                PseudoType() != CSSPseudoElementType::XULTree &&
                mClassList),
              "If non-XUL-tree pseudo-elements can have class selectors "
              "after them, specificity calculation must be updated");
-#else
-  MOZ_ASSERT(!(IsPseudoElement() && mClassList),
-             "If pseudo-elements can have class selectors "
-             "after them, specificity calculation must be updated");
-#endif
   MOZ_ASSERT(!(IsPseudoElement() && (mIDList || mAttrList)),
              "If pseudo-elements can have id or attribute selectors "
              "after them, specificity calculation must be updated");
@@ -513,13 +520,11 @@ int32_t nsCSSSelector::CalcWeightWithoutNegations() const
     list = list->mNext;
   }
   list = mClassList;
-#ifdef MOZ_XUL
   // XUL tree pseudo-elements abuse mClassList to store some private
   // data; ignore that.
   if (PseudoType() == CSSPseudoElementType::XULTree) {
     list = nullptr;
   }
-#endif
   while (nullptr != list) {
     weight += 0x000100;
     list = list->mNext;
@@ -750,9 +755,9 @@ nsCSSSelector::AppendToStringWithoutCombinatorsOrNegations
     // Universal selector:  avoid writing the universal selector when we
     // can avoid it, especially since we're required to avoid it for the
     // inside of :not()
-    if (wroteNamespace ||
+    if (wroteNamespace || mExplicitUniversal ||
         (!mIDList && !mClassList && !mPseudoClassList && !mAttrList &&
-         (aIsNegated || !mNegations))) {
+         aIsNegated)) {
       aString.Append(char16_t('*'));
     }
   } else {
@@ -760,9 +765,7 @@ nsCSSSelector::AppendToStringWithoutCombinatorsOrNegations
     nsAutoString tag;
     (isPseudoElement ? mLowercaseTag : mCasedTag)->ToString(tag);
     if (isPseudoElement) {
-      if (!mNext) {
-        // Lone pseudo-element selector -- toss in a wildcard type selector
-        // XXXldb Why?
+      if (mExplicitUniversal) {
         aString.Append(char16_t('*'));
       }
       // While our atoms use one colon, most pseudo-elements require two
@@ -793,7 +796,6 @@ nsCSSSelector::AppendToStringWithoutCombinatorsOrNegations
   // Append each class in the linked list
   if (mClassList) {
     if (isPseudoElement) {
-#ifdef MOZ_XUL
       MOZ_ASSERT(nsCSSAnonBoxes::IsTreePseudoElement(mLowercaseTag),
                  "must be tree pseudo-element");
 
@@ -804,9 +806,6 @@ nsCSSSelector::AppendToStringWithoutCombinatorsOrNegations
       }
       // replace the final comma with a close-paren
       aString.Replace(aString.Length() - 1, 1, char16_t(')'));
-#else
-      NS_ERROR("Can't happen");
-#endif
     } else {
       nsAtomList* list = mClassList;
       while (list != nullptr) {

@@ -17,6 +17,6 @@ SOURCES += [
     'lls_init.c'
 ]
 
-FINAL_LIBRARY = 'mozavutil'
+FINAL_LIBRARY = 'ffvpxutil'
 
-include('/media/ffvpx/ffvpxcommon.mozbuild')
+include('/libs/ffvpx/ffvpxcommon.mozbuild')

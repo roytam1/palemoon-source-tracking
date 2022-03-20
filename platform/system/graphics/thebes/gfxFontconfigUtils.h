@@ -305,12 +305,10 @@ protected:
 
     FcConfig *mLastConfig;
 
-#ifdef MOZ_BUNDLED_FONTS
     void      ActivateBundledFonts();
 
     nsCString mBundledFontsPath;
     bool      mBundledFontsInitialized;
-#endif
 };
 
 class gfxFontconfigFontBase : public gfxFT2FontBase {

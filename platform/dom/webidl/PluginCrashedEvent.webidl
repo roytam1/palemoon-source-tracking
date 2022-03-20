@@ -13,7 +13,6 @@ interface PluginCrashedEvent : Event
   readonly attribute DOMString? browserDumpID;
   readonly attribute DOMString? pluginFilename;
   readonly attribute boolean submittedCrashReport;
-  readonly attribute boolean gmpPlugin;
 };
 
 dictionary PluginCrashedEventInit : EventInit
@@ -24,5 +23,4 @@ dictionary PluginCrashedEventInit : EventInit
   DOMString? browserDumpID = null;
   DOMString? pluginFilename = null;
   boolean submittedCrashReport = false;
-  boolean gmpPlugin = false;
 };

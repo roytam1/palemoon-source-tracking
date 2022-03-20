@@ -25,7 +25,6 @@
 #include "WebAudioUtils.h"
 #include "mozilla/dom/Promise.h"
 #include "nsPrintfCString.h"
-#include "GMPService.h"
 
 namespace mozilla {
 
@@ -181,24 +180,6 @@ MediaDecodeTask::Run()
   return NS_OK;
 }
 
-class BufferDecoderGMPCrashHelper : public GMPCrashHelper
-{
-public:
-  explicit BufferDecoderGMPCrashHelper(nsPIDOMWindowInner* aParent)
-    : mParent(do_GetWeakReference(aParent))
-  {
-    MOZ_ASSERT(NS_IsMainThread());
-  }
-  already_AddRefed<nsPIDOMWindowInner> GetPluginCrashedEventTarget() override
-  {
-    MOZ_ASSERT(NS_IsMainThread());
-    nsCOMPtr<nsPIDOMWindowInner> window = do_QueryReferent(mParent);
-    return window.forget();
-  }
-private:
-  nsWeakPtr mParent;
-};
-
 bool
 MediaDecodeTask::CreateReader()
 {
@@ -216,8 +197,7 @@ MediaDecodeTask::CreateReader()
                             mLength, principal, mContentType);
 
   MOZ_ASSERT(!mBufferDecoder);
-  mBufferDecoder = new BufferDecoder(resource,
-    new BufferDecoderGMPCrashHelper(mDecodeJob.mContext->GetParentObject()));
+  mBufferDecoder = new BufferDecoder(resource);
 
   // If you change this list to add support for new decoders, please consider
   // updating HTMLMediaElement::CreateDecoder as well.

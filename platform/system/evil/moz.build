@@ -26,9 +26,6 @@ def Libxul(name):
     if CONFIG['ACCESSIBILITY']:
         DELAYLOAD_DLLS += ['oleacc.dll']
 
-    if CONFIG['MOZ_WEBRTC']:
-        DELAYLOAD_DLLS += ['msdmo.dll']
-
     if CONFIG['OS_ARCH'] == 'WINNT':
         DELAYLOAD_DLLS += [
             'api-ms-win-core-winrt-l1-1-0.dll',
@@ -37,14 +34,14 @@ def Libxul(name):
 
     if CONFIG['OS_ARCH'] == 'WINNT' and not CONFIG['GNU_CC']:
         LOCAL_INCLUDES += [
-            '/widget/windows',
+            '/system/interface/windows',
             '/xpcom/base',
         ]
         # config/version.mk says $(srcdir)/$(RCINCLUDE), and this needs to
-        # be valid in both toolkit/library and toolkit/library/gtest.
+        # be valid in both system/evil and system/evil/gtest.
         # Eventually, the make backend would do its own path canonicalization
         # and config/version.mk would lift the $(srcdir)
-        RCINCLUDE = '$(DEPTH)/toolkit/library/xulrunner.rc'
+        RCINCLUDE = '$(DEPTH)/system/evil/xulrunner.rc'
 
     Libxul_defines()
 
@@ -79,7 +76,7 @@ if CONFIG['OS_ARCH'] == 'WINNT':
 LOCAL_INCLUDES += [
     '/config',
     # need widget/windows for resource.h (included from widget.rc)
-    '/widget/windows',
+    '/system/interface/windows',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT' and not CONFIG['GNU_CC']:
@@ -96,11 +93,10 @@ USE_LIBS += [
 ]
 
 USE_LIBS += [
-    'gkmedias',
-    'lgpllibs',
+    'gremedia',
+    'lgplmedia',
     'nspr',
     'nss',
-    'psshparser',
     'sqlite',
     'zlib',
 ]
@@ -120,19 +116,6 @@ if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT'] or \
     USE_LIBS += [
         'freetype',
     ]
-
-if CONFIG['MOZ_WEBRTC']:
-    if CONFIG['OS_TARGET'] == 'WINNT':
-        OS_LIBS += [
-            'secur32',
-            'iphlpapi',
-            'strmiids',
-            'dmoguids',
-            'wmcodecdspuuid',
-            'amstrmid',
-            'msdmo',
-            'wininet',
-        ]
 
 if CONFIG['MOZ_WMF']:
     OS_LIBS += [
@@ -161,7 +144,6 @@ if CONFIG['OS_ARCH'] == 'Linux':
     ]
 
 OS_LIBS += CONFIG['MOZ_CAIRO_OSLIBS']
-OS_LIBS += CONFIG['MOZ_WEBRTC_X11_LIBS']
 
 if CONFIG['SERVO_TARGET_DIR']:
     if CONFIG['_MSC_VER']:
@@ -183,11 +165,6 @@ if CONFIG['MOZ_ALSA']:
 
 if CONFIG['HAVE_CLOCK_MONOTONIC']:
     OS_LIBS += CONFIG['REALTIME_LIBS']
-
-if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'android':
-    OS_LIBS += [
-        'GLESv2',
-    ]
 
 if 'rtsp' in CONFIG['NECKO_PROTOCOLS']:
     OS_LIBS += [

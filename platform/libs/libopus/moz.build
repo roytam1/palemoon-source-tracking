@@ -16,13 +16,13 @@ EXPORTS.opus += [
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 DEFINES['OPUS_BUILD'] = True
 DEFINES['OPUS_VERSION'] = '"v1.1.3-mozilla"'
 DEFINES['USE_ALLOCA'] = True
 
-# We only need to export symbols if we're built into libgkmedias
+# We only need to export symbols if we're built into libgremedia
 # instead of libxul.
 if not CONFIG['GKMEDIAS_SHARED_LIBRARY']:
     DEFINES['OPUS_EXPORT'] = ''

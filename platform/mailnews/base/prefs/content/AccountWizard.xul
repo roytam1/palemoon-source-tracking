@@ -10,11 +10,7 @@
 <wizard id="AccountWizard" title="&windowTitle.label;"
         onwizardcancel="return onCancel();"
         onwizardfinish="return FinishAccount();"
-#if defined(MOZ_THUNDERBIRD) && defined(HYPE_ICEDOVE)
-        onload="onAccountWizardLoad(); initAccountWizardTB(window.arguments);"
-#else
         onload="onAccountWizardLoad();"
-#endif
         style="&accountWizard.size;"
         xmlns:nc="http://home.netscape.com/NC-rdf#"
         xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
@@ -43,11 +39,9 @@
       <label control="acctyperadio">&accountTypeDirections.label;</label>
       <separator/>
       <radiogroup id="acctyperadio" >
-#if !defined(MOZ_THUNDERBIRD) || !defined(HYPE_ICEDOVE)
         <radio id="mailaccount" value="mailaccount"
                label="&accountTypeMail.label;" accesskey="&accountTypeMail.accesskey;"
                selected="true"/>
-#endif
         <vbox datasources="rdf:ispdefaults" 
               containment="http://home.netscape.com/NC-rdf#providers"
               id="ispBox"

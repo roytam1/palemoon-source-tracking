@@ -7,7 +7,7 @@
 #define nsWebBrowserFindImpl_h__
 
 #include "nsIWebBrowserFind.h"
-
+#include "nsPIDOMWindow.h"
 #include "nsCOMPtr.h"
 #include "nsWeakReference.h"
 

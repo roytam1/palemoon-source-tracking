@@ -47,7 +47,7 @@ nsPNGEncoder::~nsPNGEncoder()
 //    output PNG will not have an alpha channel, even if the input does.
 //
 //    Based partially on gfx/cairo/cairo/src/cairo-png.c
-//    See also media/libpng/libpng-manual.txt
+//    See also libs/libpng/libpng-manual.txt
 
 NS_IMETHODIMP
 nsPNGEncoder::InitFromData(const uint8_t* aData,

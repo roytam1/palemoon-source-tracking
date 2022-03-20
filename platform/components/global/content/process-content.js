@@ -14,13 +14,6 @@ Cu.import("resource://gre/modules/Services.jsm");
 
 const gInContentProcess = Services.appinfo.processType == Ci.nsIXULRuntime.PROCESS_TYPE_CONTENT;
 
-Services.cpmm.addMessageListener("gmp-plugin-crash", msg => {
-  let gmpservice = Cc["@mozilla.org/gecko-media-plugin-service;1"]
-                     .getService(Ci.mozIGeckoMediaPluginService);
-
-  gmpservice.RunPluginCrashCallbacks(msg.data.pluginID, msg.data.pluginName);
-});
-
 if (gInContentProcess) {
   let ProcessObserver = {
     TOPICS: [

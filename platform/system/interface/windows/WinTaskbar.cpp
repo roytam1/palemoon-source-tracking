@@ -1,4 +1,3 @@
-/* vim: se cin sw=2 ts=2 et : */
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*-
  *
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -246,7 +245,7 @@ WinTaskbar::GetAppUserModelID(nsAString & aDefaultGroupId) {
     bool exists = false;
     if (profileDir && NS_SUCCEEDED(profileDir->Exists(&exists)) && exists) {
       nsAutoCString path;
-      if (NS_SUCCEEDED(profileDir->GetNativePath(path))) {
+      if (NS_SUCCEEDED(profileDir->GetPersistentDescriptor(path))) {
         nsAutoString id;
         id.AppendInt(HashString(path));
         if (!id.IsEmpty()) {

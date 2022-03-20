@@ -28,8 +28,8 @@
 #define MOZ_GL_DEBUG 1
 #endif
 
-#include "../../mfbt/RefPtr.h"
-#include "../../mfbt/UniquePtr.h"
+#include "../../system/framework/RefPtr.h"
+#include "../../system/framework/UniquePtr.h"
 
 #include "GLDefs.h"
 #include "GLLibraryLoader.h"

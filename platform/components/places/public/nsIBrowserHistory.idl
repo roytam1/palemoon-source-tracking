@@ -8,7 +8,7 @@
  */
 
 #include "nsISupports.idl"
-#include "nsIGlobalHistory2.idl"
+interface nsIURI;
 
 [scriptable, uuid(20d31479-38de-49f4-9300-566d6e834c66)]
 interface nsIBrowserHistory : nsISupports

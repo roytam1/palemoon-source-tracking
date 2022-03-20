@@ -3,4 +3,35 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-JAR_MANIFESTS += ['jar.mn']
+include('/ipc/chromium/chromium-config.mozbuild')
+
+IPDL_SOURCES += [
+  'public/PPrinting.ipdl',
+  'public/PPrintingTypes.ipdlh',
+  'public/PPrintProgressDialog.ipdl',
+  'public/PPrintSettingsDialog.ipdl',
+]
+
+EXPORTS += ['src/nsPrintingProxy.h']
+
+EXPORTS.mozilla.embedding.printingui += ['src/PrintingParent.h']
+
+if CONFIG['NS_PRINTING']:
+  if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'windows':
+    DIRS += ['src/win']
+  else:
+    DIRS += ['src/unix']
+
+  SOURCES += [
+    'src/nsPrintingProxy.cpp',
+    'src/PrintDataUtils.cpp',
+    'src/PrintingParent.cpp',
+    'src/PrintProgressDialogChild.cpp',
+    'src/PrintProgressDialogParent.cpp',
+    'src/PrintSettingsDialogChild.cpp',
+    'src/PrintSettingsDialogParent.cpp',
+  ]
+
+  JAR_MANIFESTS += ['jar.mn']
+
+FINAL_LIBRARY = 'xul'

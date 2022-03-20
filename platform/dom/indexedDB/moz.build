@@ -99,11 +99,11 @@ if CONFIG['GNU_CC']:
     CXXFLAGS += ['-Wno-error=shadow']
 
 LOCAL_INCLUDES += [
-    '/db/sqlite3/src',
     '/dom/base',
     '/dom/storage',
     '/dom/workers',
     '/ipc/glue',
+    '/libs/sqlite3/src',
     '/xpcom/build',
     '/xpcom/threads',
 ]

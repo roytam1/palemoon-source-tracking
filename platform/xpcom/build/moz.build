@@ -9,7 +9,6 @@ EXPORTS += [
     'nsXPCOMCIDInternal.h',
     'nsXREAppData.h',
     'nsXULAppAPI.h',
-    'XREChildData.h',
     'xrecore.h',
 ]
 
@@ -80,11 +79,11 @@ LOCAL_INCLUDES += [
     '../io',
     '../reflect/xptinfo',
     '../threads',
-    '/chrome',
-    '/docshell/base',
+    '/components/registry/src',
+    '/system/docshell/base',
 ]
 
 if CONFIG['MOZ_VPX']:
     LOCAL_INCLUDES += [
-        '/media/libvpx',
+        '/libs/libvpx',
     ]

@@ -1,0 +1,19 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+if CONFIG['GKMEDIAS_SHARED_LIBRARY']:
+  GeckoSharedLibrary('gremedia', linkage=None)
+  USE_LIBS += ['nspr']
+else:
+  Library('gremedia')
+
+if CONFIG['OS_TARGET'] == 'WINNT':
+  DEFFILE = 'symbols.def'
+  OS_LIBS += [
+    'usp10',
+    'ole32',
+    'msimg32',
+    'winmm',
+  ]

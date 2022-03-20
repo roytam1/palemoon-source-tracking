@@ -54,6 +54,7 @@ const VALID_TYPES_REGEXP = /^[\w\-]+$/;
 
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
+Cu.import("resource://gre/modules/Async.jsm");
 Cu.import("resource://gre/modules/AsyncShutdown.jsm");
 
 XPCOMUtils.defineLazyModuleGetter(this, "Task",
@@ -168,7 +169,6 @@ function safeCall(aCallback, ...aArgs) {
  */
 function reportProviderError(aProvider, aMethod, aError) {
   let method = `provider ${providerName(aProvider)}.${aMethod}`;
-  AddonManagerPrivate.recordException("AMI", method, aError);
   logger.error("Exception calling " + method, aError);
 }
 
@@ -631,12 +631,6 @@ var AddonManagerInternal = {
   providerShutdowns: new Map(),
   types: {},
   startupChanges: {},
-  // Store telemetry details per addon provider
-  telemetryDetails: {},
-
-  recordTimestamp: function(name, value) {
-    this.TelemetryTimestamps.add(name, value);
-  },
 
   validateBlocklist: function() {
     let appBlocklist = FileUtils.getFile(KEY_APPDIR, [FILE_BLOCKLIST]);
@@ -748,7 +742,6 @@ var AddonManagerInternal = {
           })
           .catch(err => {
             logger.warn("Failure during shutdown of " + name, err);
-            AddonManagerPrivate.recordException("AMI", "Async shutdown of " + name, err);
           });
       };
       logger.debug("Registering shutdown blocker for " + name);
@@ -770,12 +763,6 @@ var AddonManagerInternal = {
       if (gStarted)
         return;
 
-      this.recordTimestamp("AMI_startup_begin");
-
-      // clear this for xpcshell test restarts
-      for (let provider in this.telemetryDetails)
-        delete this.telemetryDetails[provider];
-
       let appChanged = undefined;
 
       let oldAppVersion = null;
@@ -792,7 +779,7 @@ var AddonManagerInternal = {
         Services.prefs.setCharPref(PREF_EM_LAST_APP_VERSION,
                                    Services.appinfo.version);
         Services.prefs.setCharPref(PREF_EM_LAST_PLATFORM_VERSION,
-                                   Services.appinfo.platformVersion);
+                                   Services.appinfo.greVersion);
         Services.prefs.setIntPref(PREF_BLOCKLIST_PINGCOUNTVERSION,
                                   (appChanged === undefined ? 0 : -1));
         this.validateBlocklist();
@@ -822,7 +809,6 @@ var AddonManagerInternal = {
       Services.prefs.addObserver(PREF_EM_AUTOUPDATE_DEFAULT, this, false);
 
       let defaultProvidersEnabled = Services.prefs.getBoolPref(PREF_DEFAULT_PROVIDERS_ENABLED, true);
-      AddonManagerPrivate.recordSimpleMeasure("default_providers", defaultProvidersEnabled);
 
       // Ensure all default providers have had a chance to register themselves
       if (defaultProvidersEnabled) {
@@ -836,12 +822,10 @@ var AddonManagerInternal = {
             if ((syms.length < 1) ||
                 (typeof scope[syms[0]].startup != "function")) {
               logger.warn("Provider " + url + " has no startup()");
-              AddonManagerPrivate.recordException("AMI", "provider " + url, "no startup()");
             }
             logger.debug("Loaded provider scope for " + url + ": " + Object.keys(scope).toSource());
           }
           catch (e) {
-            AddonManagerPrivate.recordException("AMI", "provider " + url + " load failed", e);
             logger.error("Exception loading default provider \"" + url + "\"", e);
           }
         };
@@ -860,7 +844,6 @@ var AddonManagerInternal = {
           logger.debug(`Loaded provider scope for ${url}`);
         }
         catch (e) {
-          AddonManagerPrivate.recordException("AMI", "provider " + url + " load failed", e);
           logger.error("Exception loading provider " + entry + " from category \"" +
                 url + "\"", e);
         }
@@ -886,11 +869,9 @@ var AddonManagerInternal = {
       }
 
       gStartupComplete = true;
-      this.recordTimestamp("AMI_startup_end");
     }
     catch (e) {
       logger.error("startup failed", e);
-      AddonManagerPrivate.recordException("AMI", "startup failed", e);
     }
 
     logger.debug("Completed startup sequence");
@@ -1105,7 +1086,6 @@ var AddonManagerInternal = {
       catch(err) {
         savedError = err;
         logger.error("Failure during wait for shutdown barrier", err);
-        AddonManagerPrivate.recordException("AMI", "Async shutdown of AddonManager providers", err);
       }
     }
 
@@ -1118,7 +1098,6 @@ var AddonManagerInternal = {
     catch(err) {
       savedError = err;
       logger.error("Failure during AddonRepository shutdown", err);
-      AddonManagerPrivate.recordException("AMI", "Async shutdown of AddonRepository", err);
     }
 
     logger.debug("Async provider shutdown done");
@@ -2518,56 +2497,6 @@ this.AddonManagerPrivate = {
 
   AddonType: AddonType,
 
-  recordTimestamp: function(name, value) {
-    AddonManagerInternal.recordTimestamp(name, value);
-  },
-
-  _simpleMeasures: {},
-  recordSimpleMeasure: function(name, value) {
-    this._simpleMeasures[name] = value;
-  },
-
-  recordException: function(aModule, aContext, aException) {
-    let report = {
-      module: aModule,
-      context: aContext
-    };
-
-    if (typeof aException == "number") {
-      report.message = Components.Exception("", aException).name;
-    }
-    else {
-      report.message = aException.toString();
-      if (aException.fileName) {
-        report.file = aException.fileName;
-        report.line = aException.lineNumber;
-      }
-    }
-
-    this._simpleMeasures.exception = report;
-  },
-
-  getSimpleMeasures: function() {
-    return this._simpleMeasures;
-  },
-
-  getTelemetryDetails: function() {
-    return AddonManagerInternal.telemetryDetails;
-  },
-
-  setTelemetryDetails: function(aProvider, aDetails) {
-    AddonManagerInternal.telemetryDetails[aProvider] = aDetails;
-  },
-
-  // Start a timer, record a simple measure of the time interval when
-  // timer.done() is called
-  simpleTimer: function(aName) {
-    let startTime = Cu.now();
-    return {
-      done: () => this.recordSimpleMeasure(aName, Math.round(Cu.now() - startTime))
-    };
-  },
-
   /**
    * Helper to call update listeners when no update is available.
    *
@@ -2809,6 +2738,15 @@ this.AddonManager = {
   },
 
   getAddonByID: function(aID, aCallback) {
+    // If no callback is specified in the public function call
+    // then use Async.jsm to provide pseudo-sync functionality.
+    if (!aCallback) {
+      aCallback = Async.makeSyncCallback();
+      AddonManagerInternal.getAddonByID(aID, aCallback);
+      return Async.waitForSyncCallback(aCallback);
+    }
+
+    // Use the mozilla documented asynchronous behavior.
     AddonManagerInternal.getAddonByID(aID, aCallback);
   },
 
@@ -2817,6 +2755,15 @@ this.AddonManager = {
   },
 
   getAddonsByIDs: function(aIDs, aCallback) {
+    // If no callback is specified in the public function call
+    // then use Async.jsm to provide pseudo-sync functionality.
+    if (!aCallback) {
+      aCallback = Async.makeSyncCallback();
+      AddonManagerInternal.getAddonsByIDs(aIDs, aCallback);
+      return Async.waitForSyncCallback(aCallback);
+    }
+
+    // Use the mozilla documented asynchronous behavior.
     AddonManagerInternal.getAddonsByIDs(aIDs, aCallback);
   },
 
@@ -2825,10 +2772,28 @@ this.AddonManager = {
   },
 
   getAddonsByTypes: function(aTypes, aCallback) {
+    // If no callback is specified in the public function call
+    // then use Async.jsm to provide pseudo-sync functionality.
+    if (!aCallback) {
+      aCallback = Async.makeSyncCallback();
+      AddonManagerInternal.getAddonsByTypes(aTypes, aCallback);
+      return Async.waitForSyncCallback(aCallback);
+    }
+
+    // Use the mozilla documented asynchronous behavior.
     AddonManagerInternal.getAddonsByTypes(aTypes, aCallback);
   },
 
   getAllAddons: function(aCallback) {
+    // If no callback is specified in the public function call
+    // then use Async.jsm to provide pseudo-sync functionality.
+    if (!aCallback) {
+      aCallback = Async.makeSyncCallback();
+      AddonManagerInternal.getAllAddons(aCallback);
+      return Async.waitForSyncCallback(aCallback);
+    }
+
+    // Use the mozilla documented asynchronous behavior.
     AddonManagerInternal.getAllAddons(aCallback);
   },
 
@@ -2969,7 +2934,6 @@ this.AddonManager = {
 };
 
 // load the timestamps module into AddonManagerInternal
-Cu.import("resource://gre/modules/TelemetryTimestamps.jsm", AddonManagerInternal);
 Object.freeze(AddonManagerInternal);
 Object.freeze(AddonManagerPrivate);
 Object.freeze(AddonManager);

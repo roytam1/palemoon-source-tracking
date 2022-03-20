@@ -29,13 +29,13 @@ SOURCES += [
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '../../intl/unicharutil/util',
     '../base',
     '../generic',
     '../style',
     '../xul',
     '/dom/base',
     '/dom/html',
+    '/system/intl/unicharutil/util',
 ]
 
 DEFINES['DEBUG_TABLE_STRATEGY_off'] = True

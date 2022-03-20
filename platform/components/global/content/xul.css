@@ -788,7 +788,7 @@ textbox[type="number"] {
 /********** autocomplete textbox **********/
 
 /* SeaMonkey does not use the new toolkit's autocomplete widget */
-%ifdef MOZ_SUITE
+%ifdef BINOC_NAVIGATOR
 
 textbox[type="autocomplete"] {
   -moz-binding: url("chrome://global/content/autocomplete.xml#autocomplete");

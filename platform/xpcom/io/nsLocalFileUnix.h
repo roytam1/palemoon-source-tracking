@@ -20,9 +20,6 @@
 #include "nsIHashable.h"
 #include "nsIClassInfoImpl.h"
 #include "mozilla/Attributes.h"
-#ifdef MOZ_WIDGET_COCOA
-#include "nsILocalFileMac.h"
-#endif
 
 /**
  *  we need these for statfs()
@@ -72,11 +69,7 @@
 
 
 class nsLocalFile final
-#ifdef MOZ_WIDGET_COCOA
-  : public nsILocalFileMac
-#else
   : public nsILocalFile
-#endif
   , public nsIHashable
 {
 public:
@@ -91,9 +84,6 @@ public:
   NS_DECL_THREADSAFE_ISUPPORTS
   NS_DECL_NSIFILE
   NS_DECL_NSILOCALFILE
-#ifdef MOZ_WIDGET_COCOA
-  NS_DECL_NSILOCALFILEMAC
-#endif
   NS_DECL_NSIHASHABLE
 
 public:

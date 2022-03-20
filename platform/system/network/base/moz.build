@@ -74,8 +74,6 @@ XPIDL_SOURCES += [
     'nsINullChannel.idl',
     'nsIParentChannel.idl',
     'nsIParentRedirectingChannel.idl',
-    'nsIPermission.idl',
-    'nsIPermissionManager.idl',
     'nsIPrivateBrowsingChannel.idl',
     'nsIProgressEventSink.idl',
     'nsIPrompt.idl',
@@ -283,17 +281,17 @@ include('/ipc/chromium/chromium-config.mozbuild')
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/docshell/base',
     '/dom/base',
-    '/netwerk/protocol/http',
-    '/netwerk/socket',
-    '/security/pkix/include'
+    '/system/docshell/base',
+    '/system/network/protocol/http',
+    '/system/network/socket',
+    '/system/security/pkix/include',
 ]
 
 if 'rtsp' in CONFIG['NECKO_PROTOCOLS']:
     LOCAL_INCLUDES += [
-        '/netwerk/protocol/rtsp/controller',
-        '/netwerk/protocol/rtsp/rtsp',
+        '/system/network/protocol/rtsp/controller',
+        '/system/network/protocol/rtsp/rtsp',
     ]
 
 if CONFIG['GNU_CXX']:

@@ -169,13 +169,20 @@ NS_IMETHODIMP mozHunspell::SetDictionary(const char16_t *aDictionary)
 
   nsAutoCString dictFileName, affFileName;
 
-  // XXX This isn't really good. nsIFile->NativePath isn't safe for all
-  // character sets on Windows.
-  // A better way would be to QI to nsIFile, and get a filehandle
-  // from there. Only problem is that hunspell wants a path
-
+#ifdef XP_WIN
+  // nsIFile->NativePath isn't safe for all character sets on Windows.
+  // Use GetPath and pass it as a UTF-8 to the hunspell lib instead.
+  // Hunspell 1.5+ supports UTF-8 file paths on Windows
+  // by prefixing "\\\\?\\".
+  nsAutoString affFileNameU;
+  nsresult rv = affFile->GetPath(affFileNameU);
+  NS_ENSURE_SUCCESS(rv, rv);
+  affFileName.AssignLiteral("\\\\?\\");
+  AppendUTF16toUTF8(affFileNameU, affFileName);
+#else
   nsresult rv = affFile->GetNativePath(affFileName);
   NS_ENSURE_SUCCESS(rv, rv);
+#endif
 
   if (mAffixFileName.Equals(affFileName.get()))
     return NS_OK;
@@ -606,9 +613,9 @@ NS_IMETHODIMP mozHunspell::RemoveDirectory(nsIFile *aDir)
   mDynamicDirectories.RemoveObject(aDir);
   LoadDictionaryList(true);
 
-#ifdef MOZ_THUNDERBIRD
+#ifdef BINOC_MAIL
   /*
-   * This notification is needed for Thunderbird. Thunderbird derives the dictionary
+   * This notification is needed for Interlink. Interlink derives the dictionary
    * from the document's "lang" attribute. If a dictionary is removed,
    * we need to change the "lang" attribute.
    */

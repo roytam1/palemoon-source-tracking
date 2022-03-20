@@ -33,8 +33,8 @@ if not CONFIG['NSS_NO_EV_CERTS']:
     ]
 
 LOCAL_INCLUDES += [
-    '/security/manager/ssl',
-    '/security/pkix/include',
+    '../manager/ssl',
+    '../pkix/include',
 ]
 
 DIRS += [

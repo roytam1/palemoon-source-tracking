@@ -5,7 +5,7 @@ include ../../testing/crashtest/sanity/crashtests.list
 
 include ../../accessible/tests/crashtests/crashtests.list
 
-include ../../docshell/base/crashtests/crashtests.list
+include ../../system/docshell/base/crashtests/crashtests.list
 
 include ../../dom/animation/test/crashtests/crashtests.list
 include ../../dom/audiochannel/crashtests/crashtests.list
@@ -32,16 +32,16 @@ include ../../dom/xslt/crashtests/crashtests.list
 include ../../dom/xul/crashtests/crashtests.list
 include ../../dom/xul/templates/crashtests/crashtests.list
 
-include ../../editor/composer/crashtests/crashtests.list
-include ../../editor/libeditor/crashtests/crashtests.list
-include ../../editor/txmgr/tests/crashtests/crashtests.list
+include ../../system/editor/composer/crashtests/crashtests.list
+include ../../system/editor/libeditor/crashtests/crashtests.list
+include ../../system/editor/txmgr/tests/crashtests/crashtests.list
 
-include ../../gfx/tests/crashtests/crashtests.list
+include ../../system/graphics/tests/crashtests/crashtests.list
 
-include ../../image/test/crashtests/crashtests.list
+include ../../system/image/test/crashtests/crashtests.list
 
-include ../../intl/lwbrk/crashtests/crashtests.list
-include ../../intl/uconv/crashtests/crashtests.list
+include ../../system/intl/lwbrk/crashtests/crashtests.list
+include ../../system/intl/uconv/crashtests/crashtests.list
 
 include ../../js/xpconnect/crashtests/crashtests.list
 
@@ -57,17 +57,15 @@ include ../../layout/xul/crashtests/crashtests.list
 include ../../layout/xul/grid/crashtests/crashtests.list
 include ../../layout/xul/tree/crashtests/crashtests.list
 
-include ../../media/libpng/crashtests/crashtests.list
+include ../../libs/libpng/crashtests/crashtests.list
 
-include ../../netwerk/test/crashtests/crashtests.list
+include ../../system/network/test/crashtests/crashtests.list
 
-include ../../parser/htmlparser/tests/crashtests/crashtests.list
+include ../../system/security/manager/ssl/crashtests/crashtests.list
 
-include ../../security/manager/ssl/crashtests/crashtests.list
+include ../../layout/view/crashtests/crashtests.list
 
-include ../../view/crashtests/crashtests.list
-
-include ../../widget/crashtests/crashtests.list
-include ../../widget/gtk/crashtests/crashtests.list
+include ../../system/interface/crashtests/crashtests.list
+include ../../system/interface/gtk/crashtests/crashtests.list
 
 include ../../xpcom/string/crashtests/crashtests.list

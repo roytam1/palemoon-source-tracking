@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 4; indent-tabs-mode: nil; c-basic-offset: 4 -*- */
-/* vim:set expandtab ts=4 sw=4 sts=4 cin: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -5711,7 +5710,7 @@ nsHttpChannel::BeginConnect()
     mRequestHead.SetHTTPS(isHttps);
     mRequestHead.SetOrigin(scheme, host, port);
 
-    SetDoNotTrack();
+    SetGPC();
 
     NeckoOriginAttributes originAttributes;
     NS_GetOriginAttributes(this, originAttributes);
@@ -5829,8 +5828,6 @@ nsHttpChannel::HandleBeginConnectContinue()
 nsresult
 nsHttpChannel::BeginConnectContinue()
 {
-    nsresult rv;
-
     // Check if request was cancelled during suspend AFTER on-modify-request or
     // on-useragent.
     if (mCanceled) {
@@ -5841,37 +5838,6 @@ nsHttpChannel::BeginConnectContinue()
     // nsIHttpChannel.redirectTo API request
     if (mAPIRedirectToURI) {
         return AsyncCall(&nsHttpChannel::HandleAsyncAPIRedirect);
-    }
-    // Check to see if this principal exists on local blocklists.
-    RefPtr<nsChannelClassifier> channelClassifier = new nsChannelClassifier();
-    if (mLoadFlags & LOAD_CLASSIFY_URI) {
-        nsCOMPtr<nsIURIClassifier> classifier = do_GetService(NS_URICLASSIFIERSERVICE_CONTRACTID);
-        bool tpEnabled = false;
-        channelClassifier->ShouldEnableTrackingProtection(this, &tpEnabled);
-        if (classifier && tpEnabled) {
-            // We skip speculative connections by setting mLocalBlocklist only
-            // when tracking protection is enabled. Though we could do this for
-            // both phishing and malware, it is not necessary for correctness,
-            // since no network events will be received while the
-            // nsChannelClassifier is in progress. See bug 1122691.
-            nsCOMPtr<nsIURI> uri;
-            rv = GetURI(getter_AddRefs(uri));
-            if (NS_SUCCEEDED(rv) && uri) {
-                nsAutoCString tables;
-                Preferences::GetCString("urlclassifier.trackingTable", &tables);
-                nsAutoCString results;
-                rv = classifier->ClassifyLocalWithTables(uri, tables, results);
-                if (NS_SUCCEEDED(rv) && !results.IsEmpty()) {
-                    LOG(("nsHttpChannel::ClassifyLocalWithTables found "
-                         "uri on local tracking blocklist [this=%p]",
-                         this));
-                    mLocalBlocklist = true;
-                } else {
-                    LOG(("nsHttpChannel::ClassifyLocalWithTables no result "
-                         "found [this=%p]", this));
-                }
-            }
-        }
     }
 
     // If mTimingEnabled flag is not set after OnModifyRequest() then
@@ -5945,36 +5911,7 @@ nsHttpChannel::BeginConnectContinue()
         return mStatus;
     }
 
-    if (!(mLoadFlags & LOAD_CLASSIFY_URI)) {
-        return ContinueBeginConnectWithResult();
-    }
-
-    // mLocalBlocklist is true only if tracking protection is enabled and the
-    // URI is a tracking domain, it makes no guarantees about phishing or
-    // malware, so if LOAD_CLASSIFY_URI is true we must call
-    // nsChannelClassifier to catch phishing and malware URIs.
-    bool callContinueBeginConnect = true;
-    if (!mLocalBlocklist) {
-        // Here we call ContinueBeginConnectWithResult and not
-        // ContinueBeginConnect so that in the case of an error we do not start
-        // channelClassifier.
-        rv = ContinueBeginConnectWithResult();
-        if (NS_FAILED(rv)) {
-            return rv;
-        }
-        callContinueBeginConnect = false;
-    }
-    // nsChannelClassifier calls ContinueBeginConnect if it has not already
-    // been called, after optionally cancelling the channel once we have a
-    // remote verdict. We call a concrete class instead of an nsI* that might
-    // be overridden.
-    LOG(("nsHttpChannel::Starting nsChannelClassifier %p [this=%p]",
-         channelClassifier.get(), this));
-    channelClassifier->Start(this);
-    if (callContinueBeginConnect) {
-        return ContinueBeginConnectWithResult();
-    }
-    return NS_OK;
+    return ContinueBeginConnectWithResult();
 }
 
 NS_IMETHODIMP
@@ -6585,7 +6522,7 @@ nsHttpChannel::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult st
         mTransferSize = mTransaction->GetTransferSize();
 
         // If we are using the transaction to serve content, we also save the
-        // time since async open in the cache entry so we can compare telemetry
+        // time since async open in the cache entry so we can compare time
         // between cache and net response.
         if (request == mTransactionPump && mCacheEntry &&
             !mAsyncOpenTime.IsNull() && !mOnStartRequestTimestamp.IsNull()) {
@@ -6651,41 +6588,6 @@ nsHttpChannel::OnStopRequest(nsIRequest *request, nsISupports *ctxt, nsresult st
                                                      mUpgradeProtocolCallback);
         }
     }
-
-    // HTTP_CHANNEL_DISPOSITION TELEMETRY
-    enum ChannelDisposition
-    {
-        kHttpCanceled = 0,
-        kHttpDisk = 1,
-        kHttpNetOK = 2,
-        kHttpNetEarlyFail = 3,
-        kHttpNetLateFail = 4,
-        kHttpsCanceled = 8,
-        kHttpsDisk = 9,
-        kHttpsNetOK = 10,
-        kHttpsNetEarlyFail = 11,
-        kHttpsNetLateFail = 12
-    } chanDisposition = kHttpCanceled;
-
-    // HTTP 0.9 is more likely to be an error than really 0.9, so count it that way
-    if (mCanceled) {
-        chanDisposition  = kHttpCanceled;
-    } else if (!mUsedNetwork) {
-        chanDisposition = kHttpDisk;
-    } else if (NS_SUCCEEDED(status) &&
-               mResponseHead &&
-               mResponseHead->Version() != NS_HTTP_VERSION_0_9) {
-        chanDisposition = kHttpNetOK;
-    } else if (!mTransferSize) {
-        chanDisposition = kHttpNetEarlyFail;
-    } else {
-        chanDisposition = kHttpNetLateFail;
-    }
-    if (IsHTTPS()) {
-        // shift http to https disposition enums
-        chanDisposition = static_cast<ChannelDisposition>(chanDisposition + kHttpsCanceled);
-    }
-    LOG(("  nsHttpChannel::OnStopRequest ChannelDisposition %d\n", chanDisposition));
 
     // if needed, check cache entry has all data we expect
     if (mCacheEntry && mCachePump &&
@@ -8035,18 +7937,13 @@ nsHttpChannel::ResumeInternal()
 }
 
 void
-nsHttpChannel::SetDoNotTrack()
+nsHttpChannel::SetGPC()
 {
   /**
-   * 'DoNotTrack' header should be added if 'privacy.donottrackheader.enabled'
-   * is true or tracking protection is enabled. See bug 1258033.
+   * 'Sec-GPC: 1' header should be added if 'privacy.GPCheader.enabled' is true.
    */
-  nsCOMPtr<nsILoadContext> loadContext;
-  NS_QueryNotificationCallbacks(this, loadContext);
-
-  if ((loadContext && loadContext->UseTrackingProtection()) ||
-      nsContentUtils::DoNotTrackEnabled()) {
-    mRequestHead.SetHeader(nsHttp::DoNotTrack,
+  if (nsContentUtils::GPCEnabled()) {
+    mRequestHead.SetHeader(nsHttp::GlobalPrivacyControl,
                            NS_LITERAL_CSTRING("1"),
                            false);
   }

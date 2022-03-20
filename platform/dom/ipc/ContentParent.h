@@ -237,8 +237,6 @@ public:
 
   virtual bool RecvBridgeToChildProcess(const ContentParentId& aCpId) override;
 
-  virtual bool RecvCreateGMPService() override;
-
   virtual bool RecvLoadPlugin(const uint32_t& aPluginId, nsresult* aRv,
                               uint32_t* aRunID) override;
 
@@ -670,10 +668,6 @@ private:
                                   TabParent* aTopLevel, const TabId& aTabId,
                                   uint64_t* aId);
 
-  PGMPServiceParent*
-  AllocPGMPServiceParent(mozilla::ipc::Transport* aTransport,
-                         base::ProcessId aOtherProcess) override;
-
   PBackgroundParent*
   AllocPBackgroundParent(Transport* aTransport, ProcessId aOtherProcess)
                          override;
@@ -990,10 +984,6 @@ private:
 
   virtual bool
   DeallocPFileDescriptorSetParent(PFileDescriptorSetParent*) override;
-
-  virtual PWebrtcGlobalParent* AllocPWebrtcGlobalParent() override;
-  virtual bool DeallocPWebrtcGlobalParent(PWebrtcGlobalParent *aActor) override;
-
 
   virtual bool RecvUpdateDropEffect(const uint32_t& aDragAction,
                                     const uint32_t& aDropEffect) override;

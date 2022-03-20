@@ -26,6 +26,10 @@ const XMLURI_PARSE_ERROR              = "http://www.mozilla.org/newlayout/xml/pa
 const TOOLKIT_ID                      = "toolkit@mozilla.org";
 const FIREFOX_ID                      = "{ec8030f7-c20a-464f-9b0e-13a3a9e97384}";
 
+#ifdef MC_APP_ID
+#expand const ALT_APP_ID                      = "__MC_APP_ID__";
+#endif
+
 const PREF_UPDATE_REQUIREBUILTINCERTS = "extensions.update.requireBuiltInCerts";
 const PREF_EM_MIN_COMPAT_APP_VERSION  = "extensions.minCompatibleAppVersion";
 
@@ -496,7 +500,7 @@ function parseJSONManifest(aId, aUpdateKey, aRequest, aManifestData) {
   }
 
   let appID = Services.appinfo.ID;
-  let platformVersion = Services.appinfo.platformVersion;
+  let platformVersion = Services.appinfo.greVersion;
 
   // The list of available updates
   let updates = getProperty(addon, "updates", "array", []);
@@ -804,7 +808,11 @@ function matchesVersions(aUpdate, aAppVersion, aPlatformVersion,
 
   let result = false;
   for (let app of aUpdate.targetApplications) {
+#ifdef MC_APP_ID
+    if (app.id == ALT_APP_ID || app.id == Services.appinfo.ID) {
+#else
     if (app.id == Services.appinfo.ID) {
+#endif
       return (Services.vc.compare(aAppVersion, app.minVersion) >= 0) &&
              (aIgnoreMaxVersion || (Services.vc.compare(aAppVersion, app.maxVersion) <= 0));
     }
@@ -858,14 +866,18 @@ this.AddonUpdateChecker = {
     if (!aAppVersion)
       aAppVersion = Services.appinfo.version;
     if (!aPlatformVersion)
-      aPlatformVersion = Services.appinfo.platformVersion;
+      aPlatformVersion = Services.appinfo.greVersion;
 
     for (let update of aUpdates) {
       if (Services.vc.compare(update.version, aVersion) == 0) {
         if (aIgnoreCompatibility) {
           for (let targetApp of update.targetApplications) {
             let id = targetApp.id;
+#ifdef MC_APP_ID
+            if (id == ALT_APP_ID || id == Services.appinfo.ID || id == TOOLKIT_ID)
+#else
             if (id == Services.appinfo.ID || id == TOOLKIT_ID)
+#endif
               return update;
           }
         }
@@ -901,7 +913,7 @@ this.AddonUpdateChecker = {
     if (!aAppVersion)
       aAppVersion = Services.appinfo.version;
     if (!aPlatformVersion)
-      aPlatformVersion = Services.appinfo.platformVersion;
+      aPlatformVersion = Services.appinfo.greVersion;
 
     let blocklist = Cc["@mozilla.org/extensions/blocklist;1"].
                     getService(Ci.nsIBlocklistService);

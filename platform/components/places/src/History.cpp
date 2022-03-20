@@ -43,6 +43,8 @@
 // Initial length for the visits removal hash.
 #define VISITS_REMOVAL_INITIAL_HASH_LENGTH 64
 
+#define NS_LINK_VISITED_EVENT_TOPIC "link-visited"
+
 using namespace mozilla::dom;
 using namespace mozilla::ipc;
 using mozilla::Unused;

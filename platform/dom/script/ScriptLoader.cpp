@@ -812,6 +812,10 @@ HostResolveImportedModule(JSContext* aCx, JS::Handle<JSObject*> aModule,
   if (!string.init(aCx, aSpecifier)) {
     return nullptr;
   }
+  if (!aModule || !aCx) {
+    // Our module context was ripped out from under us...
+    return nullptr;
+  }
 
   nsCOMPtr<nsIURI> uri = ResolveModuleSpecifier(script, string);
 
@@ -824,6 +828,10 @@ HostResolveImportedModule(JSContext* aCx, JS::Handle<JSObject*> aModule,
 
   ModuleScript* ms = script->Loader()->GetFetchedModule(uri);
   MOZ_ASSERT(ms, "Resolved module not found in module map");
+  if (!ms) {
+    // Already-resolved module has been removed from the map/unloaded...
+    return nullptr;
+  }
 
   MOZ_ASSERT(!ms->HasParseError());
   MOZ_ASSERT(ms->ModuleRecord());
@@ -1046,8 +1054,7 @@ ScriptLoader::StartLoad(ScriptLoadRequest *aRequest, const nsAString &aType,
                               contentPolicyType,
                               loadGroup,
                               prompter,
-                              nsIRequest::LOAD_NORMAL |
-                              nsIChannel::LOAD_CLASSIFY_URI);
+                              nsIRequest::LOAD_NORMAL);
 
   NS_ENSURE_SUCCESS(rv, rv);
 
@@ -2348,16 +2355,6 @@ ScriptLoader::VerifySRI(ScriptLoadRequest* aRequest,
 
 void
 ScriptLoader::HandleLoadError(ScriptLoadRequest *aRequest, nsresult aResult) {
-  /*
-   * Handle script not loading error because source was a tracking URL.
-   * We make a note of this script node by including it in a dedicated
-   * array of blocked tracking nodes under its parent document.
-   */
-  if (aResult == NS_ERROR_TRACKING_URI) {
-    nsCOMPtr<nsIContent> cont = do_QueryInterface(aRequest->mElement);
-    mDocument->AddBlockedTrackingNode(cont);
-  }
-
   if (aRequest->IsModuleRequest() && !aRequest->mIsInline) {
     auto request = aRequest->AsModuleRequest();
     SetModuleFetchFinishedAndResumeWaitingRequests(request, aResult);

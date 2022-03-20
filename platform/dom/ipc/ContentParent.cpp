@@ -21,7 +21,6 @@
 #include "AppProcessChecker.h"
 #include "AudioChannelService.h"
 #include "BlobParent.h"
-#include "GMPServiceParent.h"
 #include "HandlerServiceParent.h"
 #include "IHistory.h"
 #include "imgIContainer.h"
@@ -173,10 +172,6 @@
 
 #include "nsLayoutStylesheetCache.h"
 
-#ifdef MOZ_WEBRTC
-#include "signaling/src/peerconnection/WebrtcGlobalParent.h"
-#endif
-
 #if defined(LINUX)
 #include "nsSystemInfo.h"
 #endif
@@ -185,9 +180,7 @@
 #include "mozilla/Hal.h"
 #endif
 
-#ifdef MOZ_PERMISSIONS
 # include "nsPermissionManager.h"
-#endif
 
 #ifdef MOZ_WIDGET_GTK
 #include <gdk/gdk.h>
@@ -226,7 +219,6 @@ using namespace mozilla::dom::power;
 using namespace mozilla::media;
 using namespace mozilla::embedding;
 using namespace mozilla::gfx;
-using namespace mozilla::gmp;
 using namespace mozilla::hal;
 using namespace mozilla::ipc;
 using namespace mozilla::layers;
@@ -863,12 +855,6 @@ static nsIDocShell* GetOpenerDocShellHelper(Element* aFrameElement)
 }
 
 bool
-ContentParent::RecvCreateGMPService()
-{
-  return PGMPService::Open(this);
-}
-
-bool
 ContentParent::RecvLoadPlugin(const uint32_t& aPluginId, nsresult* aRv, uint32_t* aRunID)
 {
   *aRv = NS_OK;
@@ -1263,9 +1249,6 @@ ContentParent::Init()
 #endif
   }
 #endif
-
-  RefPtr<GeckoMediaPluginServiceParent> gmps(GeckoMediaPluginServiceParent::GetSingleton());
-  gmps->UpdateContentProcessGMPCapabilities();
 }
 
 void
@@ -2227,7 +2210,6 @@ ContentParent::RecvReadDataStorageArray(const nsString& aFilename,
 bool
 ContentParent::RecvReadPermissions(InfallibleTArray<IPC::Permission>* aPermissions)
 {
-#ifdef MOZ_PERMISSIONS
   nsCOMPtr<nsIPermissionManager> permissionManagerIface =
     services::GetPermissionManager();
   nsPermissionManager* permissionManager =
@@ -2270,7 +2252,6 @@ ContentParent::RecvReadPermissions(InfallibleTArray<IPC::Permission>* aPermissio
 
   // Ask for future changes
   mSendPermissionUpdates = true;
-#endif
 
   return true;
 }
@@ -2532,13 +2513,6 @@ ContentParent::Observe(nsISupports* aSubject,
     Unused << SendNotifyEmptyHTTPCache();
   }
   return NS_OK;
-}
-
-PGMPServiceParent*
-ContentParent::AllocPGMPServiceParent(mozilla::ipc::Transport* aTransport,
-                                      base::ProcessId aOtherProcess)
-{
-  return GMPServiceParent::Create(aTransport, aOtherProcess);
 }
 
 PBackgroundParent*
@@ -4051,27 +4025,6 @@ ContentParent::DeallocPOfflineCacheUpdateParent(POfflineCacheUpdateParent* aActo
   RefPtr<mozilla::docshell::OfflineCacheUpdateParent> update =
     dont_AddRef(static_cast<mozilla::docshell::OfflineCacheUpdateParent*>(aActor));
   return true;
-}
-
-PWebrtcGlobalParent *
-ContentParent::AllocPWebrtcGlobalParent()
-{
-#ifdef MOZ_WEBRTC
-  return WebrtcGlobalParent::Alloc();
-#else
-  return nullptr;
-#endif
-}
-
-bool
-ContentParent::DeallocPWebrtcGlobalParent(PWebrtcGlobalParent *aActor)
-{
-#ifdef MOZ_WEBRTC
-  WebrtcGlobalParent::Dealloc(static_cast<WebrtcGlobalParent*>(aActor));
-  return true;
-#else
-  return false;
-#endif
 }
 
 bool

@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sts=2 sw=2 et cin: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -208,8 +207,6 @@
 #include "mozilla/layers/ScrollInputMethods.h"
 #include "ClientLayerManager.h"
 #include "InputData.h"
-
-#include "mozilla/Telemetry.h"
 
 using namespace mozilla;
 using namespace mozilla::dom;
@@ -632,10 +629,8 @@ nsWindow::nsWindow()
   mCachedHitTestPoint.y = 0;
   mCachedHitTestTime    = TimeStamp::Now();
   mCachedHitTestResult  = 0;
-#ifdef MOZ_XUL
   mTransparencyMode     = eTransparencyOpaque;
   memset(&mGlassMargins, 0, sizeof mGlassMargins);
-#endif
   DWORD background      = ::GetSysColor(COLOR_BTNFACE);
   mBrush                = ::CreateSolidBrush(NSRGB_2_COLOREF(background));
   mSendingSetText       = false;
@@ -903,8 +898,8 @@ nsWindow::Create(nsIWidget* aParent,
 
   SubclassWindow(TRUE);
 
-  // Starting with Windows XP, a process always runs within a terminal services
-  // session. In order to play nicely with RDP, fast user switching, and the
+  // A process always runs within a terminal services session.
+  // In order to play nicely with RDP, fast user switching, and the
   // lock screen, we should be handling WM_WTSSESSION_CHANGE. We must register
   // our HWND in order to receive this message.
   DebugOnly<BOOL> wtsRegistered = ::WTSRegisterSessionNotification(mWnd,
@@ -1622,14 +1617,12 @@ NS_IMETHODIMP nsWindow::Show(bool bState)
     }
   }
   
-#ifdef MOZ_XUL
   if (!wasVisible && bState) {
     Invalidate();
     if (syncInvalidate && !mInDtor && !mOnDestroyCalled) {
       ::UpdateWindow(mWnd);
     }
   }
-#endif
 
   return NS_OK;
 }
@@ -3021,7 +3014,6 @@ NS_IMETHODIMP nsWindow::SetCursor(imgIContainer* aCursor,
  *
  **************************************************************/
 
-#ifdef MOZ_XUL
 nsTransparencyMode nsWindow::GetTransparencyMode()
 {
   return GetTopLevelWindow(true)->GetWindowTranslucencyInner();
@@ -3130,7 +3122,6 @@ void nsWindow::UpdateGlass()
     DwmSetWindowAttribute(mWnd, DWMWA_NCRENDERING_POLICY, &policy, sizeof policy);
   }
 }
-#endif
 
 /**************************************************************
  *
@@ -5020,7 +5011,6 @@ nsWindow::ProcessMessage(UINT msg, WPARAM& wParam, LPARAM& lParam,
         obsServ->NotifyObservers(nullptr, "profile-change-teardown", context.get());
         obsServ->NotifyObservers(nullptr, "profile-before-change", context.get());
         obsServ->NotifyObservers(nullptr, "profile-before-change-qm", context.get());
-        obsServ->NotifyObservers(nullptr, "profile-before-change-telemetry", context.get());
         // Then a controlled but very quick exit.
         _exit(0);
       }
@@ -7256,8 +7246,6 @@ nsWindow::GetAccessible()
  **************************************************************
  **************************************************************/
 
-#ifdef MOZ_XUL
-
 void nsWindow::SetWindowTranslucencyInner(nsTransparencyMode aMode)
 {
   if (aMode == mTransparencyMode)
@@ -7314,8 +7302,6 @@ void nsWindow::SetWindowTranslucencyInner(nsTransparencyMode aMode)
   }
   UpdateGlass();
 }
-
-#endif //MOZ_XUL
 
 /**************************************************************
  **************************************************************

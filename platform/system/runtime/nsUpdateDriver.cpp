@@ -958,7 +958,13 @@ nsUpdateProcessor::ProcessUpdate(nsIUpdate* aUpdate)
     rv = ds->Get(XRE_EXECUTABLE_FILE, NS_GET_IID(nsIFile),
                  getter_AddRefs(binary));
     NS_ASSERTION(NS_SUCCEEDED(rv), "Can't get the binary path");
+#ifdef XP_WIN
+    nsAutoString binPathW;
+    binary->GetPath(binPathW);
+    NS_ConvertUTF16toUTF8 binPath(binPathW);
+#else
     binary->GetNativePath(binPath);
+#endif
   }
 
   // Copy the parameters to the StagedUpdateInfo structure shared with the

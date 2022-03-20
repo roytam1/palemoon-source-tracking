@@ -48,7 +48,6 @@
 #endif
 
 #include "mozilla/IOInterposer.h"
-#include "mozilla/Telemetry.h"
 #include "mozilla/StartupTimeline.h"
 
 static NS_DEFINE_CID(kAppShellCID, NS_APPSHELL_CID);
@@ -237,30 +236,22 @@ NS_IMPL_ISUPPORTS(nsAppStartup,
 NS_IMETHODIMP
 nsAppStartup::CreateHiddenWindow()
 {
-#if defined(MOZ_WIDGET_UIKIT)
-  return NS_OK;
-#else
   nsCOMPtr<nsIAppShellService> appShellService
     (do_GetService(NS_APPSHELLSERVICE_CONTRACTID));
   NS_ENSURE_TRUE(appShellService, NS_ERROR_FAILURE);
 
   return appShellService->CreateHiddenWindow();
-#endif
 }
 
 
 NS_IMETHODIMP
 nsAppStartup::DestroyHiddenWindow()
 {
-#if defined(MOZ_WIDGET_UIKIT)
-  return NS_OK;
-#else
   nsCOMPtr<nsIAppShellService> appShellService
     (do_GetService(NS_APPSHELLSERVICE_CONTRACTID));
   NS_ENSURE_TRUE(appShellService, NS_ERROR_FAILURE);
 
   return appShellService->DestroyHiddenWindow();
-#endif
 }
 
 NS_IMETHODIMP
@@ -344,7 +335,6 @@ nsAppStartup::Quit(uint32_t aMode)
     }
 
     PROFILER_MARKER("Shutdown start");
-    mozilla::RecordShutdownStartTimeStamp();
     mShuttingDown = true;
     if (!mRestart) {
       mRestart = (aMode & eRestart) != 0;

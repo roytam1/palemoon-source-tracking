@@ -27,7 +27,8 @@ using namespace mozilla::gfx;
 namespace mozilla
 {
 
-// We are mixing to mono until PeerConnection can accept stereo
+// Mixing to mono.
+// NOTE: MONO is a misnomer, it's not a boolean but the number of channels.
 static const uint32_t MONO = 1;
 
 AudioCaptureStream::AudioCaptureStream(TrackID aTrackId)

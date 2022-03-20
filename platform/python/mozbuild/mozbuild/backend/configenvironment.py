@@ -187,10 +187,6 @@ class ConfigEnvironment(object):
 
         self.substs_unicode = ReadOnlyDict(self.substs_unicode)
 
-    @property
-    def is_artifact_build(self):
-        return self.substs.get('MOZ_ARTIFACT_BUILDS', False)
-
     @staticmethod
     def from_config_status(path):
         config = BuildConfig.from_config_status(path)

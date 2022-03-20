@@ -1,0 +1,57 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+TEST_DIRS += ['test']
+
+XPIDL_SOURCES += [
+    'nsIContentSecurityManager.idl',
+    'nsIContentSecurityPolicy.idl'
+]
+
+XPIDL_MODULE = 'dom_security'
+
+EXPORTS.mozilla.dom += [
+    'ContentVerifier.h',
+    'nsContentSecurityManager.h',
+    'nsCSPContext.h',
+    'nsCSPService.h',
+    'nsCSPUtils.h',
+    'nsMixedContentBlocker.h',
+    'SRICheck.h',
+    'SRILogHelper.h',
+    'SRIMetadata.h',
+]
+
+EXPORTS += [
+    'nsContentSecurityManager.h',
+    'nsMixedContentBlocker.h',
+]
+
+UNIFIED_SOURCES += [
+    'nsCSPContext.cpp',
+    'nsCSPUtils.cpp',
+]
+
+SOURCES += [
+    'ContentVerifier.cpp',
+    'nsContentSecurityManager.cpp',
+    'nsCSPParser.cpp',
+    'nsCSPService.cpp',
+    'nsMixedContentBlocker.cpp',
+    'SRICheck.cpp',
+    'SRIMetadata.cpp',
+]
+
+include('/ipc/chromium/chromium-config.mozbuild')
+
+FINAL_LIBRARY = 'xul'
+LOCAL_INCLUDES += [
+    '/system/network/base',
+    '/system/security/script',
+]
+
+if CONFIG['GNU_CC']:
+    CFLAGS += ['-Wformat-security']
+    CXXFLAGS += ['-Wformat-security']

@@ -463,8 +463,7 @@ mime_find_class (const char *content_type, MimeHeaders *hdrs,
   */
   if ((tempClass = mime_locate_external_content_handler(content_type, &ctHandlerInfo)) != NULL)
   {
-#ifdef MOZ_THUNDERBIRD
-      // This is a case where we only want to add this property if we are a thunderbird build AND
+      // This is a case where we only want to add this property if we are an Interlink build AND
       // we have found an external mime content handler for text/calendar
       // This will enable iMIP support in Lightning
       if ( hdrs && (!PL_strncasecmp(content_type, "text/calendar", 13)))
@@ -482,7 +481,6 @@ mime_find_class (const char *content_type, MimeHeaders *hdrs,
               PR_Free(full_content_type);
           }
       }
-#endif
 
     if (types_of_classes_to_disallow > 0
         && (!PL_strncasecmp(content_type, "text/x-vcard", 12))

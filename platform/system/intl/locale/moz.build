@@ -50,7 +50,7 @@ EXTRA_JS_MODULES += [
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/intl/uconv',
+    '../uconv',
 ]
 
 RESOURCE_FILES += [

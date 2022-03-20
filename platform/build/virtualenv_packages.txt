@@ -1,4 +1,3 @@
-altgraph.pth:python/altgraph
 marionette_driver.pth:testing/marionette/client
 marionette_harness.pth:testing/marionette/harness
 browsermobproxy.pth:testing/marionette/harness/marionette_harness/runner/mixins/browsermob-proxy-py
@@ -14,8 +13,7 @@ pymake.pth:build/pymake
 optional:setup.py:python/psutil:build_ext:--inplace
 optional:psutil.pth:python/psutil
 which.pth:python/which
-ply.pth:other-licenses/ply/
-macholib.pth:python/macholib
+ply.pth:python/ply/
 mock.pth:python/mock-1.0.0
 py.pth:python/py
 pytest.pth:python/pytest
@@ -28,7 +26,7 @@ mozilla.pth:layout/tools/reftest
 moztreedocs.pth:tools/docs
 packages.txt:testing/mozbase/packages.txt
 objdir:build
-gyp.pth:media/webrtc/trunk/tools/gyp/pylib
+gyp.pth:other-licenses/gyp-deps/tools/gyp/pylib
 pyasn1.pth:python/pyasn1
 pyasn1_modules.pth:python/pyasn1-modules
 bitstring.pth:python/bitstring

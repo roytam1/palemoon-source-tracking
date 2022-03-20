@@ -33,11 +33,11 @@ SOURCES += [
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/caps',
     '/dom/base',
     '/dom/html',
     '/dom/xul',
     '/layout/style',
+    '/system/security/script',
 ]
 
 RESOURCE_FILES.dtd += [

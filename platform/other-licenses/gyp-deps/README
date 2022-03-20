@@ -1,0 +1,3 @@
+The files in this set of directories are gyp dependency files and pylib gyp
+itself, taken from the Chromium project. They fall under Google's license
+outlined in the LICENSE file unless otherwise specified.

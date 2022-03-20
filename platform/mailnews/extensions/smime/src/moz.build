@@ -17,6 +17,6 @@ EXTRA_COMPONENTS += [
 FINAL_LIBRARY = 'mail'
 
 LOCAL_INCLUDES += [
-    '/security/manager/pki',
-    '/security/pkix/include'
+    '/system/security/manager/pki',
+    '/system/security/pkix/include'
 ]

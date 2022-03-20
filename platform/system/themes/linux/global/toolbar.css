@@ -32,20 +32,14 @@ menubar, toolbar[type="menubar"] {
 }
 
 
-%ifdef MOZ_AUSTRALIS
 menubar:-moz-lwtheme,
 toolbar:-moz-lwtheme {
   -moz-appearance: none;
   color: inherit;
-}
-%else
-menubar:-moz-lwtheme,
-toolbar:-moz-lwtheme {
-  -moz-appearance: none;
-  color: inherit;
+%ifndef MOZ_AUSTRALIS
   border-style: none;
-}
 %endif
+}
 
 /* in browser.xul, the menubar is inside a toolbar... */
 toolbaritem > menubar {

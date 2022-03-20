@@ -21,7 +21,7 @@ typedef struct _XDisplay Display;
 
 cairo_public cairo_vg_context_t *
 cairo_vg_context_create_for_glx (Display *dpy,
-				 GLXContext ctx);
+                 GLXContext ctx);
 #endif
 
 #if CAIRO_HAS_EGL_FUNCTIONS
@@ -29,7 +29,7 @@ cairo_vg_context_create_for_glx (Display *dpy,
 
 cairo_public cairo_vg_context_t *
 cairo_vg_context_create_for_egl (EGLDisplay egl_display,
-				 EGLContext egl_context);
+                 EGLContext egl_context);
 #endif
 
 cairo_public cairo_status_t
@@ -40,13 +40,13 @@ cairo_vg_context_destroy (cairo_vg_context_t *context);
 
 cairo_public cairo_surface_t *
 cairo_vg_surface_create (cairo_vg_context_t *context,
-			 cairo_content_t content, int width, int height);
+             cairo_content_t content, int width, int height);
 
 cairo_public cairo_surface_t *
 cairo_vg_surface_create_for_image (cairo_vg_context_t *context,
-				   VGImage image,
-				   VGImageFormat format,
-				   int width, int height);
+                   VGImage image,
+                   VGImageFormat format,
+                   int width, int height);
 
 cairo_public VGImage
 cairo_vg_surface_get_image (cairo_surface_t *abstract_surface);

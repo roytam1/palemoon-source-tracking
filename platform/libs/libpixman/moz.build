@@ -1,0 +1,153 @@
+# -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+EXPORTS += [
+  'src/pixman-version.h',
+  'src/pixman.h',
+]
+
+if CONFIG['GNU_CC']:
+  if CONFIG['HAVE_ARM_NEON']:
+    SOURCES += [
+      'src/pixman-arm-neon-asm-bilinear.S',
+      'src/pixman-arm-neon-asm.S',
+    ]
+  if CONFIG['HAVE_ARM_SIMD']:
+    SOURCES += [
+      'src/pixman-arm-simd-asm-scaled.S',
+      'src/pixman-arm-simd-asm.S',
+    ]
+  if CONFIG['CLANG_CXX']:
+    ASFLAGS += [
+      '-no-integrated-as',
+    ]
+
+SOURCES += [
+  'src/pixman-access-accessors.c',
+  'src/pixman-access.c',
+  'src/pixman-arm.c',
+  'src/pixman-bits-image.c',
+  'src/pixman-combine-float.c',
+  'src/pixman-combine32.c',
+  'src/pixman-conical-gradient.c',
+  'src/pixman-edge-accessors.c',
+  'src/pixman-edge.c',
+  'src/pixman-fast-path.c',
+  'src/pixman-filter.c',
+  'src/pixman-general.c',
+  'src/pixman-glyph.c',
+  'src/pixman-gradient-walker.c',
+  'src/pixman-image.c',
+  'src/pixman-implementation.c',
+  'src/pixman-linear-gradient.c',
+  'src/pixman-matrix.c',
+  'src/pixman-mips.c',
+  'src/pixman-noop.c',
+  'src/pixman-ppc.c',
+  'src/pixman-radial-gradient.c',
+  'src/pixman-region16.c',
+  'src/pixman-region32.c',
+  'src/pixman-solid-fill.c',
+  'src/pixman-trap.c',
+  'src/pixman-utils.c',
+  'src/pixman-x86.c',
+  'src/pixman.c',
+]
+
+# We allow warnings for third-party code that can be updated from upstream.
+ALLOW_COMPILER_WARNINGS = True
+
+FINAL_LIBRARY = 'gremedia'
+LOCAL_INCLUDES += ['../cairo/src']
+
+if CONFIG['MOZ_USE_PTHREADS']:
+  DEFINES['HAVE_PTHREADS'] = True
+
+DEFINES['PACKAGE'] = 'mozpixman'
+
+DEFINES['_USE_MATH_DEFINES'] = True
+
+use_mmx = False
+use_sse2 = False
+use_vmx = False
+use_arm_simd_gcc = False
+use_arm_neon_gcc = False
+if '86' in CONFIG['OS_TEST']:
+  use_sse2 = True
+  if '64' not in CONFIG['OS_TEST']:
+    if CONFIG['_MSC_VER']:
+      use_mmx = True
+  if CONFIG['GNU_CC']:
+    use_mmx = True
+elif 'ppc' in CONFIG['OS_TEST']:
+  if CONFIG['GNU_CC']:
+    use_vmx = True
+elif 'arm' in CONFIG['OS_TEST']:
+  if CONFIG['HAVE_ARM_SIMD']:
+    use_arm_simd_gcc = True
+  if CONFIG['HAVE_ARM_NEON']:
+    use_arm_neon_gcc = True
+
+if use_mmx:
+  DEFINES['USE_MMX'] = True
+  SOURCES += ['src/pixman-mmx.c']
+  SOURCES['src/pixman-mmx.c'].flags += CONFIG['MMX_FLAGS']
+  if CONFIG['GNU_CC']:
+    SOURCES['src/pixman-mmx.c'].flags += [
+      '-Winline',
+      '--param', 'inline-unit-growth=10000',
+      '--param', 'large-function-growth=10000',
+    ]
+
+if use_sse2:
+  DEFINES['USE_SSE'] = True
+  DEFINES['USE_SSE2'] = True
+  SOURCES += ['src/pixman-sse2.c']
+  SOURCES['src/pixman-sse2.c'].flags += CONFIG['SSE_FLAGS'] + CONFIG['SSE2_FLAGS']
+  if CONFIG['GNU_CC']:
+    SOURCES['src/pixman-sse2.c'].flags += ['-Winline']
+
+if use_vmx:
+  DEFINES['USE_VMX'] = True
+  SOURCES += ['src/pixman-vmx.c']
+  SOURCES['src/pixman-vmx.c'].flags += ['-maltivec']
+
+if use_arm_simd_gcc:
+  DEFINES['USE_ARM_SIMD'] = True
+  SOURCES += ['src/pixman-arm-simd.c']
+
+if use_arm_neon_gcc:
+  DEFINES['USE_ARM_NEON'] = True
+  SOURCES += ['src/pixman-arm-neon.c']
+  SOURCES['src/pixman-arm-neon.c'].flags += CONFIG['NEON_FLAGS']
+
+# Suppress warnings in third-party code.
+if CONFIG['_MSC_VER']:
+  CFLAGS += [
+    '-wd4047', # different levels of indirection
+    '-wd4101', # unreferenced local variable
+    '-wd4133', # 'function' : incompatible types
+    '-wd4146', # unary minus operator applied to unsigned type
+    '-wd4311', # 'variable' : pointer truncation from 'type' to 'type'
+  ]
+
+if CONFIG['GNU_CC'] or CONFIG['CLANG_CL']:
+  CFLAGS += [
+    '-Wno-address',
+    '-Wno-missing-field-initializers',
+    '-Wno-sign-compare',
+    '-Wno-incompatible-pointer-types',
+    '-Wno-unused',                      # too many unused warnings; ignore
+  ]
+
+if CONFIG['CLANG_CXX'] or CONFIG['CLANG_CL']:
+  CFLAGS += [
+    '-Wno-incompatible-pointer-types',
+    '-Wno-tautological-compare',
+    '-Wno-tautological-constant-out-of-range-compare',
+  ]
+
+if CONFIG['CLANG_CL']:
+  CFLAGS += ['-Wno-unused-variable']

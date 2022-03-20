@@ -81,7 +81,6 @@ class nsIContentViewer;
 class nsIDocument;
 class nsIDOMNode;
 class nsIDocShellTreeOwner;
-class nsIGlobalHistory2;
 class nsIHttpChannel;
 class nsIMutableArray;
 class nsIPrompt;
@@ -386,7 +385,6 @@ protected:
                      nsIDocShell** aDocShell,
                      nsIRequest** aRequest,
                      bool aIsNewWindowTarget,
-                     bool aBypassClassifier,
                      bool aForceAllowCookies,
                      const nsAString& aSrcdoc,
                      nsIURI* aBaseURI,
@@ -394,8 +392,7 @@ protected:
   nsresult AddHeadersToChannel(nsIInputStream* aHeadersData,
                                nsIChannel* aChannel);
   nsresult DoChannelLoad(nsIChannel* aChannel,
-                         nsIURILoader* aURILoader,
-                         bool aBypassClassifier);
+                         nsIURILoader* aURILoader);
 
   nsresult ScrollToAnchor(bool aCurHasRef,
                           bool aNewHasRef,
@@ -564,8 +561,7 @@ protected:
                      uint32_t aChannelRedirectFlags);
 
   /**
-   * Helper function for adding a URI visit using IHistory. If IHistory is
-   * not available, the method tries nsIGlobalHistory2.
+   * Helper function for adding a URI visit using IHistory.
    *
    * The IHistory API maintains chains of visits, tracking both HTTP referrers
    * and redirects for a user session. VisitURI requires the current URI and
@@ -830,7 +826,6 @@ protected:
   uint32_t mReferrerPolicy;
   RefPtr<nsGlobalWindow> mScriptGlobal;
   nsCOMPtr<nsISHistory> mSessionHistory;
-  nsCOMPtr<nsIGlobalHistory2> mGlobalHistory;
   nsCOMPtr<nsIWebBrowserFind> mFind;
   nsCOMPtr<nsICommandManager> mCommandManager;
   // Reference to the SHEntry for this docshell until the page is destroyed.

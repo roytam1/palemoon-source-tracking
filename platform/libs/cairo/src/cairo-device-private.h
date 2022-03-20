@@ -11,27 +11,27 @@
 #include "cairo-types-private.h"
 
 struct _cairo_device {
-    cairo_reference_count_t ref_count;
-    cairo_status_t status;
-    cairo_user_data_array_t user_data;
+  cairo_reference_count_t ref_count;
+  cairo_status_t status;
+  cairo_user_data_array_t user_data;
 
-    const cairo_device_backend_t *backend;
+  const cairo_device_backend_t *backend;
 
-    cairo_recursive_mutex_t mutex;
-    unsigned mutex_depth;
+  cairo_recursive_mutex_t mutex;
+  unsigned mutex_depth;
 
-    cairo_bool_t finished;
+  cairo_bool_t finished;
 };
 
 struct _cairo_device_backend {
-    cairo_device_type_t type;
+  cairo_device_type_t type;
 
-    void (*lock) (void *device);
-    void (*unlock) (void *device);
+  void (*lock) (void *device);
+  void (*unlock) (void *device);
 
-    cairo_warn cairo_status_t (*flush) (void *device);
-    void (*finish) (void *device);
-    void (*destroy) (void *device);
+  cairo_warn cairo_status_t (*flush) (void *device);
+  void (*finish) (void *device);
+  void (*destroy) (void *device);
 };
 
 cairo_private cairo_device_t *
@@ -39,11 +39,11 @@ _cairo_device_create_in_error (cairo_status_t status);
 
 cairo_private void
 _cairo_device_init (cairo_device_t *device,
-		    const cairo_device_backend_t *backend);
+          const cairo_device_backend_t *backend);
 
 cairo_private cairo_status_t
 _cairo_device_set_error (cairo_device_t *device,
-		         cairo_status_t error);
+             cairo_status_t error);
 
 slim_hidden_proto_no_warn (cairo_device_reference);
 slim_hidden_proto (cairo_device_acquire);

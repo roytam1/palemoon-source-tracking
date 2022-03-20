@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+  <Description about="urn:mozilla:install-manifest"
+               em:type="8"
+#ifdef MC_PALEMOON
+               em:id="langpack-en-US@palemoon.org"
+#elif BINOC_NAVIGATOR
+               em:id="langpack-en-US@borealis.binaryoutcast.com"
+#elif BINOC_MAIL
+               em:id="langpack-en-US@interlink.binaryoutcast.com"
+#else
+#expand               em:id="langpack-en-US@__MOZ_APP_NAME"
+#endif
+               em:version="@MOZ_APP_VERSION@"
+               em:name="English (US) Language Pack"
+#if defined(BINOC_NAVIGATOR) || defined(BINOC_MAIL)
+               em:creator="Binary Outcast"
+#elif MC_PALEMOON
+               em:creator="Moonchild Productions"
+#else
+               em:creator="Open Source Contributors"
+#endif
+               em:strictCompatibility="true"
+               em:license="MPL-2.0">
+
+    <em:targetApplication>
+      <Description em:id="@MOZ_APP_ID@"
+                   em:minVersion="@MOZ_APP_VERSION@"
+                   em:maxVersion="@MOZ_APP_MAXVERSION@"/>
+    </em:targetApplication>
+  </Description>
+</RDF>

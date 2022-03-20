@@ -892,12 +892,10 @@ gfxDWriteFontList::InitFontListForPlatform()
 
     QueryPerformanceCounter(&t4); // iterate over system fonts
 
-#ifdef MOZ_BUNDLED_FONTS
     mBundledFonts = CreateBundledFontsCollection(factory);
     if (mBundledFonts) {
         GetFontsFromCollection(mBundledFonts);
     }
-#endif
 
     mOtherFamilyNamesInitialized = true;
     GetFontSubstitutes();
@@ -1457,15 +1455,11 @@ public:
                         bool aLoadFaceNames,
                         bool aLoadCmaps,
                         IDWriteFontCollection* aSystemFonts
-#ifdef MOZ_BUNDLED_FONTS
                         , IDWriteFontCollection* aBundledFonts
-#endif
                        ) :
         FontInfoData(aLoadOtherNames, aLoadFaceNames, aLoadCmaps)
         , mSystemFonts(aSystemFonts)
-#ifdef MOZ_BUNDLED_FONTS
         , mBundledFonts(aBundledFonts)
-#endif
     {}
 
     virtual ~DirectWriteFontInfo() {}
@@ -1475,9 +1469,7 @@ public:
 
 private:
     RefPtr<IDWriteFontCollection> mSystemFonts;
-#ifdef MOZ_BUNDLED_FONTS
     RefPtr<IDWriteFontCollection> mBundledFonts;
-#endif
 };
 
 void
@@ -1506,14 +1498,12 @@ DirectWriteFontInfo::LoadFontFamilyData(const nsAString& aFamilyName)
         }
     }
 
-#ifdef MOZ_BUNDLED_FONTS
     if (!family && mBundledFonts) {
         hr = mBundledFonts->FindFamilyName(famName.Elements(), &index, &exists);
         if (SUCCEEDED(hr) && exists) {
             mBundledFonts->GetFontFamily(index, getter_AddRefs(family));
         }
     }
-#endif
 
     if (!family) {
         return;
@@ -1658,16 +1648,13 @@ gfxDWriteFontList::CreateFontInfoData()
     RefPtr<DirectWriteFontInfo> fi =
         new DirectWriteFontInfo(false, NeedFullnamePostscriptNames(), loadCmaps,
                                 mSystemFonts
-#ifdef MOZ_BUNDLED_FONTS
                                 , mBundledFonts
-#endif
                                );
 
     return fi.forget();
 }
 
 
-#ifdef MOZ_BUNDLED_FONTS
 
 #define IMPL_QI_FOR_DWRITE(_interface)                                        \
     public:                                                                   \
@@ -1824,4 +1811,3 @@ gfxDWriteFontList::CreateBundledFontsCollection(IDWriteFactory* aFactory)
     }
 }
 
-#endif

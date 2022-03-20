@@ -62,8 +62,7 @@ bits
 buildapp
    The path to the XUL application being built.
 
-   For desktop Firefox, this is ``browser``. For Fennec, it's
-   ``mobile/android``. For B2G, it's ``b2g``.
+   For desktop Firefox, this is ``browser``.
 
 crashreporter
    Whether the crash reporter is enabled for this build.
@@ -72,22 +71,8 @@ crashreporter
 
    Always defined.
 
-datareporting
-   Whether data reporting (MOZ_DATA_REPORTING) is enabled for this build.
-
-   Values are ``true`` and ``false``.
-
-   Always defined.
-
 debug
    Whether this is a debug build.
-
-   Values are ``true`` and ``false``.
-
-   Always defined.
-
-healthreport
-   Whether the Health Report feature is enabled.
 
    Values are ``true`` and ``false``.
 
@@ -107,9 +92,9 @@ nightly_build
 
 os
    The operating system the build is produced for. Values for tier-1
-   supported platforms are ``linux``, ``win``, ``mac``, ``b2g``, and
-   ``android``. For other platforms, the value is the lowercase version
-   of the ``OS_TARGET`` variable from ``config.status``.
+   supported platforms are ``linux`` and ``win``. For other platforms,
+   the value is the lowercase version of the ``OS_TARGET`` variable
+   from ``config.status``.
 
    Always defined.
 

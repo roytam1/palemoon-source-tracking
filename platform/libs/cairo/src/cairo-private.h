@@ -10,17 +10,17 @@
 #include "cairo-path-fixed-private.h"
 
 struct _cairo {
-    cairo_reference_count_t ref_count;
+  cairo_reference_count_t ref_count;
 
-    cairo_status_t status;
+  cairo_status_t status;
 
-    cairo_user_data_array_t user_data;
+  cairo_user_data_array_t user_data;
 
-    cairo_gstate_t *gstate;
-    cairo_gstate_t  gstate_tail[2];
-    cairo_gstate_t *gstate_freelist;
+  cairo_gstate_t *gstate;
+  cairo_gstate_t  gstate_tail[2];
+  cairo_gstate_t *gstate_freelist;
 
-    cairo_path_fixed_t path[1];
+  cairo_path_fixed_t path[1];
 };
 
 #endif /* CAIRO_PRIVATE_H */

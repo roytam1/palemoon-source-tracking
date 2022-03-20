@@ -36,10 +36,6 @@
 
 #include "base/histogram.h"
 
-#ifdef ANDROID
-#include <android/log.h>
-#endif
-
 #ifdef XP_WIN
 #include "mozilla/widget/AudioSession.h"
 #include <windows.h>
@@ -309,9 +305,6 @@ Dump(JSContext* cx, unsigned argc, Value* vp)
     if (!utf8str.encodeUtf8(cx, str))
         return false;
 
-#ifdef ANDROID
-    __android_log_print(ANDROID_LOG_INFO, "Gecko", "%s", utf8str.ptr());
-#endif
 #ifdef XP_WIN
     if (IsDebuggerPresent()) {
         nsAutoJSString wstr;
@@ -1236,11 +1229,6 @@ XRE_XPCShellMain(int argc, char** argv, char** envp)
 
     mozilla::LogModule::Init();
 
-    // A initializer to initialize histogram collection
-    // used by telemetry.
-    UniquePtr<base::StatisticsRecorder> telStats =
-       MakeUnique<base::StatisticsRecorder>();
-
     if (PR_GetEnv("MOZ_CHAOSMODE")) {
         ChaosFeature feature = ChaosFeature::Any;
         long featureInt = strtol(PR_GetEnv("MOZ_CHAOSMODE"), nullptr, 16);
@@ -1445,8 +1433,6 @@ XRE_XPCShellMain(int argc, char** argv, char** envp)
 
         // Initialize graphics prefs on the main thread, if not already done
         gfxPrefs::GetSingleton();
-        // Initialize e10s check on the main thread, if not already done
-        BrowserTabsRemoteAutostart();
 #ifdef XP_WIN
         // Plugin may require audio session if installed plugin can initialize
         // asynchronized.
@@ -1535,7 +1521,6 @@ XRE_XPCShellMain(int argc, char** argv, char** envp)
     bogus = nullptr;
 #endif
 
-    telStats = nullptr;
     appDir = nullptr;
     appFile = nullptr;
     dirprovider.ClearGREDirs();

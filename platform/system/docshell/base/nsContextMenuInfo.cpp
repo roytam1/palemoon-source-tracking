@@ -26,6 +26,7 @@
 #include "nsIContentSecurityPolicy.h"
 #include "nsIContentPolicy.h"
 #include "imgRequestProxy.h"
+#include "mozilla/dom/Element.h"
 
 using mozilla::dom::Element;
 using mozilla::ErrorResult;

@@ -153,46 +153,12 @@
       <spacer id="CreateAccount.spacer" flex="1" collapsed="true"/>
       <row id="CreateAccount" class="acctCentralRow" collapsed="true">
         <hbox>
-#if defined(MOZ_THUNDERBIRD) && defined(HYPE_ICEDOVE)
-          <label class="acctCentralText"
-                 value="&newAcct.label;"
-                 chromedir="&locale.dir;"/>
-#else
           <label class="acctCentralText acctCentralLinkText"
                  value="&newAcctLink.label;"
                  chromedir="&locale.dir;"
                  onclick="CreateNewAccount();"/>
-#endif
         </hbox>
       </row>
-#if defined(MOZ_THUNDERBIRD) && defined(HYPE_ICEDOVE)
-      <row id="CreateAccounts" class="acctCentralRow" collapsed="true">
-        <vbox id="CreateAccountsList">
-          <label id="CreateAccountMail"
-                 class="acctCentralNewAcctText acctCentralLinkText"
-                 value="&emailSectionHdr.label;"
-                 chromedir="&locale.dir;"
-                 onclick="CreateNewAccountTB('mail');"/>
-          <label id="CreateAccountNewsgroups"
-                 class="acctCentralNewAcctText acctCentralLinkText"
-                 value="&newsSectionHdr.label;"
-                 chromedir="&locale.dir;"
-                 onclick="CreateNewAccountTB('newsgroups');"/>
-          <label id="CreateAccountRSS"
-                 class="acctCentralNewAcctText acctCentralLinkText"
-                 value="&feedsSectionHdr.label;"
-                 chromedir="&locale.dir;"
-                 onclick="CreateNewAccountTB('feeds');"/>
-#ifdef HAVE_MOVEMAIL
-          <label id="CreateAccountMovemail"
-                 class="acctCentralNewAcctText acctCentralLinkText"
-                 value="&movemail.label;"
-                 chromedir="&locale.dir;"
-                 onclick="CreateNewAccountTB('movemail');"/>
-#endif
-        </vbox>
-      </row>
-#endif
 
       <spacer id="AccountsSection.spacer" class="big" flex="5" collapsed="true"/>
 

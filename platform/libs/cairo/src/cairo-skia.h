@@ -13,15 +13,15 @@ CAIRO_BEGIN_DECLS
 
 cairo_public cairo_surface_t *
 cairo_skia_surface_create (cairo_format_t format,
-			   int width,
-			   int height);
+               int width,
+               int height);
 
 cairo_public cairo_surface_t *
 cairo_skia_surface_create_for_data (unsigned char *data,
-				    cairo_format_t format,
-				    int width,
-				    int height,
-				    int stride);
+                  cairo_format_t format,
+                  int width,
+                  int height,
+                  int stride);
 
 cairo_public unsigned char *
 cairo_skia_surface_get_data (cairo_surface_t *surface);

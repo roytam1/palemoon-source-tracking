@@ -3,4 +3,30 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+include('/ipc/chromium/chromium-config.mozbuild')
+
+DEFINES['OS_ARCH'] = CONFIG['OS_ARCH']
+DEFINES['MOZ_WIDGET_TOOLKIT'] = CONFIG['MOZ_WIDGET_TOOLKIT']
+
+XPIDL_SOURCES += [
+  'public/nsIPrefBranch.idl',
+  'public/nsIPrefBranch2.idl',
+  'public/nsIPrefBranchInternal.idl',
+  'public/nsIPrefLocalizedString.idl',
+  'public/nsIPrefService.idl',
+  'public/nsIRelativeFilePref.idl',
+]
+
+EXPORTS.mozilla += ['src/Preferences.h']
+
+SOURCES += [
+  'src/nsPrefBranch.cpp',
+  'src/nsPrefsFactory.cpp',
+  'src/prefapi.cpp',
+  'src/Preferences.cpp',
+  'src/prefread.cpp',
+]
+
+XPIDL_MODULE = 'pref'
+FINAL_LIBRARY = 'xul'
 JAR_MANIFESTS += ['jar.mn']

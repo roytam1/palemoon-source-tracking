@@ -394,12 +394,11 @@ ReparentFrameViewTo(nsIFrame*       aFrame,
                     nsView*        aOldParentView)
 {
   if (aFrame->HasView()) {
-#ifdef MOZ_XUL
     if (aFrame->GetType() == nsGkAtoms::menuPopupFrame) {
       // This view must be parented by the root view, don't reparent it.
       return;
     }
-#endif
+
     nsView* view = aFrame->GetView();
     // Verify that the current parent view is what we think it is
     //nsView*  parentView;
@@ -652,7 +651,6 @@ nsContainerFrame::SyncWindowProperties(nsPresContext*       aPresContext,
                                        nsRenderingContext*  aRC,
                                        uint32_t             aFlags)
 {
-#ifdef MOZ_XUL
   if (!aView || !nsCSSRendering::IsCanvasFrame(aFrame) || !aView->HasWidget())
     return;
 
@@ -669,9 +667,9 @@ nsContainerFrame::SyncWindowProperties(nsPresContext*       aPresContext,
   Element* rootElement = aPresContext->Document()->GetRootElement();
   if (!rootElement || !rootElement->IsXULElement()) {
     // Scrollframes use native widgets which don't work well with
-    // translucent windows, at least in Windows XP. So if the document
-    // has a root scrollrame it's useless to try to make it transparent,
-    // we'll just get something broken.
+    // translucent windows.
+    // So if the document has a root scrollrame it's useless to try to
+    // make it transparent, we'll just get something broken.
     // nsCSSFrameConstructor::ConstructRootFrame constructs root
     // scrollframes whenever the root element is not a XUL element, so
     // we test for that here. We can't just call
@@ -716,7 +714,6 @@ nsContainerFrame::SyncWindowProperties(nsPresContext*       aPresContext,
   nsSize maxSize = rootFrame->GetXULMaxSize(aState);
 
   SetSizeConstraints(aPresContext, windowWidget, minSize, maxSize);
-#endif
 }
 
 void nsContainerFrame::SetSizeConstraints(nsPresContext* aPresContext,

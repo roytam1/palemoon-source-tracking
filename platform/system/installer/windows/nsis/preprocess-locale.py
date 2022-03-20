@@ -124,7 +124,7 @@ def create_nlf_file(moz_dir, ab_cd, config_dir):
 
     # Check whether the locale is right to left from locales.nsi.
     fp = open(join(moz_dir,
-                   "toolkit/mozapps/installer/windows/nsis/locales.nsi"),
+                   "system/installer/windows/nsis/locales.nsi"),
               "r")
     for line in fp:
         line = line.strip()

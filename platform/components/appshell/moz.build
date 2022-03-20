@@ -3,39 +3,32 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOCHITEST_CHROME_MANIFESTS += ['test/chrome.ini']
-
 XPIDL_SOURCES += [
-    'nsIAppShellService.idl',
-    'nsIPopupWindowManager.idl',
-    'nsIWindowlessBrowser.idl',
-    'nsIWindowMediator.idl',
-    'nsIWindowMediatorListener.idl',
-    'nsIXULBrowserWindow.idl',
-    'nsIXULWindow.idl',
+    'public/nsIAppShellService.idl',
+    'public/nsIPopupWindowManager.idl',
+    'public/nsIWindowlessBrowser.idl',
+    'public/nsIWindowMediator.idl',
+    'public/nsIWindowMediatorListener.idl',
+    'public/nsIXULBrowserWindow.idl',
+    'public/nsIXULWindow.idl',
 ]
 
-XPIDL_MODULE = 'appshell'
-
-EXPORTS += [
-    'nsAppShellCID.h',
-]
+EXPORTS += ['src/nsAppShellCID.h']
 
 UNIFIED_SOURCES += [
-    'nsAppShellFactory.cpp',
-    'nsAppShellService.cpp',
-    'nsAppShellWindowEnumerator.cpp',
-    'nsChromeTreeOwner.cpp',
-    'nsContentTreeOwner.cpp',
-    'nsWebShellWindow.cpp',
-    'nsWindowMediator.cpp',
-    'nsXULWindow.cpp',
+    'src/nsAppShellFactory.cpp',
+    'src/nsAppShellService.cpp',
+    'src/nsAppShellWindowEnumerator.cpp',
+    'src/nsChromeTreeOwner.cpp',
+    'src/nsContentTreeOwner.cpp',
+    'src/nsWebShellWindow.cpp',
+    'src/nsWindowMediator.cpp',
+    'src/nsXULWindow.cpp',
 ]
 
-LOCAL_INCLUDES += [
-    '/dom/base',
-]
+LOCAL_INCLUDES += ['/dom/base']
 
+XPIDL_MODULE = 'appshell'
 FINAL_LIBRARY = 'xul'
 
 include('/ipc/chromium/chromium-config.mozbuild')

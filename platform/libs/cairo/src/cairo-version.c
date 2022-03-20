@@ -81,13 +81,13 @@
  * <informalexample><programlisting>
  * Compile-time
  * ------------
- * CAIRO_VERSION_STRING    Human-readable
- * CAIRO_VERSION           Encoded, suitable for comparison
+ * CAIRO_VERSION_STRING  Human-readable
+ * CAIRO_VERSION       Encoded, suitable for comparison
  *
  * Run-time
  * --------
  * cairo_version_string()  Human-readable
- * cairo_version()         Encoded, suitable for comparison
+ * cairo_version()     Encoded, suitable for comparison
  * </programlisting></informalexample>
  *
  * For example, checking that the cairo version is greater than or equal
@@ -99,7 +99,7 @@
  * ##endif
  *
  * if (cairo_version() >= CAIRO_VERSION_ENCODE(1, 0, 0))
- *     printf ("Running with suitable cairo version: %s\n", cairo_version_string ());
+ *   printf ("Running with suitable cairo version: %s\n", cairo_version_string ());
  * </programlisting></informalexample>
  * </para>
  * </refsect2>
@@ -188,7 +188,7 @@
 int
 cairo_version (void)
 {
-    return CAIRO_VERSION;
+  return CAIRO_VERSION;
 }
 
 /**
@@ -205,6 +205,6 @@ cairo_version (void)
 const char*
 cairo_version_string (void)
 {
-    return CAIRO_VERSION_STRING;
+  return CAIRO_VERSION_STRING;
 }
 slim_hidden_def (cairo_version_string);

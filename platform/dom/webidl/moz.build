@@ -31,8 +31,6 @@ WEBIDL_FILES = [
     'AppInfo.webidl',
     'AppNotificationServiceOptions.webidl',
     'APZTestData.webidl',
-    'ArchiveReader.webidl',
-    'ArchiveRequest.webidl',
     'Attr.webidl',
     'AudioBuffer.webidl',
     'AudioBufferSourceNode.webidl',
@@ -574,45 +572,9 @@ WEBIDL_FILES = [
     'XULElement.webidl',
 ]
 
-if CONFIG['MOZ_EME']:
-    WEBIDL_FILES += [
-        'MediaEncryptedEvent.webidl',
-        'MediaKeyError.webidl',
-        'MediaKeyMessageEvent.webidl',
-        'MediaKeys.webidl',
-        'MediaKeySession.webidl',
-        'MediaKeysRequestStatus.webidl',
-        'MediaKeyStatusMap.webidl',
-        'MediaKeySystemAccess.webidl',
-        'WidevineCDMManifest.webidl',
-    ]
-
 if CONFIG['MOZ_AUDIO_CHANNEL_MANAGER']:
     WEBIDL_FILES += [
         'AudioChannelManager.webidl',
-    ]
-
-if CONFIG['MOZ_WEBRTC']:
-    WEBIDL_FILES += [
-        'DataChannel.webidl',
-        'MediaStreamList.webidl',
-        'PeerConnectionImpl.webidl',
-        'PeerConnectionImplEnums.webidl',
-        'PeerConnectionObserver.webidl',
-        'PeerConnectionObserverEnums.webidl',
-        'RTCCertificate.webidl',
-        'RTCConfiguration.webidl',
-        'RTCDTMFSender.webidl',
-        'RTCIceCandidate.webidl',
-        'RTCIdentityAssertion.webidl',
-        'RTCIdentityProvider.webidl',
-        'RTCPeerConnection.webidl',
-        'RTCPeerConnectionStatic.webidl',
-        'RTCRtpReceiver.webidl',
-        'RTCRtpSender.webidl',
-        'RTCSessionDescription.webidl',
-        'WebrtcDeprecated.webidl',
-        'WebrtcGlobalInformation.webidl',
     ]
 
 if CONFIG['MOZ_WEBSPEECH']:
@@ -706,14 +668,6 @@ GENERATED_EVENTS_WEBIDL_FILES = [
     'WebGLContextEvent.webidl',
 ]
 
-if CONFIG['MOZ_WEBRTC']:
-    GENERATED_EVENTS_WEBIDL_FILES += [
-        'RTCDataChannelEvent.webidl',
-        'RTCDTMFToneChangeEvent.webidl',
-        'RTCPeerConnectionIceEvent.webidl',
-        'RTCTrackEvent.webidl',
-    ]
-
 if CONFIG['MOZ_WEBSPEECH']:
     GENERATED_EVENTS_WEBIDL_FILES += [
         'SpeechSynthesisErrorEvent.webidl',
@@ -727,12 +681,12 @@ if CONFIG['MOZ_GAMEPAD']:
         'GamepadEvent.webidl',
     ]
 
-if CONFIG['MOZ_BUILD_APP'] in ['xulrunner'] or CONFIG['MOZ_PHOENIX'] or CONFIG['MOZ_SUITE']:
+if CONFIG['MOZ_PHOENIX'] or CONFIG['BINOC_NAVIGATOR']:
     WEBIDL_FILES += [
         'BrowserFeedWriter.webidl',
     ]
 
-if CONFIG['MOZ_PHOENIX'] or CONFIG['MOZ_XULRUNNER']:
+if CONFIG['MOZ_PHOENIX']:
     WEBIDL_FILES += [
         'External.webidl',
     ]

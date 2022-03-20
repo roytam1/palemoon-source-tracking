@@ -12,44 +12,44 @@
 #include "cairo-list-private.h"
 
 enum {
-    CAIRO_RTREE_NODE_AVAILABLE,
-    CAIRO_RTREE_NODE_DIVIDED,
-    CAIRO_RTREE_NODE_OCCUPIED,
+  CAIRO_RTREE_NODE_AVAILABLE,
+  CAIRO_RTREE_NODE_DIVIDED,
+  CAIRO_RTREE_NODE_OCCUPIED,
 };
 
 typedef struct _cairo_rtree_node {
-    struct _cairo_rtree_node *children[4], *parent;
-    void **owner;
-    cairo_list_t link;
-    uint16_t pinned;
-    uint16_t state;
-    uint16_t x, y;
-    uint16_t width, height;
+  struct _cairo_rtree_node *children[4], *parent;
+  void **owner;
+  cairo_list_t link;
+  uint16_t pinned;
+  uint16_t state;
+  uint16_t x, y;
+  uint16_t width, height;
 } cairo_rtree_node_t;
 
 typedef struct _cairo_rtree {
-    cairo_rtree_node_t root;
-    int min_size;
-    cairo_list_t pinned;
-    cairo_list_t available;
-    cairo_list_t evictable;
-    cairo_freepool_t node_freepool;
+  cairo_rtree_node_t root;
+  int min_size;
+  cairo_list_t pinned;
+  cairo_list_t available;
+  cairo_list_t evictable;
+  cairo_freepool_t node_freepool;
 } cairo_rtree_t;
 
 cairo_private cairo_rtree_node_t *
-_cairo_rtree_node_create (cairo_rtree_t		 *rtree,
-		          cairo_rtree_node_t	 *parent,
-			  int			  x,
-			  int			  y,
-			  int			  width,
-			  int			  height);
+_cairo_rtree_node_create (cairo_rtree_t         *rtree,
+              cairo_rtree_node_t     *parent,
+              int              x,
+              int              y,
+              int              width,
+              int              height);
 
 cairo_private cairo_status_t
 _cairo_rtree_node_insert (cairo_rtree_t *rtree,
-	                  cairo_rtree_node_t *node,
-			  int width,
-			  int height,
-			  cairo_rtree_node_t **out);
+              cairo_rtree_node_t *node,
+              int width,
+              int height,
+              cairo_rtree_node_t **out);
 
 cairo_private void
 _cairo_rtree_node_collapse (cairo_rtree_t *rtree, cairo_rtree_node_t *node);
@@ -61,33 +61,33 @@ cairo_private void
 _cairo_rtree_node_destroy (cairo_rtree_t *rtree, cairo_rtree_node_t *node);
 
 cairo_private void
-_cairo_rtree_init (cairo_rtree_t	*rtree,
-	           int			 width,
-		   int			 height,
-		   int			 min_size,
-		   int			 node_size);
+_cairo_rtree_init (cairo_rtree_t    *rtree,
+           int             width,
+           int             height,
+           int             min_size,
+           int             node_size);
 
 cairo_private cairo_int_status_t
-_cairo_rtree_insert (cairo_rtree_t	     *rtree,
-		     int		      width,
-	             int		      height,
-	             cairo_rtree_node_t	    **out);
+_cairo_rtree_insert (cairo_rtree_t       *rtree,
+           int            width,
+           int            height,
+           cairo_rtree_node_t      **out);
 
 cairo_private cairo_int_status_t
-_cairo_rtree_evict_random (cairo_rtree_t	 *rtree,
-		           int			  width,
-		           int			  height,
-		           cairo_rtree_node_t	**out);
+_cairo_rtree_evict_random (cairo_rtree_t     *rtree,
+               int              width,
+               int              height,
+               cairo_rtree_node_t    **out);
 
 static inline void *
 _cairo_rtree_pin (cairo_rtree_t *rtree, cairo_rtree_node_t *node)
 {
-    if (! node->pinned) {
-	cairo_list_move (&node->link, &rtree->pinned);
-	node->pinned = 1;
-    }
+  if (! node->pinned) {
+    cairo_list_move (&node->link, &rtree->pinned);
+    node->pinned = 1;
+  }
 
-    return node;
+  return node;
 }
 
 cairo_private void

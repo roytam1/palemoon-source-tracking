@@ -12,11 +12,11 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    '/docshell/base',
-    '/docshell/shistory',
-    '/uriloader/base',
-    '/uriloader/exthandler',
-    '/uriloader/prefetch',
+    '../base',
+    '../prefetch',
+    '../shistory',
+    '/components/uriloader',
+    '/system/network/exthandler',
 ]
 
 include('/ipc/chromium/chromium-config.mozbuild')

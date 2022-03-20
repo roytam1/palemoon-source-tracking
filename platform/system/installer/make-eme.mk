@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/signing.mk
+include $(MOZILLA_DIR)/system/installer/signing.mk
 
 ifdef MOZ_SIGN_CMD
   ifeq (,$(filter-out WINNT Darwin,$(OS_ARCH)))

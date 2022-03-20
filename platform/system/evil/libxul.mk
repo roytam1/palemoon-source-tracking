@@ -2,12 +2,12 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-EXTRA_DEPS += $(topsrcdir)/toolkit/library/libxul.mk
+EXTRA_DEPS += $(topsrcdir)/system/evil/libxul.mk
 
 ifeq (Linux,$(OS_ARCH))
 OS_LDFLAGS += -Wl,-version-script,symverscript
 
-symverscript: $(topsrcdir)/toolkit/library/symverscript.in
+symverscript: $(topsrcdir)/system/evil/symverscript.in
 	$(call py_action,preprocessor, \
 		-DVERSION='xul$(MOZILLA_SYMBOLVERSION)' $< -o $@)
 
@@ -21,7 +21,7 @@ ifeq (,$(filter-out SunOS Linux,$(OS_ARCH)))
 # Create a GDB Python auto-load file alongside the libxul shared library in
 # the build directory.
 PP_TARGETS += LIBXUL_AUTOLOAD
-LIBXUL_AUTOLOAD = $(topsrcdir)/toolkit/library/libxul.so-gdb.py.in
+LIBXUL_AUTOLOAD = $(topsrcdir)/system/evil/libxul.so-gdb.py.in
 LIBXUL_AUTOLOAD_FLAGS := -Dtopsrcdir=$(abspath $(topsrcdir))
 endif
 
@@ -39,7 +39,7 @@ endif
 ifneq (OpenBSD,$(OS_TARGET))
 ifneq (WINNT,$(OS_TARGET))
 ifdef LD_IS_BFD
-OS_LDFLAGS += $(topsrcdir)/toolkit/library/StaticXULComponents.ld
+OS_LDFLAGS += $(topsrcdir)/system/evil/StaticXULComponents.ld
 endif
 endif
 endif

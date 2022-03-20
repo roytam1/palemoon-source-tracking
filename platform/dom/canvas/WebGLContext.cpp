@@ -31,7 +31,6 @@
 #include "mozilla/ProcessPriorityManager.h"
 #include "mozilla/ScopeExit.h"
 #include "mozilla/Services.h"
-#include "mozilla/Telemetry.h"
 #include "nsContentUtils.h"
 #include "nsDisplayList.h"
 #include "nsError.h"
@@ -68,10 +67,6 @@
 #include "WebGLTransformFeedback.h"
 #include "WebGLVertexArray.h"
 #include "WebGLVertexAttribData.h"
-
-#ifdef MOZ_WIDGET_COCOA
-#include "nsCocoaFeatures.h"
-#endif
 
 #ifdef XP_WIN
 #include "WGLLibrary.h"
@@ -1000,14 +995,6 @@ WebGLContext::SetDimensions(int32_t signedWidth, int32_t signedHeight)
 
         if (!mOptions.stencil && gl->Caps().stencil)
             mNeedsFakeNoStencil = true;
-
-#ifdef MOZ_WIDGET_COCOA
-        if (!nsCocoaFeatures::IsAtLeastVersion(10, 12) &&
-            gl->Vendor() == GLVendor::Intel)
-        {
-            mNeedsEmulatedLoneDepthStencil = true;
-        }
-#endif
     }
 
     // Update mOptions.

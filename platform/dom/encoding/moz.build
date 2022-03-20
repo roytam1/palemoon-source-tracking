@@ -19,9 +19,9 @@ SOURCES += [
 
 FINAL_LIBRARY = 'xul'
 
-LOCAL_INCLUDES += ['/intl/locale']
+LOCAL_INCLUDES += ['/system/intl/locale']
 
-props2arrays = '/intl/locale/props2arrays.py'
+props2arrays = '/system/intl/locale/props2arrays.py'
 prefixes = (
     'domainsfallbacks',
     'encodingsgroups',

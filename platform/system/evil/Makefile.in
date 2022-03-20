@@ -2,7 +2,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-include $(topsrcdir)/toolkit/library/libxul.mk
+include $(topsrcdir)/system/evil/libxul.mk
 
 include $(topsrcdir)/config/config.mk
 
@@ -14,4 +14,4 @@ include $(topsrcdir)/config/rules.mk
 
 .PHONY: gtestxul
 gtestxul:
-	$(MAKE) -C $(DEPTH) toolkit/library/gtest/target LINK_GTEST=1
+	$(MAKE) -C $(DEPTH) system/evil/gtest/target LINK_GTEST=1

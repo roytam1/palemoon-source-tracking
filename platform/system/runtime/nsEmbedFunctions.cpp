@@ -63,13 +63,9 @@
 #include "mozilla/ipc/XPCShellEnvironment.h"
 #include "mozilla/WindowsDllBlocklist.h"
 
-#include "GMPProcessChild.h"
-#include "GMPLoader.h"
 #include "mozilla/gfx/GPUProcessImpl.h"
 
 #include "GeckoProfiler.h"
-
-#include "mozilla/Telemetry.h"
 
 #ifdef MOZ_IPDL_TESTS
 #include "mozilla/_ipdltest/IPDLUnitTests.h"
@@ -90,10 +86,6 @@ using mozilla::plugins::PluginProcessChild;
 using mozilla::dom::ContentProcess;
 using mozilla::dom::ContentParent;
 using mozilla::dom::ContentChild;
-
-using mozilla::gmp::GMPLoader;
-using mozilla::gmp::CreateGMPLoader;
-using mozilla::gmp::GMPProcessChild;
 
 using mozilla::ipc::TestShellParent;
 using mozilla::ipc::TestShellCommandParent;
@@ -234,17 +226,11 @@ SetTaskbarGroupId(const nsString& aId)
 
 nsresult
 XRE_InitChildProcess(int aArgc,
-                     char* aArgv[],
-                     const XREChildData* aChildData)
+                     char* aArgv[])
 {
   NS_ENSURE_ARG_MIN(aArgc, 2);
   NS_ENSURE_ARG_POINTER(aArgv);
   NS_ENSURE_ARG_POINTER(aArgv[0]);
-  MOZ_ASSERT(aChildData);
-
-  // On non-Fennec Gecko, the GMPLoader code resides in plugin-container,
-  // and we must forward it through to the GMP code here.
-  GMPProcessChild::SetGMPLoader(aChildData->gmpLoader.get());
 
 #if defined(XP_WIN)
   // From the --attach-console support in nsNativeAppSupportWin.cpp, but
@@ -273,14 +259,6 @@ XRE_InitChildProcess(int aArgc,
 
   // NB: This must be called before profiler_init
   ScopedLogging logger;
-
-  // This is needed by Telemetry to initialize histogram collection.
-  // NB: This must be called after NS_LogInit().
-  // NS_LogInit must be called before Telemetry::CreateStatisticsRecorder
-  // so as to avoid many log messages of the form
-  //   WARNING: XPCOM objects created/destroyed from static ctor/dtor: [..]
-  // See bug 1279614.
-  Telemetry::CreateStatisticsRecorder();
 
   mozilla::LogModule::Init();
 
@@ -367,9 +345,6 @@ XRE_InitChildProcess(int aArgc,
       // Content processes need the XPCOM/chromium frankenventloop
       uiLoopType = MessageLoop::TYPE_MOZILLA_CHILD;
       break;
-  case GeckoProcessType_GMPlugin:
-      uiLoopType = MessageLoop::TYPE_DEFAULT;
-      break;
   default:
       uiLoopType = MessageLoop::TYPE_UI;
       break;
@@ -431,10 +406,6 @@ XRE_InitChildProcess(int aArgc,
 #endif
         break;
 
-      case GeckoProcessType_GMPlugin:
-        process = new gmp::GMPProcessChild(parentPID);
-        break;
-
       case GeckoProcessType_GPU:
         process = new gfx::GPUProcessImpl(parentPID);
         break;
@@ -469,7 +440,6 @@ XRE_InitChildProcess(int aArgc,
     }
   }
 
-  Telemetry::DestroyStatisticsRecorder();
   return XRE_DeinitCommandLine();
 }
 

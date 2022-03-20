@@ -71,9 +71,7 @@
 #include "nsAttrValueOrString.h"
 #include "nsAttrValueInlines.h"
 #include "nsCSSPseudoElements.h"
-#ifdef MOZ_XUL
 #include "nsXULElement.h"
-#endif /* MOZ_XUL */
 #include "nsSVGElement.h"
 #include "nsFrameSelection.h"
 #ifdef DEBUG
@@ -112,9 +110,7 @@
 #include "nsRuleProcessorData.h"
 #include "nsTextNode.h"
 
-#ifdef MOZ_XUL
 #include "nsIXULDocument.h"
-#endif /* MOZ_XUL */
 
 #include "nsCycleCollectionParticipant.h"
 #include "nsCCUncollectableMarker.h"
@@ -127,7 +123,6 @@
 #include "nsWrapperCacheInlines.h"
 #include "xpcpublic.h"
 #include "nsIScriptError.h"
-#include "mozilla/Telemetry.h"
 
 #include "mozilla/CORSMode.h"
 #include "mozilla/dom/ShadowRoot.h"
@@ -1545,15 +1540,11 @@ Element::BindToTree(nsIDocument* aDocument, nsIContent* aParent,
                   aBindingParent == aParent->GetBindingParent(),
                   "We should be passed the right binding parent");
 
-#ifdef MOZ_XUL
   // First set the binding parent
   nsXULElement* xulElem = nsXULElement::FromContent(this);
   if (xulElem) {
     xulElem->SetXULBindingParent(aBindingParent);
-  }
-  else
-#endif
-  {
+  } else {
     if (aBindingParent) {
       nsExtendedDOMSlots* slots = ExtendedDOMSlots();
 
@@ -1971,13 +1962,11 @@ Element::UnbindFromTree(bool aDeep, bool aNullParent)
   UnsetFlags(NODE_FORCE_XBL_BINDINGS);
   bool clearBindingParent = true;
 
-#ifdef MOZ_XUL
   nsXULElement* xulElem = nsXULElement::FromContent(this);
   if (xulElem) {
     xulElem->SetXULBindingParent(nullptr);
     clearBindingParent = false;
   }
-#endif
 
   nsExtendedDOMSlots* slots = GetExistingExtendedDOMSlots();
   if (slots) {

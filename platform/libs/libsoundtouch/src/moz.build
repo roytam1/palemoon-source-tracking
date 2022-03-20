@@ -44,7 +44,7 @@ else:
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True
 
-FINAL_LIBRARY = 'lgpllibs'
+FINAL_LIBRARY = 'lgplmedia'
 
 # Use abort() instead of exception in SoundTouch.
 DEFINES['ST_NO_EXCEPTION_HANDLING'] = 1

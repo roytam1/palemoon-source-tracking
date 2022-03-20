@@ -5,15 +5,103 @@
 
 Program('updater')
 
-updater_rel_path = ''
-include('updater-common.build')
+DEFINES['NS_NO_XPCOM'] = True
+
+for var in ('MAR_CHANNEL_ID', 'MOZ_APP_VERSION'):
+  DEFINES[var] = '"%s"' % CONFIG[var]
+
+# =============================================================================
+
+if CONFIG['OS_ARCH'] == 'WINNT':
+  DEFINES['UNICODE'] = True
+  DEFINES['_UNICODE'] = True
+
+  SOURCES += [
+    'loaddlls.cpp',
+    'progressui_win.cpp',
+    'win_dirent.cpp',
+  ]
+
+  # Pick up nsWindowsRestart.cpp
+  LOCAL_INCLUDES += ['/system/runtime']
+  
+  OS_LIBS += [
+    'comctl32',
+    'ws2_32',
+    'shell32',
+    'shlwapi',
+    'crypt32',
+    'advapi32',
+  ]
+
+  DELAYLOAD_DLLS += [
+    'crypt32.dll',
+    'comctl32.dll',
+    'userenv.dll',
+    'wsock32.dll',
+  ]
+
+  if CONFIG['_MSC_VER']:
+    WIN32_EXE_LDFLAGS += ['-ENTRY:wmainCRTStartup']
+  else:
+    WIN32_EXE_LDFLAGS += ['-municode']
+
+  RCINCLUDE = 'updater.rc'
+  USE_STATIC_LIBS = True
+elif 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+  CXXFLAGS += CONFIG['TK_CFLAGS']
+  OS_LIBS += CONFIG['TK_LIBS']
+
+  if CONFIG['MOZ_VERIFY_MAR_SIGNATURE']:
+    USE_LIBS += [
+      'nss',
+      'signmar',
+    ]
+
+    OS_LIBS += CONFIG['NSPR_LIBS']
+else:
+  SOURCES += ['progressui_null.cpp']
+
+# =============================================================================
+
+SOURCES += [
+  'archivereader.cpp',
+  'bspatch.cpp',
+  'updater.cpp',
+]
+
+LOCAL_INCLUDES += [
+  '/system/updater/lib',
+  '/xpcom/glue',
+]
+
+USE_LIBS += [
+  'mar',
+  'update',
+  'xz-embedded'
+]
+
+if CONFIG['MOZ_VERIFY_MAR_SIGNATURE']:
+  USE_LIBS += ['verifymar']
+
+if CONFIG['MOZ_SYSTEM_BZ2']:
+  OS_LIBS += CONFIG['MOZ_BZ2_LIBS']
+else:
+  USE_LIBS += ['bz2']
+
+DISABLE_STL_WRAPPING = True
 
 CXXFLAGS += CONFIG['MOZ_BZ2_CFLAGS']
 
+if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
+  FINAL_TARGET_FILES.icons += ['updater.png']
+
+# =============================================================================
+
 GENERATED_FILES = [
-    'primaryCert.h',
-    'secondaryCert.h',
-    'xpcshellCert.h',
+  'primaryCert.h',
+  'secondaryCert.h',
+  'xpcshellCert.h',
 ]
 
 primary_cert = GENERATED_FILES['primaryCert.h']
@@ -29,18 +117,15 @@ secondary_cert.script = 'gen_cert_header.py:create_header'
 xpcshell_cert.script = 'gen_cert_header.py:create_header'
 
 if CONFIG['MOZ_UPDATE_CHANNEL'] in ('beta', 'release', 'esr'):
-    primary_cert.inputs += ['release_primary.der']
-    secondary_cert.inputs += ['release_secondary.der']
+  primary_cert.inputs += ['release_primary.der']
+  secondary_cert.inputs += ['release_secondary.der']
 elif CONFIG['MOZ_UPDATE_CHANNEL'] in ('nightly', 'aurora', 'nightly-elm',
                                       'nightly-profiling', 'nightly-oak',
                                       'nightly-ux'):
-    primary_cert.inputs += ['nightly_aurora_level3_primary.der']
-    secondary_cert.inputs += ['nightly_aurora_level3_secondary.der']
+  primary_cert.inputs += ['nightly_aurora_level3_primary.der']
+  secondary_cert.inputs += ['nightly_aurora_level3_secondary.der']
 else:
-    primary_cert.inputs += ['dep1.der']
-    secondary_cert.inputs += ['dep2.der']
+  primary_cert.inputs += ['dep1.der']
+  secondary_cert.inputs += ['dep2.der']
 
 xpcshell_cert.inputs += ['xpcshellCertificate.der']
-
-if 'gtk' in CONFIG['MOZ_WIDGET_TOOLKIT']:
-    FINAL_TARGET_FILES.icons += ['updater.png']

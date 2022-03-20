@@ -125,13 +125,11 @@ class BuildBackend(LoggingMixin):
 
         for obj in objs:
             obj_start = time.time()
-            if (not self.consume_object(obj) and
-                    not isinstance(self, PartialBackend)):
+            if (not self.consume_object(obj)):
                 raise Exception('Unhandled object of type %s' % type(obj))
             self._execution_time += time.time() - obj_start
 
-            if (isinstance(obj, ContextDerived) and
-                    not isinstance(self, PartialBackend)):
+            if (isinstance(obj, ContextDerived)):
                 self.backend_input_files |= obj.context_all_paths
 
         # Pull in all loaded Python as dependencies so any Python changes that
@@ -266,52 +264,3 @@ class BuildBackend(LoggingMixin):
         with self._write_file(obj.output_path) as fh:
             pp.out = fh
             yield pp
-
-
-class PartialBackend(BuildBackend):
-    """A PartialBackend is a BuildBackend declaring that its consume_object
-    method may not handle all build configuration objects it's passed, and
-    that it's fine."""
-
-
-def HybridBackend(*backends):
-    """A HybridBackend is the combination of one or more PartialBackends
-    with a non-partial BuildBackend.
-
-    Build configuration objects are passed to each backend, stopping at the
-    first of them that declares having handled them.
-    """
-    assert len(backends) >= 2
-    assert all(issubclass(b, PartialBackend) for b in backends[:-1])
-    assert not(issubclass(backends[-1], PartialBackend))
-    assert all(issubclass(b, BuildBackend) for b in backends)
-
-    class TheHybridBackend(BuildBackend):
-        def __init__(self, environment):
-            self._backends = [b(environment) for b in backends]
-            super(TheHybridBackend, self).__init__(environment)
-
-        def consume_object(self, obj):
-            return any(b.consume_object(obj) for b in self._backends)
-
-        def consume_finished(self):
-            for backend in self._backends:
-                backend.consume_finished()
-
-            for attr in ('_execution_time', '_created_count', '_updated_count',
-                         '_unchanged_count', '_deleted_count'):
-                setattr(self, attr,
-                        sum(getattr(b, attr) for b in self._backends))
-
-            for b in self._backends:
-                self.file_diffs.update(b.file_diffs)
-                for attr in ('backend_input_files', '_backend_output_files'):
-                    files = getattr(self, attr)
-                    files |= getattr(b, attr)
-
-    name = '+'.join(itertools.chain(
-        (b.__name__.replace('Backend', '') for b in backends[:1]),
-        (b.__name__ for b in backends[-1:])
-    ))
-
-    return type(str(name), (TheHybridBackend,), {})

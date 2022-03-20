@@ -1499,14 +1499,6 @@ toolbar#nav-bar {
         if not self.disable_leak_checking:
             browserEnv["XPCOM_MEM_BLOAT_LOG"] = self.leak_report_file
 
-        try:
-            gmp_path = self.getGMPPluginPath(options)
-            if gmp_path is not None:
-                browserEnv["MOZ_GMP_PATH"] = gmp_path
-        except EnvironmentError:
-            self.log.error('Could not find path to gmp-fake plugin!')
-            return None
-
         if options.fatalAssertions:
             browserEnv["XPCOM_DEBUG_BREAK"] = "stack-and-abort"
 

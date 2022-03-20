@@ -140,13 +140,6 @@ public:
   AllocPContentBridgeChild(mozilla::ipc::Transport* transport,
                            base::ProcessId otherProcess) override;
 
-  PGMPServiceChild*
-  AllocPGMPServiceChild(mozilla::ipc::Transport* transport,
-                        base::ProcessId otherProcess) override;
-
-  bool
-  RecvGMPsChanged(nsTArray<GMPCapabilityData>&& capabilities) override;
-
   bool
   RecvInitRendering(
     Endpoint<PCompositorBridgeChild>&& aCompositor,
@@ -528,10 +521,6 @@ public:
 
   virtual bool
   DeallocPOfflineCacheUpdateChild(POfflineCacheUpdateChild* offlineCacheUpdate) override;
-
-  virtual PWebrtcGlobalChild* AllocPWebrtcGlobalChild() override;
-
-  virtual bool DeallocPWebrtcGlobalChild(PWebrtcGlobalChild *aActor) override;
 
   virtual PContentPermissionRequestChild*
   AllocPContentPermissionRequestChild(const InfallibleTArray<PermissionRequest>& aRequests,

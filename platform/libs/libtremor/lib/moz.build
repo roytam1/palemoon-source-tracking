@@ -18,7 +18,7 @@ SOURCES += [
     'tremor_window.c',
 ]
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 if CONFIG['OS_ARCH'] == 'AIX':
     DEFINES['alloca'] = '__alloca'
@@ -27,7 +27,7 @@ if CONFIG['TARGET_CPU'] == 'arm' and CONFIG['GNU_CC'] and not CONFIG['MOZ_THUMB2
     DEFINES['_ARM_ASSEM_'] = True
 
 LOCAL_INCLUDES += [
-    '/media/libtremor/include/tremor',
+    '/libs/libtremor/include/tremor',
 ]
 
 # We allow warnings for third-party code that can be updated from upstream.

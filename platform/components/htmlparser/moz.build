@@ -3,51 +3,48 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-MOCHITEST_MANIFESTS += ['tests/mochitest/mochitest.ini']
-BROWSER_CHROME_MANIFESTS += ['tests/mochitest/browser.ini']
-
 XPIDL_SOURCES += [
-    'nsIExpatSink.idl',
-    'nsIExtendedExpatSink.idl',
+  'public/nsIExpatSink.idl',
+  'public/nsIExtendedExpatSink.idl',
 ]
-
-XPIDL_MODULE = 'htmlparser'
 
 EXPORTS += [
-    'nsElementTable.h',
-    'nsHTMLTagList.h',
-    'nsHTMLTags.h',
-    'nsIContentSink.h',
-    'nsIDTD.h',
-    'nsIFragmentContentSink.h',
-    'nsIHTMLContentSink.h',
-    'nsIParser.h',
-    'nsIParserService.h',
-    'nsITokenizer.h',
-    'nsParserBase.h',
-    'nsParserCIID.h',
-    'nsParserConstants.h',
-    'nsScannerString.h',
-    'nsToken.h',
+  'src/nsCharsetSource.h',
+  'src/nsElementTable.h',
+  'src/nsHTMLTagList.h',
+  'src/nsHTMLTags.h',
+  'src/nsIContentSink.h',
+  'src/nsIDTD.h',
+  'src/nsIFragmentContentSink.h',
+  'src/nsIHTMLContentSink.h',
+  'src/nsIParser.h',
+  'src/nsIParserService.h',
+  'src/nsITokenizer.h',
+  'src/nsParserBase.h',
+  'src/nsParserCIID.h',
+  'src/nsParserConstants.h',
+  'src/nsScannerString.h',
+  'src/nsToken.h',
 ]
 
-UNIFIED_SOURCES += [
-    'CNavDTD.cpp',
-    'CParserContext.cpp',
-    'nsElementTable.cpp',
-    'nsExpatDriver.cpp',
-    'nsHTMLEntities.cpp',
-    'nsHTMLTags.cpp',
-    'nsHTMLTokenizer.cpp',
-    'nsParser.cpp',
-    'nsParserModule.cpp',
-    'nsParserMsgUtils.cpp',
-    'nsParserService.cpp',
-    'nsScanner.cpp',
-    'nsScannerString.cpp',
+SOURCES += [
+  'src/CNavDTD.cpp',
+  'src/CParserContext.cpp',
+  'src/nsElementTable.cpp',
+  'src/nsExpatDriver.cpp',
+  'src/nsHTMLEntities.cpp',
+  'src/nsHTMLTags.cpp',
+  'src/nsHTMLTokenizer.cpp',
+  'src/nsParser.cpp',
+  'src/nsParserModule.cpp',
+  'src/nsParserMsgUtils.cpp',
+  'src/nsParserService.cpp',
+  'src/nsScanner.cpp',
+  'src/nsScannerString.cpp',
 ]
-
-FINAL_LIBRARY = 'xul'
 
 if CONFIG['GNU_CXX']:
-    CXXFLAGS += ['-Wno-error=shadow']
+  CXXFLAGS += ['-Wno-error=shadow']
+
+XPIDL_MODULE = 'htmlparser'
+FINAL_LIBRARY = 'xul'

@@ -4,8 +4,8 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 EXTRA_COMPONENTS += [
-    'nsContentDispatchChooser.js',
     'nsContentDispatchChooser.manifest',
+    'src/nsContentDispatchChooser.js',
 ]
 
 JAR_MANIFESTS += ['jar.mn']

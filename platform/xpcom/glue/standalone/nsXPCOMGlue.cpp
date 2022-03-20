@@ -79,18 +79,6 @@ CloseLibHandle(LibHandleType aLibHandle)
 #else
 #include <dlfcn.h>
 
-#ifdef MOZ_LINKER
-extern "C" {
-NS_HIDDEN __typeof(dlopen) __wrap_dlopen;
-NS_HIDDEN __typeof(dlsym) __wrap_dlsym;
-NS_HIDDEN __typeof(dlclose) __wrap_dlclose;
-}
-
-#define dlopen __wrap_dlopen
-#define dlsym __wrap_dlsym
-#define dlclose __wrap_dlclose
-#endif
-
 typedef void* LibHandleType;
 
 static LibHandleType

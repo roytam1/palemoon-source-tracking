@@ -43,12 +43,21 @@ txXSLTProcessor::shutdown()
 nsresult
 txXSLTProcessor::execute(txExecutionState& aEs)
 {
-    nsresult rv = NS_OK;
+  nsresult rv;
+  do {
     txInstruction* instr;
-    while ((instr = aEs.getNextInstruction())) {
-        rv = instr->execute(aEs);
-        NS_ENSURE_SUCCESS(rv, rv);
+    nsresult rv = aEs.getNextInstruction(instr);
+    if (NS_FAILED(rv)) {
+      return rv;
     }
 
-    return NS_OK;
+    if (!instr) {
+      // reached null, no more instructions.
+      return NS_OK;
+    }
+
+    rv = instr->execute(aEs);
+  } while (NS_SUCCEEDED(rv));
+
+  return rv;
 }

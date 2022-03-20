@@ -33,10 +33,10 @@
 /* If %CAIRO_MUTEX_IMPL_INIT is defined, we may need to initialize all
  * static mutex'es. */
 # ifndef CAIRO_MUTEX_IMPL_INITIALIZE
-#  define CAIRO_MUTEX_IMPL_INITIALIZE() do {	\
-       if (!_cairo_mutex_initialized)	\
-           _cairo_mutex_initialize ();	\
-    } while(0)
+#  define CAIRO_MUTEX_IMPL_INITIALIZE() do {    \
+     if (!_cairo_mutex_initialized)    \
+       _cairo_mutex_initialize ();    \
+  } while(0)
 
 /* and make sure we implement the above */
 #  define _CAIRO_MUTEX_IMPL_USE_STATIC_INITIALIZER 1
@@ -50,9 +50,9 @@
 # endif /* CAIRO_MUTEX_IMPL_INITIALIZE */
 
 /* and dynamic ones can be initialized using the static initializer. */
-# define CAIRO_MUTEX_IMPL_INIT(mutex) do {				\
-      cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;	\
-      memcpy (&(mutex), &_tmp_mutex, sizeof (_tmp_mutex));	\
+# define CAIRO_MUTEX_IMPL_INIT(mutex) do {                \
+    cairo_mutex_t _tmp_mutex = CAIRO_MUTEX_IMPL_NIL_INITIALIZER;    \
+    memcpy (&(mutex), &_tmp_mutex, sizeof (_tmp_mutex));    \
   } while (0)
 
 #endif /* CAIRO_MUTEX_IMPL_INIT */
@@ -62,10 +62,10 @@
 /* If %CAIRO_MUTEX_IMPL_FINI is defined, we may need to finalize all
  * static mutex'es. */
 # ifndef CAIRO_MUTEX_IMPL_FINALIZE
-#  define CAIRO_MUTEX_IMPL_FINALIZE() do {	\
-       if (_cairo_mutex_initialized)	\
-           _cairo_mutex_finalize ();	\
-    } while(0)
+#  define CAIRO_MUTEX_IMPL_FINALIZE() do {    \
+     if (_cairo_mutex_initialized)    \
+       _cairo_mutex_finalize ();    \
+  } while(0)
 
 /* and make sure we implement the above */
 #  define _CAIRO_MUTEX_IMPL_USE_STATIC_FINALIZER 1
@@ -79,7 +79,7 @@
 # endif /* CAIRO_MUTEX_IMPL_FINALIZE */
 
 /* neither do the dynamic ones. */
-# define CAIRO_MUTEX_IMPL_FINI(mutex)	CAIRO_MUTEX_IMPL_NOOP1(mutex)
+# define CAIRO_MUTEX_IMPL_FINI(mutex)    CAIRO_MUTEX_IMPL_NOOP1(mutex)
 
 #endif /* CAIRO_MUTEX_IMPL_FINI */
 
@@ -125,19 +125,19 @@
 typedef cairo_mutex_impl_t cairo_mutex_t;
 typedef cairo_recursive_mutex_impl_t cairo_recursive_mutex_t;
 #else
-# define cairo_mutex_t			cairo_mutex_impl_t
+# define cairo_mutex_t            cairo_mutex_impl_t
 #endif
 
-#define CAIRO_MUTEX_INITIALIZE		CAIRO_MUTEX_IMPL_INITIALIZE
-#define CAIRO_MUTEX_FINALIZE		CAIRO_MUTEX_IMPL_FINALIZE
-#define CAIRO_MUTEX_LOCK		CAIRO_MUTEX_IMPL_LOCK
-#define CAIRO_MUTEX_UNLOCK		CAIRO_MUTEX_IMPL_UNLOCK
-#define CAIRO_MUTEX_INIT		CAIRO_MUTEX_IMPL_INIT
-#define CAIRO_MUTEX_FINI		CAIRO_MUTEX_IMPL_FINI
-#define CAIRO_MUTEX_NIL_INITIALIZER	CAIRO_MUTEX_IMPL_NIL_INITIALIZER
+#define CAIRO_MUTEX_INITIALIZE        CAIRO_MUTEX_IMPL_INITIALIZE
+#define CAIRO_MUTEX_FINALIZE        CAIRO_MUTEX_IMPL_FINALIZE
+#define CAIRO_MUTEX_LOCK        CAIRO_MUTEX_IMPL_LOCK
+#define CAIRO_MUTEX_UNLOCK        CAIRO_MUTEX_IMPL_UNLOCK
+#define CAIRO_MUTEX_INIT        CAIRO_MUTEX_IMPL_INIT
+#define CAIRO_MUTEX_FINI        CAIRO_MUTEX_IMPL_FINI
+#define CAIRO_MUTEX_NIL_INITIALIZER    CAIRO_MUTEX_IMPL_NIL_INITIALIZER
 
-#define CAIRO_RECURSIVE_MUTEX_INIT		CAIRO_RECURSIVE_MUTEX_IMPL_INIT
-#define CAIRO_RECURSIVE_MUTEX_NIL_INITIALIZER	CAIRO_RECURSIVE_MUTEX_IMPL_NIL_INITIALIZER
+#define CAIRO_RECURSIVE_MUTEX_INIT        CAIRO_RECURSIVE_MUTEX_IMPL_INIT
+#define CAIRO_RECURSIVE_MUTEX_NIL_INITIALIZER    CAIRO_RECURSIVE_MUTEX_IMPL_NIL_INITIALIZER
 
 #ifndef CAIRO_MUTEX_IS_LOCKED
 # define CAIRO_MUTEX_IS_LOCKED(name) 1

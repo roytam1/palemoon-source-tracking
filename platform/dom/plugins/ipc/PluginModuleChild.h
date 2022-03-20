@@ -23,10 +23,6 @@
 #include "nsTHashtable.h"
 #include "nsHashKeys.h"
 
-#ifdef MOZ_WIDGET_COCOA
-#include "PluginInterposeOSX.h"
-#endif
-
 #include "mozilla/plugins/PPluginModuleChild.h"
 #include "mozilla/plugins/PluginInstanceChild.h"
 #include "mozilla/plugins/PluginMessageUtils.h"
@@ -183,38 +179,6 @@ public:
     static bool NPN_IdentifierIsString(NPIdentifier aIdentifier);
     static NPUTF8* NPN_UTF8FromIdentifier(NPIdentifier aIdentifier);
     static int32_t NPN_IntFromIdentifier(NPIdentifier aIdentifier);
-
-#ifdef MOZ_WIDGET_COCOA
-    void ProcessNativeEvents();
-    
-    void PluginShowWindow(uint32_t window_id, bool modal, CGRect r) {
-        SendPluginShowWindow(window_id, modal, r.origin.x, r.origin.y, r.size.width, r.size.height);
-    }
-
-    void PluginHideWindow(uint32_t window_id) {
-        SendPluginHideWindow(window_id);
-    }
-
-    void SetCursor(NSCursorInfo& cursorInfo) {
-        SendSetCursor(cursorInfo);
-    }
-
-    void ShowCursor(bool show) {
-        SendShowCursor(show);
-    }
-
-    void PushCursor(NSCursorInfo& cursorInfo) {
-        SendPushCursor(cursorInfo);
-    }
-
-    void PopCursor() {
-        SendPopCursor();
-    }
-
-    bool GetNativeCursorsSupported() {
-        return Settings().nativeCursorsSupported();
-    }
-#endif
 
     int GetQuirks() { return mQuirks; }
 

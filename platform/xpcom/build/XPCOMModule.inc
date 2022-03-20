@@ -68,10 +68,6 @@
     COMPONENT(WINDOWSREGKEY, nsWindowsRegKeyConstructor)
 #endif
 
-#if defined(MOZ_WIDGET_COCOA)
-    COMPONENT(MACUTILSIMPL, nsMacUtilsImplConstructor)
-#endif
-
     COMPONENT(SYSTEMINFO, nsSystemInfoConstructor)
     COMPONENT(MEMORY_REPORTER_MANAGER, nsMemoryReporterManagerConstructor)
     COMPONENT(MEMORY_INFO_DUMPER, nsMemoryInfoDumperConstructor)

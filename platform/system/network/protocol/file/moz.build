@@ -22,7 +22,7 @@ SOURCES += [
 FINAL_LIBRARY = 'xul'
 
 LOCAL_INCLUDES += [
-    '/netwerk/base',
+    '/system/network/base',
 ]
 
 if CONFIG['GNU_CXX']:

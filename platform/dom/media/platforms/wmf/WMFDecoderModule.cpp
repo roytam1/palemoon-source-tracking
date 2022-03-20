@@ -29,6 +29,14 @@
 #include "MP4Decoder.h"
 #include "VPXDecoder.h"
 
+const CLSID CLSID_WebmMfVpxDec =
+{
+  0xe3aaf548,
+  0xc9a4,
+  0x4c6e,
+  { 0x23, 0x4d, 0x5a, 0xda, 0x37, 0x4b, 0x00, 0x00 }
+};
+
 namespace mozilla {
 
 static Atomic<bool> sDXVAEnabled(false);

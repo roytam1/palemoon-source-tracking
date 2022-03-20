@@ -1387,7 +1387,7 @@ nsHTMLCopyEncoder::SetSelection(nsISelection* aSelection)
       mIsTextWidget = true;
       break;
     }
-#if defined(MOZ_THUNDERBIRD) || defined(MOZ_SUITE)
+#if defined(BINOC_MAIL) || defined(BINOC_NAVIGATOR)
     else if (selContent->IsHTMLElement(nsGkAtoms::body)) {
       // Currently, setting mIsTextWidget to 'true' will result in the selection
       // being encoded/copied as pre-formatted plain text.

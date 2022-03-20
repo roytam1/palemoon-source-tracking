@@ -7,7 +7,7 @@ if CONFIG['MOZ_FOLD_LIBS']:
     Library('plds4')
 else:
     SharedLibrary('plds4')
-    SOURCES += ['/nsprpub/lib/ds/plvrsion.c']
+    SOURCES += ['../../src/lib/ds/plvrsion.c']
     USE_LIBS += ['nspr4']
 
 # We allow warnings for third-party code that can be updated from upstream.
@@ -17,17 +17,17 @@ ALLOW_COMPILER_WARNINGS = True
 DEFINES['_NSPR_BUILD_'] = True
 
 LOCAL_INCLUDES += [
-    '/config/external/nspr',
-    '/nsprpub/pr/include',
+    '..',
+    '../../src/pr/include',
 ]
 
 EXPORTS.nspr += [
-    '/nsprpub/lib/ds/plarena.h',
-    '/nsprpub/lib/ds/plarenas.h',
-    '/nsprpub/lib/ds/plhash.h',
+    '../../src/lib/ds/plarena.h',
+    '../../src/lib/ds/plarenas.h',
+    '../../src/lib/ds/plhash.h',
 ]
 
 SOURCES += [
-    '/nsprpub/lib/ds/plarena.c',
-    '/nsprpub/lib/ds/plhash.c',
+    '../../src/lib/ds/plarena.c',
+    '../../src/lib/ds/plhash.c',
 ]

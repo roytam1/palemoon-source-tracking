@@ -193,7 +193,11 @@ CertBlocklist::Init()
     return rv;
   }
   nsAutoCString path;
+#ifdef XP_WIN
+  rv = mBackingFile->GetPersistentDescriptor(path);
+#else
   rv = mBackingFile->GetNativePath(path);
+#endif
   if (NS_FAILED(rv)) {
     return rv;
   }

@@ -69,10 +69,10 @@ def update_sources(topsrcdir):
     print('Updating ICU sources lists...')
     sys.path.append(mozpath.join(topsrcdir, 'build/pymake'))
     for d in ['common', 'i18n']:
-        base_path = mozpath.join(topsrcdir, 'intl/icu/source/%s' % d)
+        base_path = mozpath.join(topsrcdir, 'libs/icu/src/%s' % d)
         makefile = mozpath.join(base_path, 'Makefile.in')
         mozbuild = mozpath.join(topsrcdir,
-                                'config/external/icu/%s/sources.mozbuild' % d)
+                                'libs/icu/%s/sources.mozbuild' % d)
         sources = [mozpath.relpath(s, topsrcdir)
                    for s in get_sources_from_makefile(makefile)]
         headers = [mozpath.normsep(os.path.relpath(s, topsrcdir))
@@ -102,7 +102,7 @@ def get_data_file(data_dir):
 
 def update_data_file(topsrcdir):
     objdir = tempfile.mkdtemp(prefix='icu-obj-')
-    configure = mozpath.join(topsrcdir, 'intl/icu/source/configure')
+    configure = mozpath.join(topsrcdir, 'libs/icu/src/configure')
     env = dict(os.environ)
     # bug 1262101 - these should be shared with the moz.build files
     env.update({
@@ -134,7 +134,7 @@ def update_data_file(topsrcdir):
         return False
     print('Copying ICU data file...')
     tree_data_path = mozpath.join(topsrcdir,
-                                  'config/external/icu/data/')
+                                  'libs/icu/data/')
     old_data_file = get_data_file(tree_data_path)
     if not old_data_file:
         print('Error: no ICU data file in %s' % tree_data_path,

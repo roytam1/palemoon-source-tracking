@@ -35,7 +35,6 @@ Press ENTER/RETURN to continue or CTRL+c to abort.
 # TODO Bug 794506 Integrate with the in-tree virtualenv configuration.
 SEARCH_PATHS = [
     'python/mach',
-    'python/mozboot',
     'python/mozbuild',
     'python/mozlint',
     'python/mozversioncontrol',
@@ -62,33 +61,21 @@ SEARCH_PATHS = [
     'dom/bindings/parser',
     'dom/media/test/external',
     'layout/tools/reftest',
-    'other-licenses/ply',
-    'taskcluster',
+    'python/ply',
     'testing',
-    'testing/firefox-ui/harness',
-    'testing/marionette/client',
-    'testing/marionette/harness',
-    'testing/marionette/harness/marionette_harness/runner/mixins/browsermob-proxy-py',
-    'testing/marionette/puppeteer/firefox',
-    'testing/mozbase/mozcrash',
     'testing/mozbase/mozdebug',
-    'testing/mozbase/mozdevice',
     'testing/mozbase/mozfile',
     'testing/mozbase/mozhttpd',
     'testing/mozbase/mozinfo',
-    'testing/mozbase/mozinstall',
-    'testing/mozbase/mozleak',
     'testing/mozbase/mozlog',
     'testing/mozbase/moznetwork',
     'testing/mozbase/mozprocess',
     'testing/mozbase/mozprofile',
     'testing/mozbase/mozrunner',
     'testing/mozbase/mozsystemmonitor',
-    'testing/mozbase/mozscreenshot',
     'testing/mozbase/moztest',
     'testing/mozbase/mozversion',
     'testing/mozbase/manifestparser',
-    'testing/taskcluster',
     'testing/tools/autotry',
     'testing/xpcshell',
     'xpcom/idl-parser',
@@ -105,18 +92,11 @@ MACH_MODULES = [
     'python/mach/mach/commands/commandinfo.py',
     'python/mach/mach/commands/settings.py',
     'python/compare-locales/mach_commands.py',
-    'python/mozboot/mozboot/mach_commands.py',
     'python/mozbuild/mozbuild/mach_commands.py',
-    'python/mozbuild/mozbuild/backend/mach_commands.py',
     'python/mozbuild/mozbuild/compilation/codecomplete.py',
     'python/mozbuild/mozbuild/frontend/mach_commands.py',
-    'services/common/tests/mach_commands.py',
-    'taskcluster/mach_commands.py',
-    'testing/firefox-ui/mach_commands.py',
     'testing/mach_commands.py',
-    'testing/marionette/mach_commands.py',
     'testing/mochitest/mach_commands.py',
-    'testing/mozharness/mach_commands.py',
     'testing/talos/mach_commands.py',
     'testing/xpcshell/mach_commands.py',
     'tools/docs/mach_commands.py',
@@ -198,7 +178,20 @@ def bootstrap(topsrcdir, mozilla_dir=None):
     # like surprises.
     sys.path[0:0] = [os.path.join(mozilla_dir, path) for path in SEARCH_PATHS]
     import mach.main
-    from mozboot.util import get_state_dir
+
+    def get_state_dir():
+        """Obtain path to a directory to hold state.
+
+        Returns a tuple of the path and a bool indicating whether the
+        value came from an environment variable.
+        """
+        state_user_dir = os.path.expanduser('~/.mozbuild')
+        state_env_dir = os.environ.get('MOZBUILD_STATE_PATH')
+
+        if state_env_dir:
+            return state_env_dir, True
+        else:
+            return state_user_dir, False
 
     def telemetry_handler(context, data):
         # We have not opted-in to telemetry

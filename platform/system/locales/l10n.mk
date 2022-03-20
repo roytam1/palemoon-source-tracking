@@ -73,8 +73,8 @@ else
 STAGEDIST = $(ABS_DIST)/l10n-stage/$(MOZ_PKG_DIR)
 endif
 
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/signing.mk
-include $(MOZILLA_DIR)/toolkit/mozapps/installer/packager.mk
+include $(MOZILLA_DIR)/system/installer/signing.mk
+include $(MOZILLA_DIR)/system/installer/packager.mk
 
 PACKAGE_BASE_DIR = $(ABS_DIST)/l10n-stage
 
@@ -112,7 +112,7 @@ repackage-zip: UNPACKAGE='$(ZIP_IN)'
 repackage-zip:  libs-$(AB_CD)
 # call a hook for apps to put their uninstall helper.exe into the package
 	$(UNINSTALLER_PACKAGE_HOOK)
-	$(PYTHON) $(MOZILLA_DIR)/toolkit/mozapps/installer/l10n-repack.py '$(STAGEDIST)' $(DIST)/xpi-stage/locale-$(AB_CD) \
+	$(PYTHON) $(MOZILLA_DIR)/system/installer/l10n-repack.py '$(STAGEDIST)' $(DIST)/xpi-stage/locale-$(AB_CD) \
 		$(MOZ_PKG_EXTRAL10N) \
 		$(if $(filter omni,$(MOZ_PACKAGER_FORMAT)),$(if $(NON_OMNIJAR_FILES),--non-resource $(NON_OMNIJAR_FILES)))
 
@@ -126,7 +126,7 @@ endif
 	cd $(DIST)/l10n-stage; \
 	  $(MAKE_PACKAGE)
 ifdef MAKE_COMPLETE_MAR
-	$(MAKE) -C $(MOZDEPTH)/tools/update-packaging full-update AB_CD=$(AB_CD) \
+	$(MAKE) -C $(MOZDEPTH)/system/updater/package full-update AB_CD=$(AB_CD) \
 	  MOZ_PKG_PRETTYNAMES=$(MOZ_PKG_PRETTYNAMES) \
 	  PACKAGE_BASE_DIR='$(ABS_DIST)/l10n-stage'
 endif
@@ -146,8 +146,8 @@ repackage-zip-%: $(STAGEDIST)
 APP_DEFINES = $(firstword $(wildcard $(LOCALE_SRCDIR)/defines.inc) \
                           $(srcdir)/en-US/defines.inc)
 TK_DEFINES = $(firstword \
-   $(wildcard $(call EXPAND_LOCALE_SRCDIR,toolkit/locales)/defines.inc) \
-   $(MOZILLA_DIR)/toolkit/locales/en-US/defines.inc)
+   $(wildcard $(call EXPAND_LOCALE_SRCDIR,system/locales)/defines.inc) \
+   $(MOZILLA_DIR)/system/locales/en-US/defines.inc)
 
 # Dealing with app sub dirs: If DIST_SUBDIRS is defined it contains a
 # listing of app sub-dirs we should include in langpack xpis. If not,
@@ -162,7 +162,7 @@ langpack-%: libs-%
 	@echo 'Making langpack $(LANGPACK_FILE)'
 	$(NSINSTALL) -D $(DIST)/$(PKG_LANGPACK_PATH)
 	$(call py_action,preprocessor,$(DEFINES) $(ACDEFINES) \
-	  -DTK_DEFINES=$(TK_DEFINES) -DAPP_DEFINES=$(APP_DEFINES) $(MOZILLA_DIR)/toolkit/locales/generic/install.rdf -o $(DIST)/xpi-stage/$(XPI_NAME)/install.rdf)
+	  -DTK_DEFINES=$(TK_DEFINES) -DAPP_DEFINES=$(APP_DEFINES) $(MOZILLA_DIR)/system/locales/generic/install.rdf -o $(DIST)/xpi-stage/$(XPI_NAME)/install.rdf)
 	$(call py_action,zip,-C $(DIST)/xpi-stage/locale-$(AB_CD) $(LANGPACK_FILE) install.rdf $(PKG_ZIP_DIRS) chrome.manifest)
 
 # This variable is to allow the wget-en-US target to know which ftp server to download from
@@ -195,7 +195,7 @@ endif
 endif
 
 generate-snippet-%:
-	$(PYTHON) $(MOZILLA_DIR)/tools/update-packaging/generatesnippet.py \
+	$(PYTHON) $(MOZILLA_DIR)/system/updater/package/generatesnippet.py \
           --mar-path=$(ABS_DIST)/update \
           --application-ini-file='$(STAGEDIST)'/application.ini \
           --locale=$* \

@@ -1,1 +1,0 @@
-throw new GradleException("Building with Gradle is not supported.")

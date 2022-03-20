@@ -487,7 +487,7 @@ void RecordingPrefChanged(const char *aPrefName, void *aClosure)
     nsAdoptingString prefFileName = Preferences::GetString("gfx.2d.recordingfile");
 
     if (prefFileName) {
-      fileName.Append(NS_ConvertUTF16toUTF8(prefFileName));
+      CopyUTF16toUTF8(prefFileName, fileName);
     } else {
       nsCOMPtr<nsIFile> tmpFile;
       if (NS_FAILED(NS_GetSpecialDirectory(NS_OS_TEMP_DIR, getter_AddRefs(tmpFile)))) {
@@ -499,7 +499,12 @@ void RecordingPrefChanged(const char *aPrefName, void *aClosure)
       if (NS_FAILED(rv))
         return;
 
+#ifdef XP_WIN
+      rv = tmpFile->GetPath(prefFileName);
+      CopyUTF16toUTF8(prefFileName, fileName);
+#else
       rv = tmpFile->GetNativePath(fileName);
+#endif
       if (NS_FAILED(rv))
         return;
     }
@@ -519,12 +524,7 @@ static uint32_t GetSkiaGlyphCacheSize()
     // Chromium uses 20mb and skia default uses 2mb.
     // We don't need to change the font cache count since we usually
     // cache thrash due to asian character sets in talos.
-    // Only increase memory on the content proces
     uint32_t cacheSize = 10 * 1024 * 1024;
-    if (mozilla::BrowserTabsRemoteAutostart()) {
-      return XRE_IsContentProcess() ? cacheSize : kDefaultGlyphCacheSize;
-    }
-
     return cacheSize;
 }
 #endif
@@ -2023,7 +2023,6 @@ gfxPlatform::InitAcceleration()
   gfxPrefs::GetSingleton();
 
   if (XRE_IsParentProcess()) {
-    gfxVars::SetBrowserTabsRemoteAutostart(BrowserTabsRemoteAutostart());
     gfxVars::SetOffscreenFormat(GetOffscreenFormat());
     gfxVars::SetRequiresAcceleratedGLContextForCompositorOGL(
               RequiresAcceleratedGLContextForCompositorOGL());
@@ -2075,30 +2074,12 @@ gfxPlatform::InitGPUProcessPrefs()
     gpuProc.UserForceEnable("User force-enabled via pref");
   }
 
-  // We require E10S - otherwise, there is very little benefit to the GPU
-  // process, since the UI process must still use acceleration for
-  // performance.
-  if (!BrowserTabsRemoteAutostart()) {
-    gpuProc.ForceDisable(
-      FeatureStatus::Unavailable,
-      "Multi-process mode is not enabled",
-      NS_LITERAL_CSTRING("FEATURE_FAILURE_NO_E10S"));
-    return;
-  }
-  if (InSafeMode()) {
-    gpuProc.ForceDisable(
-      FeatureStatus::Blocked,
-      "Safe-mode is enabled",
-      NS_LITERAL_CSTRING("FEATURE_FAILURE_SAFE_MODE"));
-    return;
-  }
-  if (gfxPrefs::LayerScopeEnabled()) {
-    gpuProc.ForceDisable(
-      FeatureStatus::Blocked,
-      "LayerScope does not work in the GPU process",
-      NS_LITERAL_CSTRING("FEATURE_FAILURE_LAYERSCOPE"));
-    return;
-  }
+  // We don't support e10s GPU processes.
+  gpuProc.ForceDisable(
+    FeatureStatus::Unavailable,
+    "GPU processes are not supported",
+    NS_LITERAL_CSTRING("FEATURE_FAILURE_NO_E10S"));
+  return;
 }
 
 void
@@ -2152,7 +2133,7 @@ bool
 gfxPlatform::AccelerateLayersByDefault()
 {
   // Note: add any new platform defines here that should get HWA by default.
-#if defined(XP_WIN) || defined(MOZ_WIDGET_GTK) || defined(MOZ_WIDGET_UIKIT)
+#if defined(XP_WIN) || defined(MOZ_WIDGET_GTK)
   return true;
 #elif defined(MOZ_GL_PROVIDER)
   // GL provider manually declared
@@ -2203,9 +2184,7 @@ gfxPlatform::UsesOffMainThreadCompositing()
 
   if (firstTime) {
     MOZ_ASSERT(sLayersAccelerationPrefsInitialized);
-    result =
-      gfxVars::BrowserTabsRemoteAutostart() ||
-      !gfxPrefs::LayersOffMainThreadCompositionForceDisabled();
+    result = !gfxPrefs::LayersOffMainThreadCompositionForceDisabled();
 #if defined(MOZ_WIDGET_GTK)
     // Linux users who chose OpenGL are being grandfathered in to OMTC
     result |= gfxPrefs::LayersAccelerationForceEnabledDoNotUseDirectly();
@@ -2299,17 +2278,13 @@ gfxPlatform::GetTilesSupportInfo(mozilla::widget::InfoObject& aObj)
 /*static*/ bool
 gfxPlatform::AsyncPanZoomEnabled()
 {
-#if !defined(MOZ_WIDGET_UIKIT)
   // For XUL applications (everything but Firefox on Android) we only want
   // to use APZ when E10S is enabled or when the user explicitly enable it.
-  if (BrowserTabsRemoteAutostart() || gfxPrefs::APZDesktopEnabled()) {
+  if (gfxPrefs::APZDesktopEnabled()) {
     return gfxPrefs::AsyncPanZoomEnabledDoNotUseDirectly();
   } else {
     return false;
   }
-#else
-  return gfxPrefs::AsyncPanZoomEnabledDoNotUseDirectly();
-#endif
 }
 
 /*static*/ bool

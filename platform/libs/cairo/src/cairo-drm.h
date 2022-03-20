@@ -30,18 +30,18 @@ cairo_drm_device_throttle (cairo_device_t *device);
 
 cairo_public cairo_surface_t *
 cairo_drm_surface_create (cairo_device_t *device,
-			  cairo_format_t format,
-			  int width, int height);
+              cairo_format_t format,
+              int width, int height);
 
 cairo_public cairo_surface_t *
 cairo_drm_surface_create_for_name (cairo_device_t *device,
-				   unsigned int name,
-	                           cairo_format_t format,
-				   int width, int height, int stride);
+                   unsigned int name,
+                   cairo_format_t format,
+                   int width, int height, int stride);
 
 cairo_public cairo_surface_t *
 cairo_drm_surface_create_from_cacheable_image (cairo_device_t *device,
-	                                       cairo_surface_t *surface);
+                         cairo_surface_t *surface);
 
 cairo_public cairo_status_t
 cairo_drm_surface_enable_scan_out (cairo_surface_t *surface);
@@ -81,7 +81,7 @@ cairo_drm_surface_map_to_image (cairo_surface_t *surface);
 
 cairo_public void
 cairo_drm_surface_unmap (cairo_surface_t *drm_surface,
-	                 cairo_surface_t *image_surface);
+             cairo_surface_t *image_surface);
 
 CAIRO_END_DECLS
 

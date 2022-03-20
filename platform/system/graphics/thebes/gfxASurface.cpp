@@ -33,10 +33,6 @@
 #include "gfxXlibSurface.h"
 #endif
 
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-#include "gfxQuartzSurface.h"
-#endif
-
 #include <stdio.h>
 #include <limits.h>
 
@@ -163,11 +159,6 @@ gfxASurface::Wrap (cairo_surface_t *csurf, const IntSize& aSize)
 #ifdef MOZ_X11
     else if (stype == CAIRO_SURFACE_TYPE_XLIB) {
         result = new gfxXlibSurface(csurf);
-    }
-#endif
-#ifdef CAIRO_HAS_QUARTZ_SURFACE
-    else if (stype == CAIRO_SURFACE_TYPE_QUARTZ) {
-        result = new gfxQuartzSurface(csurf, aSize);
     }
 #endif
     else {

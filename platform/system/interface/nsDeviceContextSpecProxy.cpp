@@ -169,7 +169,11 @@ nsDeviceContextSpecProxy::CreateUniqueTempPath(nsACString& aFilePath)
     return rv;
   }
 
+#ifdef XP_WIN
+  return recordingFile->GetPersistentDescriptor(aFilePath);
+#else
   return recordingFile->GetNativePath(aFilePath);
+#endif
 }
 
 NS_IMETHODIMP

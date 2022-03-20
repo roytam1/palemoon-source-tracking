@@ -28,5 +28,5 @@ ifeq ($(MOZ_REPLACE_MALLOC_LINKAGE),dummy library)
 OS_LDFLAGS += -Wl,-weak_library,$(DEPTH)/memory/replace/dummy/$(DLL_PREFIX)dummy_replace_malloc$(DLL_SUFFIX)
 endif
 
-EXTRA_DEPS += $(topsrcdir)/mozglue/build/replace_malloc.mk
+EXTRA_DEPS += $(topsrcdir)/system/utils/build/replace_malloc.mk
 endif

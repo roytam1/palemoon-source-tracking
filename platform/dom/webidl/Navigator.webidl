@@ -30,6 +30,7 @@ Navigator implements NavigatorContentUtils;
 Navigator implements NavigatorStorageUtils;
 Navigator implements NavigatorConcurrentHardware;
 Navigator implements NavigatorStorage;
+Navigator implements NavigatorGlobalPrivacyControl;
 
 [NoInterfaceObject, Exposed=(Window,Worker)]
 interface NavigatorID {
@@ -111,9 +112,10 @@ partial interface Navigator {
   readonly attribute PluginArray plugins;
 };
 
-// http://www.w3.org/TR/tracking-dnt/ sort of
-partial interface Navigator {
-  readonly attribute DOMString doNotTrack;
+// https://globalprivacycontrol.github.io/gpc-spec/
+[NoInterfaceObject, Exposed=(Window,Worker)]
+interface NavigatorGlobalPrivacyControl {
+  readonly attribute boolean globalPrivacyControl;
 };
 
 // http://www.w3.org/TR/geolocation-API/#geolocation_interface
@@ -301,15 +303,6 @@ partial interface Navigator {
   [NewObject, Func="mozilla::dom::TCPSocket::ShouldTCPSocketExist"]
   readonly attribute LegacyMozTCPSocket mozTCPSocket;
 };
-
-#ifdef MOZ_EME
-partial interface Navigator {
-  [Pref="media.eme.apiVisible", NewObject]
-  Promise<MediaKeySystemAccess>
-  requestMediaKeySystemAccess(DOMString keySystem,
-                              sequence<MediaKeySystemConfiguration> supportedConfigurations);
-};
-#endif
 
 #ifdef NIGHTLY_BUILD
 partial interface Navigator {

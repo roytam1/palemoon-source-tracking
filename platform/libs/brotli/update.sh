@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Script to update the mozilla in-tree copy of the Brotli library.
-# Run this within the /modules/brotli directory of the source tree.
+# Run this within the /libs/brotli directory of the source tree.
 
 MY_TEMP_DIR=`mktemp -d -t brotli_update.XXXXXX` || exit 1
 

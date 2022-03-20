@@ -14,18 +14,12 @@ SOURCES += [
 ]
 
 LOCAL_INCLUDES += [
-    '/caps',
     '/dom/base',
     '/layout/generic',
     '/layout/xul',
-    '/netwerk/base',
+    '/system/network/base',
+    '/system/security/script',
 ]
-
-if CONFIG['MOZ_WEBRTC']:
-    LOCAL_INCLUDES += [
-        '/media/webrtc/signaling/src/common',
-        '/media/webrtc/trunk',
-    ]
 
 DEFINES['MOZILLA_INTERNAL_API'] = True
 DEFINES['MOZILLA_EXTERNAL_LINKAGE'] = True

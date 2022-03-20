@@ -14,7 +14,7 @@ export LANG=en_US.UTF-8
 export LANGUAGE=en_US
 export LC_ALL=en_US.UTF-8
 
-icu_dir=`dirname $0`/icu
+icu_dir=`dirname $0`
 
 for patch in \
  bug-915735 \

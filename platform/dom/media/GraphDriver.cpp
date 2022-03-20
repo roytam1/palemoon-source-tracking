@@ -10,10 +10,6 @@
 #include "mozilla/Unused.h"
 #include "CubebUtils.h"
 
-#ifdef MOZ_WEBRTC
-#include "webrtc/MediaEngineWebRTC.h"
-#endif
-
 extern mozilla::LazyLogModule gMediaStreamGraphLog;
 #define STREAM_LOG(type, msg) MOZ_LOG(gMediaStreamGraphLog, type, msg)
 
@@ -593,7 +589,6 @@ AudioCallbackDriver::Init()
 
   cubeb_stream_params output;
   cubeb_stream_params input;
-  uint32_t latency_frames;
 
   MOZ_ASSERT(!NS_IsMainThread(),
       "This is blocking and should never run on the main thread.");
@@ -609,14 +604,7 @@ AudioCallbackDriver::Init()
     output.format = CUBEB_SAMPLE_FLOAT32NE;
   }
 
-  Maybe<uint32_t> latencyPref = CubebUtils::GetCubebMSGLatencyInFrames();
-  if (latencyPref) {
-    latency_frames = latencyPref.value();
-  } else {
-    if (cubeb_get_min_latency(cubebContext, output, &latency_frames) != CUBEB_OK) {
-      NS_WARNING("Could not get minimal latency from cubeb.");
-    }
-  }
+  uint32_t latency_frames = CubebUtils::GetCubebMSGLatencyInFrames(&output);
 
   input = output;
   input.channels = mInputChannels; // change to support optional stereo capture
@@ -626,21 +614,8 @@ AudioCallbackDriver::Init()
   // We have to translate the deviceID values to cubeb devid's since those can be
   // freed whenever enumerate is called.
   {
-#ifdef MOZ_WEBRTC
-    StaticMutexAutoLock lock(AudioInputCubeb::Mutex());
-#endif
-    if ((!mGraphImpl->mInputWanted
-#ifdef MOZ_WEBRTC
-         || AudioInputCubeb::GetDeviceID(mGraphImpl->mInputDeviceID, input_id)
-#endif
-         ) &&
-        (mGraphImpl->mOutputDeviceID == -1 // pass nullptr for ID for default output
-#ifdef MOZ_WEBRTC
-         // XXX we should figure out how we would use a deviceID for output without webrtc.
-         // Currently we don't set this though, so it's ok
-         || AudioInputCubeb::GetDeviceID(mGraphImpl->mOutputDeviceID, output_id)
-#endif
-         ) &&
+    if ((!mGraphImpl->mInputWanted) &&
+        (mGraphImpl->mOutputDeviceID == -1) && // pass nullptr for ID for default output
         // XXX Only pass input input if we have an input listener.  Always
         // set up output because it's easier, and it will just get silence.
         // XXX Add support for adding/removing an input listener later.
@@ -657,9 +632,6 @@ AudioCallbackDriver::Init()
         rv == CUBEB_OK,
         "Could not set the audio stream volume in GraphDriver.cpp");
     } else {
-#ifdef MOZ_WEBRTC
-      StaticMutexAutoUnlock unlock(AudioInputCubeb::Mutex());
-#endif
       NS_WARNING("Could not create a cubeb stream for MediaStreamGraph, falling back to a SystemClockDriver");
       // Fall back to a driver using a normal thread. If needed,
       // the graph will try to re-open an audio stream later.

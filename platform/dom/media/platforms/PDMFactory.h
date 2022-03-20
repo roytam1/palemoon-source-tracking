@@ -1,5 +1,4 @@
 /* -*- Mode: C++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2 -*- */
-/* vim:set ts=2 sw=2 sts=2 et cindent: */
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -10,10 +9,6 @@
 #include "PlatformDecoderModule.h"
 #include "mozilla/Function.h"
 #include "mozilla/StaticMutex.h"
-
-#ifdef MOZ_EME
-class CDMProxy;
-#endif
 
 namespace mozilla {
 
@@ -39,15 +34,6 @@ public:
                         DecoderDoctorDiagnostics* aDiagnostics) const;
   bool Supports(const TrackInfo& aTrackInfo,
                 DecoderDoctorDiagnostics* aDiagnostics) const;
-
-#ifdef MOZ_EME
-  // Creates a PlatformDecoderModule that uses a CDMProxy to decrypt or
-  // decrypt-and-decode EME encrypted content. If the CDM only decrypts and
-  // does not decode, we create a PDM and use that to create MediaDataDecoders
-  // that we use on on aTaskQueue to decode the decrypted stream.
-  // This is called on the decode task queue.
-  void SetCDMProxy(CDMProxy* aProxy);
-#endif
 
   static const int kYUV400 = 0;
   static const int kYUV420 = 1;
@@ -75,7 +61,6 @@ private:
 
   bool mWMFFailedToLoad = false;
   bool mFFmpegFailedToLoad = false;
-  bool mGMPPDMFailedToStartup = false;
 
   void EnsureInit() const;
   template<class T> friend class StaticAutoPtr;

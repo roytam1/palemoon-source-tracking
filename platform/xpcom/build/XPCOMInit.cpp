@@ -113,10 +113,6 @@ extern nsresult nsStringInputStreamConstructor(nsISupports*, REFNSIID, void**);
 #include "nsWindowsRegKey.h"
 #endif
 
-#ifdef MOZ_WIDGET_COCOA
-#include "nsMacUtilsImpl.h"
-#endif
-
 #include "nsSystemInfo.h"
 #include "nsMemoryReporterManager.h"
 #include "nsMemoryInfoDumper.h"
@@ -131,7 +127,6 @@ extern nsresult nsStringInputStreamConstructor(nsISupports*, REFNSIID, void**);
 #include "mozilla/Services.h"
 #include "mozilla/Omnijar.h"
 #include "mozilla/HangMonitor.h"
-#include "mozilla/Telemetry.h"
 #include "mozilla/BackgroundHangMonitor.h"
 
 #include "nsChromeRegistry.h"
@@ -236,10 +231,6 @@ NS_GENERIC_FACTORY_CONSTRUCTOR(nsHashPropertyBagCC)
 NS_GENERIC_AGGREGATED_CONSTRUCTOR(nsProperties)
 
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsUUIDGenerator, Init)
-
-#ifdef MOZ_WIDGET_COCOA
-NS_GENERIC_FACTORY_CONSTRUCTOR(nsMacUtilsImpl)
-#endif
 
 NS_GENERIC_FACTORY_CONSTRUCTOR_INIT(nsSystemInfo, Init)
 
@@ -689,10 +680,13 @@ NS_InitXPCOM2(nsIServiceManager** aResult,
                                     getter_AddRefs(greDir));
   MOZ_ASSERT(greDir);
   nsAutoCString nativeGREPath;
+#ifdef XP_WIN
+  greDir->GetPersistentDescriptor(nativeGREPath);
+#else
   greDir->GetNativePath(nativeGREPath);
-  u_setDataDirectory(nativeGREPath.get());
 #endif
-
+  u_setDataDirectory(nativeGREPath.get());
+#endif // MOZ_ICU_DATA_ARCHIVE
   // Initialize the JS engine.
   const char* jsInitFailureReason = JS_InitWithFailureDiagnostic();
   if (jsInitFailureReason) {
@@ -757,8 +751,6 @@ NS_InitXPCOM2(nsIServiceManager** aResult,
   RegisterStrongMemoryReporter(new VPXReporter());
 #endif
 
-  mozilla::Telemetry::Init();
-
   mozilla::HangMonitor::Startup();
   mozilla::BackgroundHangMonitor::Startup();
 
@@ -812,7 +804,6 @@ NS_InitMinimalXPCOM()
 
   AbstractThread::InitStatics();
   SharedThreadPool::InitStatics();
-  mozilla::Telemetry::Init();
   mozilla::HangMonitor::Startup();
   mozilla::BackgroundHangMonitor::Startup();
 

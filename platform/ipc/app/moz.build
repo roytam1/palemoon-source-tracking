@@ -12,17 +12,8 @@ SOURCES += [
 include('/ipc/chromium/chromium-config.mozbuild')
 
 LOCAL_INCLUDES += [
-    '/toolkit/xre',
+    '/system/runtime',
     '/xpcom/base',
-]
-
-# We link GMPLoader into plugin-container on desktop so that its code is
-# covered by the desktop DRM vendor's voucher.
-SOURCES += [
-    '../../dom/media/gmp/GMPLoader.cpp',
-]
-USE_LIBS += [
-    'rlz',
 ]
 
 # DELAYLOAD_DLLS in this block ensures that the DLL blocklist is functional

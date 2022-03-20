@@ -5,56 +5,74 @@
 
 DIRS += ['locales']
 
-XPCSHELL_TESTS_MANIFESTS += ['tests/unit/xpcshell.ini']
+DEFINES['weave_id'] = "{340c2bbc-ce74-4362-90b5-7c26312808ef}"
+DEFINES['weave_version'] = "1.45.0"
+
+XPIDL_SOURCES += ['public/nsISyncJPAKE.idl']
+
+SOURCES += ['src/nsSyncJPAKE.cpp']
 
 EXTRA_COMPONENTS += [
-    'SyncComponents.manifest',
-    'Weave.js',
+  'src/WeaveService.js',
+  'WeaveComponents.manifest',
+]
+
+EXTRA_JS_MODULES['services-common'] += [
+  'src/common/hawkclient.js',
+  'src/common/hawkrequest.js',
+  'src/common/logmanager.js',
+  'src/common/observers.js',
+  'src/common/rest.js',
+  'src/common/stringbundle.js',
+  'src/common/tokenserverclient.js',
+  'src/common/utils.js',
+]
+
+EXTRA_JS_MODULES['services-crypto'] += [
+  'src/crypto/utils.js',
+  'src/crypto/WeaveCrypto.js',
 ]
 
 EXTRA_JS_MODULES['services-sync'] += [
-    'modules/addonsreconciler.js',
-    'modules/addonutils.js',
-    'modules/engines.js',
-    'modules/identity.js',
-    'modules/jpakeclient.js',
-    'modules/keys.js',
-    'modules/main.js',
-    'modules/notifications.js',
-    'modules/policies.js',
-    'modules/record.js',
-    'modules/resource.js',
-    'modules/rest.js',
-    'modules/service.js',
-    'modules/status.js',
-    'modules/userapi.js',
-    'modules/util.js',
+  'src/sync/addonsreconciler.js',
+  'src/sync/addonutils.js',
+  'src/sync/engines.js',
+  'src/sync/identity.js',
+  'src/sync/jpakeclient.js',
+  'src/sync/keys.js',
+  'src/sync/main.js',
+  'src/sync/notifications.js',
+  'src/sync/policies.js',
+  'src/sync/record.js',
+  'src/sync/resource.js',
+  'src/sync/rest.js',
+  'src/sync/service.js',
+  'src/sync/status.js',
+  'src/sync/userapi.js',
+  'src/sync/util.js',
 ]
 
 EXTRA_JS_MODULES['services-sync'].engines += [
-    'modules/engines/addons.js',
-    'modules/engines/bookmarks.js',
-    'modules/engines/clients.js',
-    'modules/engines/forms.js',
-    'modules/engines/history.js',
-    'modules/engines/passwords.js',
-    'modules/engines/prefs.js',
-    'modules/engines/tabs.js',
+  'src/engines/addons.js',
+  'src/engines/bookmarks.js',
+  'src/engines/clients.js',
+  'src/engines/forms.js',
+  'src/engines/history.js',
+  'src/engines/passwords.js',
+  'src/engines/prefs.js',
+  'src/engines/tabs.js',
 ]
 
 EXTRA_JS_MODULES['services-sync'].stages += [
-    'modules/stages/cluster.js',
-    'modules/stages/declined.js',
-    'modules/stages/enginesync.js',
+  'src/stages/cluster.js',
+  'src/stages/declined.js',
+  'src/stages/enginesync.js',
 ]
 
-TESTING_JS_MODULES.services.sync += [
-    'modules-testing/fakeservices.js',
-    'modules-testing/rotaryengine.js',
-    'modules-testing/utils.js',
-]
+FINAL_TARGET_PP_FILES['modules/services-sync'] += ['src/sync/constants.js']
 
-JS_PREFERENCE_FILES += [
-    'services-sync.js',
-]
+JS_PREFERENCE_FILES += ['weave-prefs.js']
+XPIDL_MODULE = 'weave'
+FINAL_LIBRARY = 'xul'
+JAR_MANIFESTS += ['jar.mn']
 

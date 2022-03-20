@@ -222,8 +222,6 @@ public:
     mTracksDirty = true;
 
     if (mTracksKnownTime == STREAM_TIME_MAX) {
-      // There exists code like
-      // http://mxr.mozilla.org/mozilla-central/source/media/webrtc/signaling/src/mediapipeline/MediaPipeline.cpp?rev=96b197deb91e&mark=1292-1297#1292
       NS_WARNING("Adding track to StreamTracks that should have no more tracks");
     } else {
       NS_ASSERTION(mTracksKnownTime <= aStart, "Start time too early");

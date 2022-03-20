@@ -14,9 +14,9 @@ USE_ICU=1
 
 dnl Settings for the implementation of the ECMAScript Internationalization API
 if test -n "$USE_ICU"; then
-    icudir="$_topsrcdir/intl/icu/source"
+    icudir="$_topsrcdir/libs/icu/src"
     if test ! -d "$icudir"; then
-        icudir="$_topsrcdir/../../intl/icu/source"
+        icudir="$_topsrcdir/../../libs/icu/src"
         if test ! -d "$icudir"; then
             AC_MSG_ERROR([Cannot find the ICU directory])
         fi

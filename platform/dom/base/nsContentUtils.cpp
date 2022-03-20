@@ -306,7 +306,7 @@ bool nsContentUtils::sFragmentParsingActive = false;
 bool nsContentUtils::sDOMWindowDumpEnabled;
 #endif
 
-bool nsContentUtils::sDoNotTrackEnabled = false;
+bool nsContentUtils::sGPCEnabled = false; 
 
 mozilla::LazyLogModule nsContentUtils::sDOMDumpLog("Dump");
 
@@ -623,8 +623,8 @@ nsContentUtils::Init()
                                "browser.dom.window.dump.enabled");
 #endif
 
-  Preferences::AddBoolVarCache(&sDoNotTrackEnabled,
-                               "privacy.donottrackheader.enabled", false);
+  Preferences::AddBoolVarCache(&sGPCEnabled,
+                               "privacy.GPCheader.enabled", false);
 
   Preferences::AddBoolVarCache(&sUseActivityCursor,
                                "ui.use_activity_cursor", false);
@@ -5430,14 +5430,12 @@ nsContentUtils::ProcessViewportInfo(nsIDocument *aDocument,
 void
 nsContentUtils::HidePopupsInDocument(nsIDocument* aDocument)
 {
-#ifdef MOZ_XUL
   nsXULPopupManager* pm = nsXULPopupManager::GetInstance();
   if (pm && aDocument) {
     nsCOMPtr<nsIDocShellTreeItem> docShellToHide = aDocument->GetDocShell();
     if (docShellToHide)
       pm->HidePopupsInDocShell(docShellToHide);
   }
-#endif
 }
 
 /* static */
@@ -7122,9 +7120,9 @@ nsContentUtils::DOMWindowDumpEnabled()
 }
 
 bool
-nsContentUtils::DoNotTrackEnabled()
+nsContentUtils::GPCEnabled()
 {
-  return nsContentUtils::sDoNotTrackEnabled;
+  return nsContentUtils::sGPCEnabled;
 }
 
 mozilla::LogModule*

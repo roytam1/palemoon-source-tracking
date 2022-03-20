@@ -59,7 +59,7 @@ etld_data.inputs = ['effective_tld_names.dat']
 
 # need to include etld_data.inc
 LOCAL_INCLUDES += [
-    '/netwerk/base',
+    '/system/network/base',
 ]
 
 USE_LIBS += ['icu']

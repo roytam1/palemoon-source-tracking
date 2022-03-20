@@ -35,9 +35,6 @@ enum netCoalesceFlags
 
 /* shutdown frees URL parser */
 void net_ShutdownURLHelper();
-#ifdef XP_MACOSX
-void net_ShutdownURLHelperOSX();
-#endif
 
 /* access URL parsers */
 nsIURLParser * net_GetAuthURLParser();

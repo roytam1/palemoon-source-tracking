@@ -10,12 +10,6 @@
 #include "base/task.h"
 #include "chrome/common/chrome_switches.h"
 #include "chrome/common/process_watcher.h"
-#ifdef MOZ_WIDGET_COCOA
-#include "chrome/common/mach_ipc_mac.h"
-#include "base/rand_util.h"
-#include "nsILocalFileMac.h"
-#include "SharedMemoryBasic.h"
-#endif
 
 #include "MainThreadUtils.h"
 #include "mozilla/Sprintf.h"
@@ -73,9 +67,6 @@ GeckoChildProcessHost::GeckoChildProcessHost(GeckoProcessType aProcessType,
     mMonitor("mozilla.ipc.GeckChildProcessHost.mMonitor"),
     mProcessState(CREATING_CHANNEL),
     mChildProcessHandle(0)
-#if defined(MOZ_WIDGET_COCOA)
-  , mChildTask(MACH_PORT_NULL)
-#endif
 {
     MOZ_COUNT_CTOR(GeckoChildProcessHost);
 }
@@ -88,9 +79,6 @@ GeckoChildProcessHost::~GeckoChildProcessHost()
   MOZ_COUNT_DTOR(GeckoChildProcessHost);
 
   if (mChildProcessHandle != 0) {
-#if defined(MOZ_WIDGET_COCOA)
-    SharedMemoryBasic::CleanupForPid(mChildProcessHandle);
-#endif
     ProcessWatcher::EnsureProcessTerminated(mChildProcessHandle
 #ifdef NS_FREE_PERMANENT_DATA
     // If we're doing leak logging, shutdown can be slow.
@@ -98,11 +86,6 @@ GeckoChildProcessHost::~GeckoChildProcessHost()
 #endif
     );
   }
-
-#if defined(MOZ_WIDGET_COCOA)
-  if (mChildTask != MACH_PORT_NULL)
-    mach_port_deallocate(mach_task_self(), mChildTask);
-#endif
 }
 
 //static
@@ -129,19 +112,6 @@ GeckoChildProcessHost::GetPathToBinary(FilePath& exePath, GeckoProcessType proce
     MOZ_ASSERT(gGREBinPath);
 #ifdef OS_WIN
     exePath = FilePath(char16ptr_t(gGREBinPath));
-#elif MOZ_WIDGET_COCOA
-    nsCOMPtr<nsIFile> childProcPath;
-    NS_NewLocalFile(nsDependentString(gGREBinPath), false,
-                    getter_AddRefs(childProcPath));
-
-    // We need to use an App Bundle on OS X so that we can hide
-    // the dock icon. See Bug 557225.
-    childProcPath->AppendNative(NS_LITERAL_CSTRING("plugin-container.app"));
-    childProcPath->AppendNative(NS_LITERAL_CSTRING("Contents"));
-    childProcPath->AppendNative(NS_LITERAL_CSTRING("MacOS"));
-    nsCString tempCPath;
-    childProcPath->GetNativePath(tempCPath);
-    exePath = FilePath(tempCPath.get());
 #else
     nsCString path;
     NS_CopyUnicodeToNative(nsDependentString(gGREBinPath), path);
@@ -163,90 +133,15 @@ GeckoChildProcessHost::GetPathToBinary(FilePath& exePath, GeckoProcessType proce
   return BinaryPathType::PluginContainer;
 }
 
-#ifdef MOZ_WIDGET_COCOA
-class AutoCFTypeObject {
-public:
-  explicit AutoCFTypeObject(CFTypeRef object)
-  {
-    mObject = object;
-  }
-  ~AutoCFTypeObject()
-  {
-    ::CFRelease(mObject);
-  }
-private:
-  CFTypeRef mObject;
-};
-#endif
-
 nsresult GeckoChildProcessHost::GetArchitecturesForBinary(const char *path, uint32_t *result)
 {
   *result = 0;
 
-#ifdef MOZ_WIDGET_COCOA
-  CFURLRef url = ::CFURLCreateFromFileSystemRepresentation(kCFAllocatorDefault,
-                                                           (const UInt8*)path,
-                                                           strlen(path),
-                                                           false);
-  if (!url) {
-    return NS_ERROR_FAILURE;
-  }
-  AutoCFTypeObject autoPluginContainerURL(url);
-
-  CFArrayRef pluginContainerArchs = ::CFBundleCopyExecutableArchitecturesForURL(url);
-  if (!pluginContainerArchs) {
-    return NS_ERROR_FAILURE;
-  }
-  AutoCFTypeObject autoPluginContainerArchs(pluginContainerArchs);
-
-  CFIndex pluginArchCount = ::CFArrayGetCount(pluginContainerArchs);
-  for (CFIndex i = 0; i < pluginArchCount; i++) {
-    CFNumberRef currentArch = static_cast<CFNumberRef>(::CFArrayGetValueAtIndex(pluginContainerArchs, i));
-    int currentArchInt = 0;
-    if (!::CFNumberGetValue(currentArch, kCFNumberIntType, &currentArchInt)) {
-      continue;
-    }
-    switch (currentArchInt) {
-      case kCFBundleExecutableArchitectureI386:
-        *result |= base::PROCESS_ARCH_I386;
-        break;
-      case kCFBundleExecutableArchitectureX86_64:
-        *result |= base::PROCESS_ARCH_X86_64;
-        break;
-      case kCFBundleExecutableArchitecturePPC:
-        *result |= base::PROCESS_ARCH_PPC;
-        break;
-      default:
-        break;
-    }
-  }
-
-  return (*result ? NS_OK : NS_ERROR_FAILURE);
-#else
   return NS_ERROR_NOT_IMPLEMENTED;
-#endif
 }
 
 uint32_t GeckoChildProcessHost::GetSupportedArchitecturesForProcessType(GeckoProcessType type)
 {
-#ifdef MOZ_WIDGET_COCOA
-  if (type == GeckoProcessType_Plugin) {
-
-    // Cache this, it shouldn't ever change.
-    static uint32_t pluginContainerArchs = 0;
-    if (pluginContainerArchs == 0) {
-      FilePath exePath;
-      GetPathToBinary(exePath, type);
-      nsresult rv = GetArchitecturesForBinary(exePath.value().c_str(), &pluginContainerArchs);
-      NS_ASSERTION(NS_SUCCEEDED(rv) && pluginContainerArchs != 0, "Getting architecture of plugin container failed!");
-      if (NS_FAILED(rv) || pluginContainerArchs == 0) {
-        pluginContainerArchs = base::GetCurrentProcessArchitecture();
-      }
-    }
-    return pluginContainerArchs;
-  }
-#endif
-
   return base::GetCurrentProcessArchitecture();
 }
 
@@ -666,8 +561,23 @@ GeckoChildProcessHost::PerformAsyncLaunchInternal(std::vector<std::string>& aExt
     // Make sure that child processes can find the omnijar
     // See XRE_InitCommandLine in nsAppRunner.cpp
     newEnvVars["UXP_CUSTOM_OMNI"] = 1;
-    nsAutoCString path;
     nsCOMPtr<nsIFile> file = Omnijar::GetPath(Omnijar::GRE);
+#ifdef XP_WIN
+    nsString path;
+    nsAutoCString childPath;
+    if (file && NS_SUCCEEDED(file->GetPath(path))) {
+      CopyUTF16toUTF8(path, childPath);
+      childArgv.push_back("-greomni");
+      childArgv.push_back(childPath.get());
+    }
+    file = Omnijar::GetPath(Omnijar::APP);
+    if (file && NS_SUCCEEDED(file->GetPath(path))) {
+      CopyUTF16toUTF8(path, childPath);
+      childArgv.push_back("-appomni");
+      childArgv.push_back(childPath.get());
+    }
+#else
+    nsAutoCString path;
     if (file && NS_SUCCEEDED(file->GetNativePath(path))) {
       childArgv.push_back("-greomni");
       childArgv.push_back(path.get());
@@ -677,23 +587,13 @@ GeckoChildProcessHost::PerformAsyncLaunchInternal(std::vector<std::string>& aExt
       childArgv.push_back("-appomni");
       childArgv.push_back(path.get());
     }
+#endif
   }
 
   // Add the application directory path (-appdir path)
   AddAppDirToCommandLine(childArgv);
 
   childArgv.push_back(pidstring);
-
-#ifdef MOZ_WIDGET_COCOA
-  // Add a mach port to the command line so the child can communicate its
-  // 'task_t' back to the parent.
-  //
-  // Put a random number into the channel name, so that a compromised renderer
-  // can't pretend being the child that's forked off.
-  std::string mach_connection_name = StringPrintf("org.mozilla.machname.%d",
-                                                  base::RandInt(0, std::numeric_limits<int>::max()));
-  childArgv.push_back(mach_connection_name.c_str());
-#endif
 
   childArgv.push_back(childProcessType);
 
@@ -707,71 +607,6 @@ GeckoChildProcessHost::PerformAsyncLaunchInternal(std::vector<std::string>& aExt
   // parent as soon as possible, which will allow the parent to detect when the
   // child closes its FD (either due to normal exit or due to crash).
   GetChannel()->CloseClientFileDescriptor();
-
-#ifdef MOZ_WIDGET_COCOA
-  // Wait for the child process to send us its 'task_t' data.
-  const int kTimeoutMs = 10000;
-
-  MachReceiveMessage child_message;
-  ReceivePort parent_recv_port(mach_connection_name.c_str());
-  kern_return_t err = parent_recv_port.WaitForMessage(&child_message, kTimeoutMs);
-  if (err != KERN_SUCCESS) {
-    std::string errString = StringPrintf("0x%x %s", err, mach_error_string(err));
-    CHROMIUM_LOG(ERROR) << "parent WaitForMessage() failed: " << errString;
-    return false;
-  }
-
-  task_t child_task = child_message.GetTranslatedPort(0);
-  if (child_task == MACH_PORT_NULL) {
-    CHROMIUM_LOG(ERROR) << "parent GetTranslatedPort(0) failed.";
-    return false;
-  }
-
-  if (child_message.GetTranslatedPort(1) == MACH_PORT_NULL) {
-    CHROMIUM_LOG(ERROR) << "parent GetTranslatedPort(1) failed.";
-    return false;
-  }
-  MachPortSender parent_sender(child_message.GetTranslatedPort(1));
-
-  if (child_message.GetTranslatedPort(2) == MACH_PORT_NULL) {
-    CHROMIUM_LOG(ERROR) << "parent GetTranslatedPort(2) failed.";
-  }
-  MachPortSender* parent_recv_port_memory_ack = new MachPortSender(child_message.GetTranslatedPort(2));
-
-  if (child_message.GetTranslatedPort(3) == MACH_PORT_NULL) {
-    CHROMIUM_LOG(ERROR) << "parent GetTranslatedPort(3) failed.";
-  }
-  MachPortSender* parent_send_port_memory = new MachPortSender(child_message.GetTranslatedPort(3));
-
-  MachSendMessage parent_message(/* id= */0);
-  if (!parent_message.AddDescriptor(MachMsgPortDescriptor(bootstrap_port))) {
-    CHROMIUM_LOG(ERROR) << "parent AddDescriptor(" << bootstrap_port << ") failed.";
-    return false;
-  }
-
-  ReceivePort* parent_recv_port_memory = new ReceivePort();
-  if (!parent_message.AddDescriptor(MachMsgPortDescriptor(parent_recv_port_memory->GetPort()))) {
-    CHROMIUM_LOG(ERROR) << "parent AddDescriptor(" << parent_recv_port_memory->GetPort() << ") failed.";
-    return false;
-  }
-
-  ReceivePort* parent_send_port_memory_ack = new ReceivePort();
-  if (!parent_message.AddDescriptor(MachMsgPortDescriptor(parent_send_port_memory_ack->GetPort()))) {
-    CHROMIUM_LOG(ERROR) << "parent AddDescriptor(" << parent_send_port_memory_ack->GetPort() << ") failed.";
-    return false;
-  }
-
-  err = parent_sender.SendMessage(parent_message, kTimeoutMs);
-  if (err != KERN_SUCCESS) {
-    std::string errString = StringPrintf("0x%x %s", err, mach_error_string(err));
-    CHROMIUM_LOG(ERROR) << "parent SendMessage() failed: " << errString;
-    return false;
-  }
-
-  SharedMemoryBasic::SetupMachMemory(process, parent_recv_port_memory, parent_recv_port_memory_ack,
-                                     parent_send_port_memory, parent_send_port_memory_ack, false);
-
-#endif
 
 //--------------------------------------------------
 #elif defined(OS_WIN)
@@ -836,12 +671,6 @@ GeckoChildProcessHost::PerformAsyncLaunchInternal(std::vector<std::string>& aExt
   if (!process) {
     return false;
   }
-  // NB: on OS X, we block much longer than we need to in order to
-  // reach this call, waiting for the child process's task_t.  The
-  // best way to fix that is to refactor this file, hard.
-#if defined(MOZ_WIDGET_COCOA)
-  mChildTask = child_task;
-#endif
 
   if (!OpenPrivilegedHandle(base::GetProcId(process))
 #ifdef XP_WIN

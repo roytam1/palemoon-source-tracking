@@ -9,7 +9,6 @@ XPIDL_SOURCES += [
     'nsICookie2.idl',
     'nsICookieManager.idl',
     'nsICookieManager2.idl',
-    'nsICookiePermission.idl',
     'nsICookieService.idl',
 ]
 
@@ -27,7 +26,7 @@ if CONFIG['NECKO_COOKIES']:
         'nsCookieService.cpp',
     ]
     LOCAL_INCLUDES += [
-        '/intl/uconv',
+        '/system/intl/uconv',
     ]
 
     XPCSHELL_TESTS_MANIFESTS += [

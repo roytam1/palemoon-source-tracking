@@ -6,6 +6,9 @@
 #ifndef nsHyphenator_h__
 #define nsHyphenator_h__
 
+#include "nsInterfaceHashtable.h"
+#include "nsRefPtrHashtable.h"
+#include "nsHashKeys.h"
 #include "nsCOMPtr.h"
 #include "nsString.h"
 #include "nsTArray.h"

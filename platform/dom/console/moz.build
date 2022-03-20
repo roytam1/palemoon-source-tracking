@@ -32,10 +32,10 @@ EXTRA_COMPONENTS += [
 ]
 
 LOCAL_INCLUDES += [
-    '/docshell/base',
     '/dom/base',
     '/dom/workers',
     '/js/xpconnect/src',
+    '/system/docshell/base',
 ]
 
 MOCHITEST_MANIFESTS += [ 'tests/mochitest.ini' ]

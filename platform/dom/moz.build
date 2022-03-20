@@ -20,7 +20,6 @@ interfaces = [
     'xbl',
     'xpath',
     'xul',
-    'security',
     'storage',
     'json',
     'offline',
@@ -40,7 +39,6 @@ DIRS += [
     'animation',
     'apps',
     'base',
-    'archivereader',
     'bindings',
     'browser-element',
     'cache',
@@ -66,7 +64,6 @@ DIRS += [
     'power',
     'push',
     'quota',
-    'security',
     'settings',
     'storage',
     'svg',
@@ -99,6 +96,8 @@ DIRS += [
     'xhr',
     'worklet',
     'script',
+    'webbrowserpersist',
+    'commandhandler',
 ]
 
 if CONFIG['OS_ARCH'] == 'WINNT':
@@ -112,6 +111,6 @@ TEST_DIRS += [
     'imptests',
 ]
 
-if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'gtk3', 'windows', 'android'):
+if CONFIG['MOZ_WIDGET_TOOLKIT'] in ('gtk2', 'gtk3', 'windows'):
     TEST_DIRS += ['plugins/test']
 

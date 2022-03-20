@@ -7,38 +7,9 @@ include('build/moz.configure/init.configure')
 
 # Note:
 # - Gecko-specific options and rules should go in toolkit/moz.configure.
-# - Firefox-specific options and rules should go in browser/moz.configure.
-# - Fennec-specific options and rules should go in
-#   mobile/android/moz.configure.
+# - Browser-specific options and rules should go in browser/moz.configure.
 # - Spidermonkey-specific options and rules should go in js/moz.configure.
 # - etc.
-
-option('--enable-artifact-builds', env='MOZ_ARTIFACT_BUILDS',
-       help='Download and use prebuilt binary artifacts.')
-
-@depends('--enable-artifact-builds')
-def artifact_builds(value):
-    if value:
-        return True
-
-set_config('MOZ_ARTIFACT_BUILDS', artifact_builds)
-
-imply_option('--enable-artifact-build-symbols',
-             depends(artifact_builds)(lambda v: False if v is None else None),
-             reason='--disable-artifact-builds')
-
-option('--enable-artifact-build-symbols',
-       help='Download symbols when artifact builds are enabled.')
-
-set_config('MOZ_ARTIFACT_BUILD_SYMBOLS',
-           depends_if('--enable-artifact-build-symbols')(lambda _: True))
-
-@depends('--enable-artifact-builds')
-def imply_disable_compile_environment(value):
-    if value:
-        return False
-
-imply_option('--enable-compile-environment', imply_disable_compile_environment)
 
 option('--disable-compile-environment',
        help='Disable compiler/library checks')
@@ -75,43 +46,8 @@ include('build/moz.configure/warnings.configure',
 
 include(include_project_configure)
 
-@depends('--help')
-@imports(_from='mozbuild.backend', _import='backends')
-def build_backends_choices(_):
-    return tuple(backends)
-
-
-@deprecated_option('--enable-build-backend', nargs='+',
-                   choices=build_backends_choices)
-def build_backend(backends):
-    if backends:
-        return tuple('+%s' % b for b in backends)
-
-imply_option('--build-backends', build_backend)
-
-
-@depends('--enable-artifact-builds', '--disable-compile-environment', '--help')
-@imports('sys')
-def build_backend_defaults(artifact_builds, compile_environment, _):
-    if artifact_builds:
-        all_backends = ['FasterMake+RecursiveMake']
-    else:
-        all_backends = ['RecursiveMake', 'FasterMake']
-    # Normally, we'd use target.os == 'WINNT', but a dependency on target
-    # would require target to depend on --help, as well as host and shell,
-    # and this is not a can of worms we can open at the moment.
-    if sys.platform == 'win32' and compile_environment:
-        all_backends.append('VisualStudio')
-    return tuple(all_backends)
-
-option('--build-backends', nargs='+', default=build_backend_defaults,
-       choices=build_backends_choices, help='Build backends to generate')
-
-@depends('--build-backends')
-def build_backends(backends):
-    return backends
-
-set_config('BUILD_BACKENDS', build_backends)
+# We only support one build-backend, namely RecursiveMake.
+set_config('BUILD_BACKENDS', tuple(['RecursiveMake']))
 
 
 # Awk detection
@@ -187,17 +123,6 @@ def possible_makes(make, host):
     return candidates
 
 check_prog('GMAKE', possible_makes)
-
-# tup detection
-# ==============================================================
-@depends(build_backends)
-def tup_progs(build_backends):
-    for backend in build_backends:
-        if 'Tup' in backend:
-            return ['tup']
-    return None
-
-tup = check_prog('TUP', tup_progs)
 
 # Miscellaneous programs
 # ==============================================================

@@ -3,17 +3,17 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-XPIDL_SOURCES += [
-    'nsIHTTPIndex.idl',
-]
-
-XPIDL_MODULE = 'directory'
+XPIDL_SOURCES += ['public/nsIHTTPIndex.idl']
 
 SOURCES += [
-    'nsDirectoryViewer.cpp',
+  'src/nsDirectoryViewer.cpp',
+  'src/nsDirectoryViewerFactory.cpp',
 ]
 
+if CONFIG['GNU_CXX']:
+  CXXFLAGS += ['-Wno-error=shadow']
+
+XPIDL_MODULE = 'directory'
 FINAL_LIBRARY = 'xul'
 
-if CONFIG['GNU_CXX']:
-    CXXFLAGS += ['-Wno-error=shadow']
+

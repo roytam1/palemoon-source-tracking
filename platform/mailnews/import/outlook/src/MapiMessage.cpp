@@ -887,7 +887,11 @@ bool CMapiMessage::CopyBinAttachToFile(LPATTACH lpAttach,
   NS_ENSURE_SUCCESS(rv, false);
 
   nsCString tmpPath;
+#ifdef XP_WIN
+  _tmp_file->GetPersistentDescriptor(tmpPath);
+#else
   _tmp_file->GetNativePath(tmpPath);
+#endif
   LPSTREAM lpStreamFile;
   HRESULT hr = CMapiApi::OpenStreamOnFile(gpMapiAllocateBuffer, gpMapiFreeBuffer, STGM_READWRITE | STGM_CREATE,
     const_cast<char*>(tmpPath.get()), NULL, &lpStreamFile);

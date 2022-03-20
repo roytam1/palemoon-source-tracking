@@ -1630,8 +1630,7 @@ nsLocalFile::Normalize()
   //  "..."   remove from path (any number of dots > 2)
   //
   // The last form is something that Windows 95 and 98 supported and
-  // is a shortcut for changing up multiple directories. Windows XP
-  // and ilk ignore it in a path, as is done here.
+  // is a shortcut for changing up multiple directories. We ignore this form.
   int32_t len, begin, end = rootIdx;
   while (end < (int32_t)path.Length()) {
     // find the current segment (text between the backslashes) to
@@ -3565,7 +3564,7 @@ nsLocalFile::SetNativeLeafName(const nsACString& aLeafName)
 NS_IMETHODIMP
 nsLocalFile::GetNativePath(nsACString& aResult)
 {
-  //NS_WARNING("This API is lossy. Use GetPath !");
+  NS_WARNING("The GetNativePath API is lossy. Use GetPath!");
   nsAutoString tmp;
   nsresult rv = GetPath(tmp);
   if (NS_SUCCEEDED(rv)) {
@@ -3579,7 +3578,7 @@ nsLocalFile::GetNativePath(nsACString& aResult)
 NS_IMETHODIMP
 nsLocalFile::GetNativeCanonicalPath(nsACString& aResult)
 {
-  NS_WARNING("This method is lossy. Use GetCanonicalPath !");
+  NS_WARNING("This method is lossy. Use GetCanonicalPath!");
   EnsureShortPath();
   NS_CopyUnicodeToNative(mShortWorkingPath, aResult);
   return NS_OK;
@@ -3647,7 +3646,7 @@ nsLocalFile::GetNativeTarget(nsACString& aResult)
   // Check we are correctly initialized.
   CHECK_mWorkingPath();
 
-  NS_WARNING("This API is lossy. Use GetTarget !");
+  NS_WARNING("This API is lossy. Use GetTarget!");
   nsAutoString tmp;
   nsresult rv = GetTarget(tmp);
   if (NS_SUCCEEDED(rv)) {

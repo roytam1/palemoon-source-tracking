@@ -1739,7 +1739,7 @@ nsCacheService::CreateCustomOfflineDevice(nsIFile *aProfileDir,
 
     if (MOZ_LOG_TEST(gCacheLog, LogLevel::Info)) {
       nsAutoCString profilePath;
-      aProfileDir->GetNativePath(profilePath);
+      aProfileDir->GetPersistentDescriptor(profilePath);
       CACHE_LOG_INFO(("Creating custom offline device, %s, %d",
                         profilePath.BeginReading(), aQuota));
     }
@@ -3093,7 +3093,11 @@ nsCacheService::MoveOrRemoveDiskCache(nsIFile *aOldCacheDir,
         return;
     
     nsAutoCString newPath;
+#ifdef XP_WIN
+    rv = aNewCacheSubdir->GetPersistentDescriptor(newPath);
+#else
     rv = aNewCacheSubdir->GetNativePath(newPath);
+#endif
     if (NS_FAILED(rv))
         return;
         
@@ -3105,7 +3109,11 @@ nsCacheService::MoveOrRemoveDiskCache(nsIFile *aOldCacheDir,
         rv = aNewCacheDir->Create(nsIFile::DIRECTORY_TYPE, 0777);
         if (NS_SUCCEEDED(rv) || NS_ERROR_FILE_ALREADY_EXISTS == rv) {
             nsAutoCString oldPath;
+#ifdef XP_WIN
+            rv = aOldCacheSubdir->GetPersistentDescriptor(oldPath);
+#else
             rv = aOldCacheSubdir->GetNativePath(oldPath);
+#endif
             if (NS_FAILED(rv))
                 return;
             if (rename(oldPath.get(), newPath.get()) == 0)

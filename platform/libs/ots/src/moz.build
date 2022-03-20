@@ -62,7 +62,7 @@ if CONFIG['GKMEDIAS_SHARED_LIBRARY']:
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 DEFINES['PACKAGE_VERSION'] = '"moz"'
 DEFINES['PACKAGE_BUGREPORT'] = '"http://bugzilla.mozilla.org/"'
@@ -79,5 +79,5 @@ USE_LIBS += [
 ]
 
 LOCAL_INCLUDES += [
-    '/modules/woff2/src',
+    '/libs/woff2/src',
 ]

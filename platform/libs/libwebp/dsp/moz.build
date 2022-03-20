@@ -56,7 +56,7 @@ elif CONFIG['INTEL_ARCHITECTURE']:
     SOURCES['yuv_sse2.c'].flags += CONFIG['SSE2_FLAGS']
     SOURCES['yuv_sse41.c'].flags += CONFIG['SSE2_FLAGS']
 
-FINAL_LIBRARY = 'gkmedias'
+FINAL_LIBRARY = 'gremedia'
 
 # We allow warnings for third-party code that can be updated from upstream.
 ALLOW_COMPILER_WARNINGS = True

@@ -4,13 +4,17 @@
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 XPIDL_SOURCES += [
-    'nsIFindService.idl',
+  'public/nsIFind.idl',
+  'public/nsIFindService.idl',
+  'public/nsIWebBrowserFind.idl',
+]
+
+
+SOURCES += [
+  'src/nsFind.cpp',
+  'src/nsFindService.cpp',
+  'src/nsWebBrowserFind.cpp',
 ]
 
 XPIDL_MODULE = 'mozfind'
-
-SOURCES += [
-    'nsFindService.cpp',
-]
-
 FINAL_LIBRARY = 'xul'

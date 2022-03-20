@@ -12,7 +12,7 @@
 
 from __future__ import print_function
 
-import argparse, bitstring, pprint, hashlib, os, subprocess, sys, tempfile, macholib, macholib.MachO
+import argparse, bitstring, pprint, hashlib, os, subprocess, sys, tempfile
 from pyasn1.codec.der import encoder as der_encoder
 from pyasn1.type import univ, namedtype, namedval, constraint
 
@@ -416,79 +416,6 @@ def openssl_cmd(app_args, args, password_in, password_out):
 	subprocess.check_call(args, env=env)
 
 
-def processMachoBinary(filename):
-
-	outDict = dict()
-	outDict['result'] = False
-
-	setOfArchDigests = SetOfArchitectureDigest()
-	archDigestIdx = 0
-
-	parsedMacho = macholib.MachO.MachO(filename)
-
-	for header in parsedMacho.headers :
-		arch_digest = ArchitectureDigest()
-		lc_segment = LC_SEGMENT
-
-		arch_digest.setComponentByName('cpuType', CPUType(header.header.cputype))
-		arch_digest.setComponentByName('cpuSubType', CPUSubType(header.header.cpusubtype))
-
-		if header.header.cputype == 0x1000007:
-			lc_segment = LC_SEGMENT_64
-
-
-
-		segment_commands = list(filter(lambda x: x[0].cmd == lc_segment, header.commands))
-		text_segment_commands = list(filter(lambda x: x[1].segname.decode("utf-8").startswith("__TEXT"), segment_commands))
-
-
-		code_segment_digests = SetOfCodeSegmentDigest()
-		code_segment_idx = 0
-
-		for text_command in text_segment_commands:
-
-			codeSegmentDigest = CodeSegmentDigest()
-			codeSegmentDigest.setComponentByName('offset', text_command[1].fileoff)
-
-			sectionDigestIdx = 0
-			set_of_digest = SetOfCodeSectionDigest()
-			for section in text_command[2]:
-				digester = hashlib.sha256()
-				digester.update(section.section_data)
-				digest = digester.digest()
-
-				code_section_digest = CodeSectionDigest()
-				code_section_digest.setComponentByName('offset', section.offset)
-				code_section_digest.setComponentByName('digestAlgorithm', univ.ObjectIdentifier('2.16.840.1.101.3.4.2.1'))
-				code_section_digest.setComponentByName('digest', univ.OctetString(digest))
-
-				set_of_digest.setComponentByPosition(sectionDigestIdx, code_section_digest)
-				sectionDigestIdx += 1
-
-
-			codeSegmentDigest.setComponentByName('codeSectionDigests', set_of_digest)
-
-			code_segment_digests.setComponentByPosition(code_segment_idx, codeSegmentDigest)
-
-			code_segment_idx += 1
-
-		arch_digest.setComponentByName('CodeSegmentDigests', code_segment_digests)
-		setOfArchDigests.setComponentByPosition(archDigestIdx, arch_digest)
-		archDigestIdx += 1
-
-		outDict['result'] = True
-
-	if outDict['result']:
-		appDigest = ApplicationDigest()
-		appDigest.setComponentByName('version', 1)
-		appDigest.setComponentByName('digests', setOfArchDigests)
-		outDict['digest'] = appDigest
-
-
-	return outDict
-
-
-
 def processCOFFBinary(stream):
 
 	outDict = dict()
@@ -580,11 +507,6 @@ def main():
 
 
 	dict = processCOFFBinary(stream)
-
-	if dict['result'] == False:
-		dict = processMachoBinary(app_args.input)
-
-
 
 	if dict['result'] == False:
 		raise Exception("Invalid File")

@@ -90,19 +90,6 @@ void LogTime(AsyncLatencyLogger::LatencyLogIndex aIndex, uint64_t aID, int64_t a
   AsyncLatencyLogger::Get()->Log(aIndex, aID, aValue, aTime);
 }
 
-void LogTime(uint32_t aIndex, uint64_t aID, int64_t aValue)
-{
-  LogTime(static_cast<AsyncLatencyLogger::LatencyLogIndex>(aIndex), aID, aValue);
-}
-void LogTime(uint32_t aIndex, uint64_t aID, int64_t aValue, TimeStamp &aTime)
-{
-  LogTime(static_cast<AsyncLatencyLogger::LatencyLogIndex>(aIndex), aID, aValue, aTime);
-}
-void LogLatency(uint32_t aIndex, uint64_t aID, int64_t aValue)
-{
-  LogLatency(static_cast<AsyncLatencyLogger::LatencyLogIndex>(aIndex), aID, aValue);
-}
-
 /* static */
 void AsyncLatencyLogger::InitializeStatics()
 {

@@ -6,10 +6,10 @@
  * Environment variables affecting the backend:
  *
  *  %CAIRO_DIRECTFB_NO_ACCEL (boolean)
- *      if found, disables acceleration at all
+ *    if found, disables acceleration at all
  *
  *  %CAIRO_DIRECTFB_ARGB_FONT (boolean)
- *      if found, enables using ARGB fonts instead of A8
+ *    if found, enables using ARGB fonts instead of A8
  */
 
 #ifndef CAIRO_DIRECTFB_H

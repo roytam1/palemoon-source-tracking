@@ -387,7 +387,7 @@ Blocklist.prototype = {
     if (!appVersion)
       appVersion = gApp.version;
     if (!toolkitVersion)
-      toolkitVersion = gApp.platformVersion;
+      toolkitVersion = gApp.greVersion;
 
     var blItem = this._findMatchingAddonEntry(addonEntries, addon);
     if (!blItem)
@@ -529,7 +529,7 @@ Blocklist.prototype = {
     dsURI = dsURI.replace(/%OS_VERSION%/g, gOSVersion);
     dsURI = dsURI.replace(/%LOCALE%/g, getLocale());
     dsURI = dsURI.replace(/%CHANNEL%/g, "@MOZ_UPDATE_CHANNEL@");
-    dsURI = dsURI.replace(/%PLATFORM_VERSION%/g, gApp.platformVersion);
+    dsURI = dsURI.replace(/%PLATFORM_VERSION%/g, gApp.greVersion);
     dsURI = dsURI.replace(/%DISTRIBUTION%/g,
                       getDistributionPrefValue(PREF_APP_DISTRIBUTION));
     dsURI = dsURI.replace(/%DISTRIBUTION_VERSION%/g,
@@ -740,10 +740,7 @@ Blocklist.prototype = {
       return;
     }
 
-    let telemetry = Services.telemetry;
-
     if (this._isBlocklistPreloaded()) {
-      telemetry.getHistogramById("BLOCKLIST_SYNC_FILE_LOAD").add(false);
       this._loadBlocklistFromString(this._preloadedBlocklistContent);
       delete this._preloadedBlocklistContent;
       return;
@@ -753,8 +750,6 @@ Blocklist.prototype = {
       LOG("Blocklist::_loadBlocklistFromFile: XML File does not exist " + file.path);
       return;
     }
-
-    telemetry.getHistogramById("BLOCKLIST_SYNC_FILE_LOAD").add(true);
 
     let text = "";
     let fstream = null;
@@ -1039,7 +1034,7 @@ Blocklist.prototype = {
 
   // <gfxBlacklistEntry blockID="g60">
   //   <os>WINNT 6.0</os>
-  //   <osversion>14</osversion> currently only used for Android
+  //   <osversion>14</osversion>
   //   <versionRange minVersion="42.0" maxVersion="13.0b2"/>
   //   <vendor>0x8086</vendor>
   //   <devices>
@@ -1142,7 +1137,7 @@ Blocklist.prototype = {
     if (!appVersion)
       appVersion = gApp.version;
     if (!toolkitVersion)
-      toolkitVersion = gApp.platformVersion;
+      toolkitVersion = gApp.greVersion;
 
     for (var blockEntry of pluginEntries) {
       var matchFailed = false;

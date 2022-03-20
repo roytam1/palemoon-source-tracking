@@ -11,21 +11,21 @@
 // shader stage always form a rectangle from {0, 0} - {1, 1}
 cbuffer cb0
 {
-    float4 QuadDesc;
-    float4 TexCoords;
-    float4 TextColor;
+  float4 QuadDesc;
+  float4 TexCoords;
+  float4 TextColor;
 }
 
 struct VS_OUTPUT
 {
-    float4 Position : SV_Position;
-    float2 TexCoord : TEXCOORD0;
+  float4 Position : SV_Position;
+  float2 TexCoord : TEXCOORD0;
 };
 
 struct PS_OUTPUT
 {
-    float4 color;
-    float4 alpha;
+  float4 color;
+  float4 alpha;
 };
 
 Texture2D tex;
@@ -44,53 +44,53 @@ BlendState bTextBlend
 };
 
 sampler sSampler = sampler_state {
-    Texture = tex;
-    AddressU = Clamp;
-    AddressV = Clamp;
+  Texture = tex;
+  AddressU = Clamp;
+  AddressV = Clamp;
 };
 
 VS_OUTPUT SampleTextureVS(float3 pos : POSITION)
 {
-    VS_OUTPUT Output;
-    Output.Position.w = 1.0f;
-    Output.Position.x = pos.x * QuadDesc.z + QuadDesc.x;
-    Output.Position.y = pos.y * QuadDesc.w + QuadDesc.y;
-    Output.Position.z = 0;
-    Output.TexCoord.x = pos.x * TexCoords.z + TexCoords.x;
-    Output.TexCoord.y = pos.y * TexCoords.w + TexCoords.y;
-    return Output;
+  VS_OUTPUT Output;
+  Output.Position.w = 1.0f;
+  Output.Position.x = pos.x * QuadDesc.z + QuadDesc.x;
+  Output.Position.y = pos.y * QuadDesc.w + QuadDesc.y;
+  Output.Position.z = 0;
+  Output.TexCoord.x = pos.x * TexCoords.z + TexCoords.x;
+  Output.TexCoord.y = pos.y * TexCoords.w + TexCoords.y;
+  return Output;
 }
 
 float4 SampleTexturePS( VS_OUTPUT In) : SV_Target
 {
-    return tex.Sample(sSampler, In.TexCoord);
+  return tex.Sample(sSampler, In.TexCoord);
 };
 
 PS_OUTPUT SampleTextTexturePS( VS_OUTPUT In) : SV_Target
 {
-    PS_OUTPUT output;
-    output.color = TextColor;
-    output.alpha.rgba = tex.Sample(sSampler, In.TexCoord).bgrg * TextColor.a;
-    return output;
+  PS_OUTPUT output;
+  output.color = TextColor;
+  output.alpha.rgba = tex.Sample(sSampler, In.TexCoord).bgrg * TextColor.a;
+  return output;
 };
 
 technique10 SampleTexture
 {
-    pass P0
-    {
-        SetVertexShader(CompileShader(vs_4_0_level_9_3, SampleTextureVS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_4_0_level_9_3, SampleTexturePS()));
-    }
+  pass P0
+  {
+    SetVertexShader(CompileShader(vs_4_0_level_9_3, SampleTextureVS()));
+    SetGeometryShader(NULL);
+    SetPixelShader(CompileShader(ps_4_0_level_9_3, SampleTexturePS()));
+  }
 }
 
 technique10 SampleTextTexture
 {
-    pass P0
-    {
-        SetBlendState(bTextBlend, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
-        SetVertexShader(CompileShader(vs_4_0_level_9_3, SampleTextureVS()));
-        SetGeometryShader(NULL);
-        SetPixelShader(CompileShader(ps_4_0_level_9_3, SampleTextTexturePS()));
-    }
+  pass P0
+  {
+    SetBlendState(bTextBlend, float4( 0.0f, 0.0f, 0.0f, 0.0f ), 0xFFFFFFFF );
+    SetVertexShader(CompileShader(vs_4_0_level_9_3, SampleTextureVS()));
+    SetGeometryShader(NULL);
+    SetPixelShader(CompileShader(ps_4_0_level_9_3, SampleTextTexturePS()));
+  }
 }

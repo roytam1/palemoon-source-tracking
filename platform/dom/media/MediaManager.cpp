@@ -32,7 +32,6 @@
 #include "nsIInputStream.h"
 #include "nsILineInputStream.h"
 #include "mozilla/Types.h"
-#include "mozilla/PeerIdentity.h"
 #include "mozilla/dom/ContentChild.h"
 #include "mozilla/dom/File.h"
 #include "mozilla/dom/MediaStreamBinding.h"
@@ -61,12 +60,8 @@
 #include "nss.h"
 #include "pk11pub.h"
 
-/* Using WebRTC backend on Desktops (Mac, Windows, Linux), otherwise default */
+/* Using default backend on Desktops */
 #include "MediaEngineDefault.h"
-#if defined(MOZ_WEBRTC)
-#include "MediaEngineWebRTC.h"
-#include "browser_logging/WebRtcLog.h"
-#endif
 
 #if defined (XP_WIN)
 #include "mozilla/WindowsVersion.h"
@@ -980,15 +975,13 @@ public:
     const nsCString& aOrigin,
     const MediaStreamConstraints& aConstraints,
     AudioDevice* aAudioDevice,
-    VideoDevice* aVideoDevice,
-    PeerIdentity* aPeerIdentity)
+    VideoDevice* aVideoDevice)
     : mConstraints(aConstraints)
     , mAudioDevice(aAudioDevice)
     , mVideoDevice(aVideoDevice)
     , mWindowID(aWindowID)
     , mListener(aListener)
     , mOrigin(aOrigin)
-    , mPeerIdentity(aPeerIdentity)
     , mManager(MediaManager::GetInstance())
   {
     mOnSuccess.swap(aOnSuccess);
@@ -1084,19 +1077,15 @@ public:
                          const nsString& aLabel,
                          GetUserMediaCallbackMediaStreamListener* aListener,
                          const MediaSourceEnum aSource,
-                         const TrackID aTrackID,
-                         const PeerIdentity* aPeerIdentity)
-          : MediaStreamTrackSource(aPrincipal, aLabel), mListener(aListener),
-            mSource(aSource), mTrackID(aTrackID), mPeerIdentity(aPeerIdentity) {}
+                         const TrackID aTrackID)
+          : MediaStreamTrackSource(aPrincipal, aLabel)
+          , mListener(aListener)
+          , mSource(aSource)
+          , mTrackID(aTrackID) {}
 
         MediaSourceEnum GetMediaSource() const override
         {
           return mSource;
-        }
-
-        const PeerIdentity* GetPeerIdentity() const override
-        {
-          return mPeerIdentity;
         }
 
         already_AddRefed<PledgeVoid>
@@ -1135,15 +1124,10 @@ public:
         RefPtr<GetUserMediaCallbackMediaStreamListener> mListener;
         const MediaSourceEnum mSource;
         const TrackID mTrackID;
-        const RefPtr<const PeerIdentity> mPeerIdentity;
       };
 
       nsCOMPtr<nsIPrincipal> principal;
-      if (mPeerIdentity) {
-        principal = nsNullPrincipal::CreateWithInheritedAttributes(window->GetExtantDoc()->NodePrincipal());
-      } else {
-        principal = window->GetExtantDoc()->NodePrincipal();
-      }
+      principal = window->GetExtantDoc()->NodePrincipal();
 
       // Normal case, connect the source stream to the track union stream to
       // avoid us blocking. Pass a simple TrackSourceGetter for potential
@@ -1159,7 +1143,7 @@ public:
           mAudioDevice->GetSource()->GetMediaSource();
         RefPtr<MediaStreamTrackSource> audioSource =
           new LocalTrackSource(principal, audioDeviceName, mListener, source,
-                               kAudioTrack, mPeerIdentity);
+                               kAudioTrack);
         MOZ_ASSERT(IsOn(mConstraints.mAudio));
         RefPtr<MediaStreamTrack> track =
           domStream->CreateDOMTrack(kAudioTrack, MediaSegment::AUDIO, audioSource,
@@ -1173,7 +1157,7 @@ public:
           mVideoDevice->GetSource()->GetMediaSource();
         RefPtr<MediaStreamTrackSource> videoSource =
           new LocalTrackSource(principal, videoDeviceName, mListener, source,
-                               kVideoTrack, mPeerIdentity);
+                               kVideoTrack);
         MOZ_ASSERT(IsOn(mConstraints.mVideo));
         RefPtr<MediaStreamTrack> track =
           domStream->CreateDOMTrack(kVideoTrack, MediaSegment::VIDEO, videoSource,
@@ -1238,7 +1222,6 @@ private:
   uint64_t mWindowID;
   RefPtr<GetUserMediaCallbackMediaStreamListener> mListener;
   nsCString mOrigin;
-  RefPtr<PeerIdentity> mPeerIdentity;
   RefPtr<MediaManager> mManager; // get ref to this when creating the runnable
 };
 
@@ -1465,16 +1448,11 @@ public:
       }
       return NS_OK;
     }
-    PeerIdentity* peerIdentity = nullptr;
-    if (!mConstraints.mPeerIdentity.IsEmpty()) {
-      peerIdentity = new PeerIdentity(mConstraints.mPeerIdentity);
-    }
 
     NS_DispatchToMainThread(do_AddRef(
         new GetUserMediaStreamRunnable(mOnSuccess, mOnFailure, mWindowID,
                                        mListener, mOrigin,
-                                       mConstraints, mAudioDevice, mVideoDevice,
-                                       peerIdentity)));
+                                       mConstraints, mAudioDevice, mVideoDevice)));
     MOZ_ASSERT(!mOnSuccess);
     MOZ_ASSERT(!mOnFailure);
     return NS_OK;
@@ -1563,28 +1541,6 @@ public:
 private:
   RefPtr<MediaManager> mManager; // get ref to this when creating the runnable
 };
-
-#if defined(ANDROID)
-class GetUserMediaRunnableWrapper : public Runnable
-{
-public:
-  // This object must take ownership of task
-  GetUserMediaRunnableWrapper(GetUserMediaTask* task) :
-    mTask(task) {
-  }
-
-  ~GetUserMediaRunnableWrapper() {
-  }
-
-  NS_IMETHOD Run() override {
-    mTask->Run();
-    return NS_OK;
-  }
-
-private:
-  nsAutoPtr<GetUserMediaTask> mTask;
-};
-#endif
 
 /**
  * EnumerateRawDevices - Enumerate a list of audio & video devices that
@@ -1683,15 +1639,9 @@ MediaManager::MediaManager()
   mPrefs.mExtendedFilter = true;
   mPrefs.mDelayAgnostic = true;
   mPrefs.mFakeDeviceChangeEventOn = false;
-#ifdef MOZ_WEBRTC
-  mPrefs.mAec          = webrtc::kEcUnchanged;
-  mPrefs.mAgc          = webrtc::kAgcUnchanged;
-  mPrefs.mNoise        = webrtc::kNsUnchanged;
-#else
   mPrefs.mAec          = 0;
   mPrefs.mAgc          = 0;
   mPrefs.mNoise        = 0;
-#endif
   mPrefs.mPlayoutDelay = 0;
   mPrefs.mFullDuplex = false;
   nsresult rv;
@@ -1773,16 +1723,6 @@ MediaManager::Get() {
       prefs->AddObserver("media.navigator.video.default_minfps", sSingleton, false);
       prefs->AddObserver("media.navigator.audio.fake_frequency", sSingleton, false);
       prefs->AddObserver("media.navigator.audio.full_duplex", sSingleton, false);
-#ifdef MOZ_WEBRTC
-      prefs->AddObserver("media.getusermedia.aec_enabled", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.aec", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.agc_enabled", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.agc", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.noise_enabled", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.noise", sSingleton, false);
-      prefs->AddObserver("media.getusermedia.playout_delay", sSingleton, false);
-      prefs->AddObserver("media.ondevicechange.fakeDeviceChangeEvent.enabled", sSingleton, false);
-#endif
     }
 
     // Prepare async shutdown
@@ -2335,9 +2275,6 @@ MediaManager::GetUserMedia(nsPIDOMWindowInner* aWindow,
         obs->NotifyObservers(req, "getUserMedia:request", nullptr);
       }
 
-#ifdef MOZ_WEBRTC
-      EnableWebRtcLog();
-#endif
     }, [onFailure](MediaStreamError*& reason) mutable {
       onFailure->OnError(reason);
     });
@@ -2577,16 +2514,11 @@ MediaEngine*
 MediaManager::GetBackend(uint64_t aWindowId)
 {
   MOZ_ASSERT(MediaManager::IsInMediaThread());
-  // Plugin backends as appropriate. The default engine also currently
-  // includes picture support for Android.
+  // Plugin backends as appropriate.
   // This IS called off main-thread.
   if (!mBackend) {
     MOZ_RELEASE_ASSERT(!sInShutdown);  // we should never create a new backend in shutdown
-#if defined(MOZ_WEBRTC)
-    mBackend = new MediaEngineWebRTC(mPrefs);
-#else
     mBackend = new MediaEngineDefault();
-#endif
   }
   return mBackend;
 }
@@ -2762,18 +2694,6 @@ MediaManager::GetPrefs(nsIPrefBranch *aBranch, const char *aData)
   GetPref(aBranch, "media.navigator.video.default_fps", aData, &mPrefs.mFPS);
   GetPref(aBranch, "media.navigator.video.default_minfps", aData, &mPrefs.mMinFPS);
   GetPref(aBranch, "media.navigator.audio.fake_frequency", aData, &mPrefs.mFreq);
-#ifdef MOZ_WEBRTC
-  GetPrefBool(aBranch, "media.getusermedia.aec_enabled", aData, &mPrefs.mAecOn);
-  GetPrefBool(aBranch, "media.getusermedia.agc_enabled", aData, &mPrefs.mAgcOn);
-  GetPrefBool(aBranch, "media.getusermedia.noise_enabled", aData, &mPrefs.mNoiseOn);
-  GetPref(aBranch, "media.getusermedia.aec", aData, &mPrefs.mAec);
-  GetPref(aBranch, "media.getusermedia.agc", aData, &mPrefs.mAgc);
-  GetPref(aBranch, "media.getusermedia.noise", aData, &mPrefs.mNoise);
-  GetPref(aBranch, "media.getusermedia.playout_delay", aData, &mPrefs.mPlayoutDelay);
-  GetPrefBool(aBranch, "media.getusermedia.aec_extended_filter", aData, &mPrefs.mExtendedFilter);
-  GetPrefBool(aBranch, "media.getusermedia.aec_aec_delay_agnostic", aData, &mPrefs.mDelayAgnostic);
-  GetPrefBool(aBranch, "media.ondevicechange.fakeDeviceChangeEvent.enabled", aData, &mPrefs.mFakeDeviceChangeEventOn);
-#endif
   GetPrefBool(aBranch, "media.navigator.audio.full_duplex", aData, &mPrefs.mFullDuplex);
 }
 
@@ -2801,16 +2721,6 @@ MediaManager::Shutdown()
     prefs->RemoveObserver("media.navigator.video.default_fps", this);
     prefs->RemoveObserver("media.navigator.video.default_minfps", this);
     prefs->RemoveObserver("media.navigator.audio.fake_frequency", this);
-#ifdef MOZ_WEBRTC
-    prefs->RemoveObserver("media.getusermedia.aec_enabled", this);
-    prefs->RemoveObserver("media.getusermedia.aec", this);
-    prefs->RemoveObserver("media.getusermedia.agc_enabled", this);
-    prefs->RemoveObserver("media.getusermedia.agc", this);
-    prefs->RemoveObserver("media.getusermedia.noise_enabled", this);
-    prefs->RemoveObserver("media.getusermedia.noise", this);
-    prefs->RemoveObserver("media.getusermedia.playout_delay", this);
-    prefs->RemoveObserver("media.ondevicechange.fakeDeviceChangeEvent.enabled", this);
-#endif
     prefs->RemoveObserver("media.navigator.audio.full_duplex", this);
   }
 
@@ -2818,9 +2728,6 @@ MediaManager::Shutdown()
   GetActiveWindows()->Clear();
   mActiveCallbacks.Clear();
   mCallIds.Clear();
-#ifdef MOZ_WEBRTC
-  StopWebRtcLog();
-#endif
 
   // Because mMediaThread is not an nsThread, we must dispatch to it so it can
   // clean up BackgroundChild. Continue stopping thread once this is done.

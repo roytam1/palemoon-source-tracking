@@ -23,7 +23,7 @@ mfbt_src_lcppsrcs = [
 ]
 
 mfbt_src_cppsrcs = [
-    '/mfbt/%s' % s for s in mfbt_src_lcppsrcs
+    '/system/framework/%s' % s for s in mfbt_src_lcppsrcs
 ]
 
 # Compression.cpp cannot be built in unified mode because it pulls in Windows system headers.
@@ -34,5 +34,5 @@ mfbt_nonunified_src_lcppsrcs = [
 ]
 
 mfbt_nonunified_src_cppsrcs = [
-    '/mfbt/%s' % s for s in mfbt_nonunified_src_lcppsrcs
+    '/system/framework/%s' % s for s in mfbt_nonunified_src_lcppsrcs
 ]

@@ -1127,24 +1127,6 @@ nsObjectLoadingContent::OnStartRequest(nsIRequest *aRequest,
   nsresult status = NS_OK;
   bool success = IsSuccessfulRequest(aRequest, &status);
 
-  if (status == NS_ERROR_BLOCKED_URI) {
-    nsCOMPtr<nsIConsoleService> console(
-      do_GetService("@mozilla.org/consoleservice;1"));
-    if (console) {
-      nsCOMPtr<nsIURI> uri;
-      chan->GetURI(getter_AddRefs(uri));
-      nsString message = NS_LITERAL_STRING("Blocking ") +
-        NS_ConvertASCIItoUTF16(uri->GetSpecOrDefault().get()) +
-        NS_LITERAL_STRING(" since it was found on an internal Firefox blocklist.");
-      console->LogStringMessage(message.get());
-    }
-    mContentBlockingEnabled = true;
-    return NS_ERROR_FAILURE;
-  } else if (status == NS_ERROR_TRACKING_URI) {
-    mContentBlockingEnabled = true;
-    return NS_ERROR_FAILURE;
-  }
-
   if (!success) {
     LOG(("OBJLC [%p]: OnStartRequest: Request failed\n", this));
     // If the request fails, we still call LoadObject() to handle fallback
@@ -1165,17 +1147,6 @@ nsObjectLoadingContent::OnStopRequest(nsIRequest *aRequest,
 {
   PROFILER_LABEL("nsObjectLoadingContent", "OnStopRequest",
     js::ProfileEntry::Category::NETWORK);
-
-  // Handle object not loading error because source was a tracking URL.
-  // We make a note of this object node by including it in a dedicated
-  // array of blocked tracking nodes under its parent document.
-  if (aStatusCode == NS_ERROR_TRACKING_URI) {
-    nsCOMPtr<nsIContent> thisNode =
-      do_QueryInterface(static_cast<nsIObjectLoadingContent*>(this));
-    if (thisNode && thisNode->IsInComposedDoc()) {
-      thisNode->GetComposedDoc()->AddBlockedTrackingNode(thisNode);
-    }
-  }
 
   NS_ENSURE_TRUE(nsContentUtils::LegacyIsCallerChromeOrNativeCode(), NS_ERROR_NOT_AVAILABLE);
 
@@ -2660,7 +2631,6 @@ nsObjectLoadingContent::OpenChannel()
                      group, // aLoadGroup
                      shim,  // aCallbacks
                      nsIChannel::LOAD_CALL_CONTENT_SNIFFERS |
-                     nsIChannel::LOAD_CLASSIFY_URI |
                      nsIChannel::LOAD_BYPASS_SERVICE_WORKER);
   NS_ENSURE_SUCCESS(rv, rv);
   if (inherit) {
@@ -3391,19 +3361,6 @@ nsObjectLoadingContent::ShouldPlay(FallbackType &aReason, bool aIgnoreCurrentTyp
 
   if (!sPrefsInitialized) {
     initializeObjectLoadingContentPrefs();
-  }
-
-  if (BrowserTabsRemoteAutostart()) {
-    bool shouldLoadInParent = nsPluginHost::ShouldLoadTypeInParent(mContentType);
-    bool inParent = XRE_IsParentProcess();
-
-    if (shouldLoadInParent != inParent) {
-      // Plugins need to be locked to either the parent process or the content
-      // process. If a plugin is locked to one process type, it can't be used in
-      // the other. Otherwise we'll get hangs.
-      aReason = eFallbackDisabled;
-      return false;
-    }
   }
 
   RefPtr<nsPluginHost> pluginHost = nsPluginHost::GetInst();

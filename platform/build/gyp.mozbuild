@@ -1,16 +1,19 @@
 # -*- Mode: python; indent-tabs-mode: nil; tab-width: 40 -*-
+# vim: set filetype=python:
 # This Source Code Form is subject to the terms of the Mozilla Public
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-gyp_vars = {
+include('gyp_base.mozbuild')
+
+gyp_vars.update({
     'lsan': 0,
     'asan': 0,
     'build_with_mozilla': 1,
     'build_with_chromium': 0,
     'use_official_google_api_keys': 0,
     'have_clock_monotonic': 1 if CONFIG['HAVE_CLOCK_MONOTONIC'] else 0,
-    'have_ethtool_cmd_speed_hi': 1 if CONFIG['MOZ_WEBRTC_HAVE_ETHTOOL_SPEED_HI'] else 0,
+    'have_ethtool_cmd_speed_hi': 0,
     'include_alsa_audio': 1 if CONFIG['MOZ_ALSA'] else 0,
     'include_pulse_audio': 1 if CONFIG['MOZ_PULSEAUDIO'] else 0,
     # basic stuff for everything
@@ -31,7 +34,7 @@ gyp_vars = {
     'build_json': 0,
     'build_icu': 0,
     'build_opus': 0,
-    'libyuv_dir': '/media/libyuv',
+    'libyuv_dir': '/libs/libyuv',
     'yuv_disable_avx2': 0 if CONFIG['HAVE_X86_AVX2'] else 1,
     # don't use openssl
     'use_openssl': 0,
@@ -43,6 +46,7 @@ gyp_vars = {
     'arm_neon': 0,
     'arm_neon_optional': 1,
 
+    'moz_widget_toolkit_gonk': 0,
     'moz_webrtc_omx': 0,
     'moz_webrtc_mediacodec': 0,
 
@@ -56,7 +60,7 @@ gyp_vars = {
     'aec_debug_dump': 1,
 
     # Enable and force use of hardware AEC
-    'hardware_aec_ns': 1 if CONFIG['MOZ_WEBRTC_HARDWARE_AEC_NS'] else 0,
+    'hardware_aec_ns': 0,
 
     # codec enable/disables:
     'include_g711': 1,
@@ -67,42 +71,21 @@ gyp_vars = {
     # linker to throw away uneeded bits.
     'include_isac': 1,
     'include_pcm16b': 1,
-}
+})
 
-os = CONFIG['OS_TARGET']
-
-if os == 'WINNT':
-    gyp_vars.update(
-        MSVS_VERSION=CONFIG['_MSVS_VERSION'],
-        MSVS_OS_BITS=64 if CONFIG['HAVE_64BIT_BUILD'] else 32,
-    )
-elif os == 'Android':
-    gyp_vars.update(
-        gtest_target_type='executable',
-        moz_webrtc_mediacodec=1,
-        android_toolchain=CONFIG.get('ANDROID_TOOLCHAIN', ''),
-    )
-
-flavors = {
-    'WINNT': 'win',
-    'Android': 'android',
-    'Linux': 'linux',
-    'SunOS': 'solaris',
-    'GNU/kFreeBSD': 'freebsd',
-    'DragonFly': 'dragonfly',
-    'FreeBSD': 'freebsd',
-    'NetBSD': 'netbsd',
-    'OpenBSD': 'openbsd',
-}
-gyp_vars['OS'] = flavors.get(os)
-
-arches = {
-    'x86_64': 'x64',
-    'x86': 'ia32',
-    'aarch64': 'arm64',
-}
-
-gyp_vars['target_arch'] = arches.get(CONFIG['CPU_ARCH'], CONFIG['CPU_ARCH'])
+if os == 'Android':
+    if CONFIG['MOZ_WIDGET_TOOLKIT'] == 'gonk':
+        gyp_vars['build_with_gonk'] = 1
+        gyp_vars['moz_widget_toolkit_gonk'] = 1
+        gyp_vars['opus_complexity'] = 1
+        if int(CONFIG['ANDROID_VERSION']) >= 18:
+          gyp_vars['moz_webrtc_omx'] = 1
+    else:
+        gyp_vars.update(
+            gtest_target_type='executable',
+            moz_webrtc_mediacodec=1,
+            android_toolchain=CONFIG.get('ANDROID_TOOLCHAIN', ''),
+        )
 
 if CONFIG['ARM_ARCH']:
     if int(CONFIG['ARM_ARCH']) < 7:

@@ -164,7 +164,7 @@ if CONFIG['OS_ARCH'] == 'Linux':
         'LSBUtils.cpp'
     ]
 
-if CONFIG['MOZ_XUL'] and CONFIG['NS_PRINTING']:
+if CONFIG['NS_PRINTING']:
     EXPORTS += [
         'nsDeviceContextSpecProxy.h',
         'nsPrintOptionsImpl.h',
@@ -202,12 +202,15 @@ if CONFIG['MOZ_X11']:
         'WindowSurfaceX11SHM.cpp',
     ]
 
+if CONFIG['MOZ_ENABLE_XREMOTE']:
+    DIRS += ['xremoteclient']
+
 if toolkit in ('windows'):
     UNIFIED_SOURCES += [
         'nsBaseClipboard.cpp',
     ]
 
-if toolkit in {'gtk2', 'gtk3', 'windows', 'uikit'}:
+if toolkit in {'gtk2', 'gtk3', 'windows'}:
     UNIFIED_SOURCES += ['nsBaseFilePicker.cpp']
 
 if toolkit in ('gtk2', 'gtk3', 'windows'):
@@ -226,9 +229,9 @@ LOCAL_INCLUDES += [
     '/layout/base',
     '/layout/forms',
     '/layout/generic',
+    '/layout/view',
     '/layout/xul',
-    '/view',
-    '/widget',
+    '/system/interface',
 ]
 
 if toolkit == 'windows':
@@ -253,7 +256,7 @@ if widget_dir in ('gtk3', 'gtk2'):
     widget_dir = 'gtk'
 
 LOCAL_INCLUDES += [
-    '/widget/%s' % widget_dir,
+    '/system/interface/%s' % widget_dir,
 ]
 FINAL_LIBRARY = 'xul'
 

@@ -342,9 +342,7 @@ private:
 
     virtual already_AddRefed<FontInfoData> CreateFontInfoData();
 
-#ifdef MOZ_BUNDLED_FONTS
     void ActivateBundledFonts();
-#endif
 
     FontFamilyTable mFontSubstitutes;
     nsTArray<nsString> mNonExistingFonts;

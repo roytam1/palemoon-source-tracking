@@ -550,14 +550,6 @@ ifeq (,$(filter $(OS_TARGET),WINNT Darwin))
 CHECK_TEXTREL = @$(TOOLCHAIN_PREFIX)readelf -d $(1) | grep TEXTREL > /dev/null && echo 'TEST-UNEXPECTED-FAIL | check_textrel | We do not want text relocations in libraries and programs' || true
 endif
 
-ifeq ($(MOZ_WIDGET_TOOLKIT),android)
-# While this is very unlikely (libc being added by the compiler at the end
-# of the linker command line), if libmozglue.so ends up after libc.so, all
-# hell breaks loose, so better safe than sorry, and check it's actually the
-# case.
-CHECK_MOZGLUE_ORDER = @$(TOOLCHAIN_PREFIX)readelf -d $(1) | grep NEEDED | awk '{ libs[$$NF] = ++n } END { if (libs["[libmozglue.so]"] && libs["[libc.so]"] < libs["[libmozglue.so]"]) { print "libmozglue.so must be linked before libc.so"; exit 1 } }'
-endif
-
 define CHECK_BINARY
 $(call CHECK_GLIBC,$(1))
 $(call CHECK_STDCXX,$(1))
@@ -584,7 +576,7 @@ endif
 endif
 endif
 
-PLY_INCLUDE = -I$(MOZILLA_DIR)/other-licenses/ply
+PLY_INCLUDE = -I$(MOZILLA_DIR)/python/ply
 
 export CL_INCLUDES_PREFIX
 # Make sure that the build system can handle non-ASCII characters

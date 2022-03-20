@@ -5,6 +5,14 @@
 
 
 @AB_CD@.jar:
-% locale weave @AB_CD@ %locale/@AB_CD@/
-  locale/@AB_CD@/services/errors.properties  (%errors.properties)
-  locale/@AB_CD@/services/sync.properties    (%sync.properties)
+% locale weave @AB_CD@ %locale/@AB_CD@/weave/
+  locale/@AB_CD@/weave/errors.properties                              (%errors.properties)
+  locale/@AB_CD@/weave/sync.properties                                (%sync.properties)
+  locale/@AB_CD@/weave/syncProgress.dtd                               (%syncProgress.dtd)
+  locale/@AB_CD@/weave/aboutSyncTabs.dtd                              (%aboutSyncTabs.dtd)
+  locale/@AB_CD@/weave/syncSetup.dtd                                  (%syncSetup.dtd)
+  locale/@AB_CD@/weave/syncSetup.properties                           (%syncSetup.properties)
+  locale/@AB_CD@/weave/syncGenericChange.properties                   (%syncGenericChange.properties)
+  locale/@AB_CD@/weave/syncKey.dtd                                    (%syncKey.dtd)
+  locale/@AB_CD@/weave/syncQuota.dtd                                  (%syncQuota.dtd)
+  locale/@AB_CD@/weave/syncQuota.properties                           (%syncQuota.properties)
